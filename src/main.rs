@@ -15,18 +15,35 @@ use crate::info::certify::SequenceID::HamCycle;
 use crate::operators::cut::cut;
 use crate::utils::time::elapsed_ms;
 use crate::structs::vector2d::{reflect, shift};
-use crate::operators::spin::spin;
-use crate::graphs::graph32::{GRAPH_LVL, GRAPH, graph_to_map};
-use crate::graphs::make_weights::make_weights;
+use crate::operators::spin::{spin, spinref};
+use crate::graphs::graph32::{GRAPH_LVL, graph_to_map, graph_to_map_ref};
+use crate::graphs::make_weights::{make_weights, make_weights_ref};
 use crate::info::certify::id_seq;
+use crate::types::types::{graph32, Adj};
 
 fn main() {
+    let repeats: u32 = 1_000_000;
     let verts: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, 1, -1), (1, -1, -1), (1, 1, -1), (-3, -1, -1), (-3, 1, -1), (-1, -3, -1), (-1, 3, -1), (1, -3, -1), (1, 3, -1), (3, -1, -1), (3, 1, -1)];
-
     let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
-    let weights: HashMap<u32, i32> = make_weights(&adj, verts);
+    let adjref: HashMap<&u32, HashSet<&u32>> = graph_to_map_ref(&GRAPH_LVL);
 
-    let repeats = 10_000;
+    let start: Instant = Instant::now();
+    for _i in 0..=repeats {
+        let _adj2: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
+    }
+    elapsed_ms(start, Instant:: now(), repeats, "graph_to_map");
+    
+    let weights: HashMap<u32, i32> = make_weights(&adj, verts);
+    let weightsref: HashMap<&u32, i32> = make_weights_ref(&adjref, verts);
+
+    let start: Instant = Instant::now();
+    for _i in 0..=repeats {
+        let path: Vec<u32> = spinref(&adjref, 11, &weightsref);
+        let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
+        assert_eq!(HamCycle, id_seq(&seq, &adj))
+    }
+    elapsed_ms(start, Instant:: now(), repeats, "spin_nodesre");
+
     let start: Instant = Instant::now();
     for _i in 0..=repeats {
         let path: Vec<u32> = spin(&adj, 11, &weights);
@@ -51,8 +68,8 @@ fn main() {
     let result1: Array2<i32> = shift(&result);
     println!("{:?}", result1.len());
 
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH);
-    println!("{:?}", adj);
+    let g32: Adj = graph32();
+    println!("{:?}", g32)
 }
 
 

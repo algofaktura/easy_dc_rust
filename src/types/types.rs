@@ -1,6 +1,7 @@
 extern crate ndarray;
 use ndarray::Array1;
 use std::collections::HashMap;
+use common_macros::hash_map;
 
 pub type Adjacency<'a> = [(i32, &'a [i32]); 32];
 pub type AdjacencyVects<'a> = [((i32, i32), &'a [(i32, i32)]); 32];
@@ -10,20 +11,21 @@ pub type AdjacencyMapV = HashMap<Vector, Vec<Vector>>;
 pub type AdjacencyMap = HashMap<u32, Vec<u32>>;
 pub type Edge = (i32, i32);
 
-trait Degrees {
-    type Three;
-    type Six;
+#[derive(Debug)]
+pub enum Neighbors {
+    Three([u32; 3]),
+    Six([u32; 6])
 }
 
-struct Neighbors;
+pub type Adj = HashMap<u32, Neighbors>;
 
-impl Degrees for Neighbors {
-    type Three = [i32; 3];
-    type Six = [i32; 6];
-}
 
-pub fn tryit() {
-    let degree3: <Neighbors as Degrees>::Three = [1, 2, 3];
-    let degree6: <Neighbors as Degrees>::Six = [1, 2, 3, 1, 2, 3];
-    println!("{:?} {:?}", degree3, degree6)
+pub fn graph32() -> Adj {
+    let graph = hash_map! {
+        1 => Neighbors::Six([1, 2, 3, 4, 5, 6]),
+        2 => Neighbors::Three([1, 2, 3]),
+        3 => Neighbors::Six([1, 2, 3, 4, 5, 6]),
+        4 => Neighbors::Three([1, 5, 6]),
+    };
+    graph
 }
