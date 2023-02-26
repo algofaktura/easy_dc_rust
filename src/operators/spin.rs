@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 
-
 pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, start: u32, weights: &HashMap<u32, i32>) -> Vec<u32> {
     let mut path: Vec<u32> = vec![start];
     for _i in 0..adj_map.len() - 1 {
