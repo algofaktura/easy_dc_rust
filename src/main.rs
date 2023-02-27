@@ -6,6 +6,7 @@ pub mod utils;
 pub mod info;
 pub mod structs;
 pub mod graphs;
+pub mod data;
 
 use std::collections::{HashMap, HashSet};
 use ndarray::Array2;
@@ -16,13 +17,15 @@ use crate::operators::cut::cut;
 use crate::utils::time::elapsed_ms;
 use crate::structs::vector2d::{reflect, shift};
 use crate::operators::spin::{spin, spinref};
-use crate::graphs::graph32::{GRAPH_LVL, graph_to_map, graph_to_map_ref};
+use crate::graphs::graph32::GRAPH_LVL;
 use crate::graphs::make_weights::{make_weights, make_weights_ref};
+use crate::graphs::translate::{graph_to_map, graph_to_map_ref};
 use crate::info::certify::id_seq;
-use crate::types::types::{graph32, Adj};
+use crate::types::types::Adj;
+use crate::data::adjacencies::adj32;
 
 fn main() {
-    let repeats: u32 = 1_000_000;
+    let repeats: u32 = 10_000_000;
     let verts: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, 1, -1), (1, -1, -1), (1, 1, -1), (-3, -1, -1), (-3, 1, -1), (-1, -3, -1), (-1, 3, -1), (1, -3, -1), (1, 3, -1), (3, -1, -1), (3, 1, -1)];
     let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
     let adjref: HashMap<&u32, HashSet<&u32>> = graph_to_map_ref(&GRAPH_LVL);
@@ -68,7 +71,7 @@ fn main() {
     let result1: Array2<i32> = shift(&result);
     println!("{:?}", result1.len());
 
-    let g32: Adj = graph32();
+    let g32: Adj = adj32::adj32();
     println!("{:?}", g32)
 }
 

@@ -1,7 +1,3 @@
-use std::collections::{HashMap, HashSet};
-use common_macros::hash_map;
-
-use crate::types::types::{Adj, Neighbors};
 
 pub const GRAPH: [(u32, &[u32]); 32] = [    
     (0, &[1, 2, 4, 8, 12, 14]),
@@ -53,26 +49,3 @@ pub const GRAPH_LVL: [(u32, &[u32]); 12] = [
     (10, &[2, 11]),
     (11, &[10, 3]),
 ];
-
-pub fn graph_to_map(graph: &[(u32, &[u32])]) -> HashMap<u32, HashSet<u32>> {
-    graph.iter()
-         .map(|(node, neighbors)| (*node, neighbors.iter().cloned().collect()))
-         .collect()
-}
-
-pub fn graph_to_map_ref<'a>(graph: &'a [(u32, &'a [u32])]) -> HashMap<&'a u32, HashSet<&'a u32>> {
-    graph.iter().map(|(node, neighbors)| {
-        let neighbor_set: HashSet<&'a u32> = neighbors.iter().map(|n| n).collect();
-        (node, neighbor_set)
-    }).collect()
-}
-
-pub fn graph32() -> Adj {
-    let graph = hash_map! {
-        1 => Neighbors::Six([1, 2, 3, 4, 5, 6]),
-        2 => Neighbors::Three([1, 2, 3]),
-        3 => Neighbors::Six([1, 2, 3, 4, 5, 6]),
-        4 => Neighbors::Three([1, 5, 6]),
-    };
-    graph
-}
