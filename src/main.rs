@@ -100,13 +100,3 @@ fn main() {
     let g32: Adj = adj32::adj32();
     println!("{:?}", g32)
 }
-
-
-/*
-
-The idea is to create a graph for each order: graph_32.rs,
-which is written out as text translating from python. With all the definitions to necessary to make it a constant.
-so the graph file would be part of it.. first step which is a manual way of accomplishing that which I will eventually use macros for.
-
-
- */
