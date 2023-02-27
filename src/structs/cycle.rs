@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-#[derive(Clone)]pub struct Cycle<'a> {
+#[derive(Clone)]
+pub struct Cycle<'a> {
     data: Vec<u32>,
     joined: bool,
     adj: &'a HashMap<u32, HashSet<u32>>,
