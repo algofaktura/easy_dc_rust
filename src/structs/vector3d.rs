@@ -34,9 +34,9 @@ impl Vector3D {
     }
 }
 
-
 impl Into<Array2<i32>> for Vector3D {
     fn into(self) -> Array2<i32> {
         arr2(&[[self.x], [self.y], [self.z]])
     }
 }
+

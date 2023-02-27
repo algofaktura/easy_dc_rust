@@ -4,20 +4,20 @@ pub enum Neighbors {
     Six([u32; 6])
 }
 
-// trait Degree {
-//     type Three;
-//     type Six;
-// }
+trait Degree {
+    type Three;
+    type Six;
+}
 
-// struct Neighbors;
+struct Neighbor;
 
-// impl Degree for Neighbors {
-//     type Three = [i32; 3];
-//     type Six = [i32; 6];
-// }
+impl Degree for Neighbor {
+    type Three = [i32; 3];
+    type Six = [i32; 6];
+}
 
-// pub fn tryout() {
-//     let degree3: <Neighbors as Degree>::Three = [1, 2, 3];
-//     let degree6: <Neighbors as Degree>::Six = [1, 2, 3, 1, 2, 3];
-//     println!("{:?} {:?}", degree3, degree6)
-// }
+pub fn tryout() {
+    let degree3: <Neighbor as Degree>::Three = [1, 2, 3];
+    let degree6: <Neighbor as Degree>::Six = [1, 2, 3, 1, 2, 3];
+    println!("{:?} {:?}", degree3, degree6)
+}
