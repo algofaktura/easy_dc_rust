@@ -98,5 +98,43 @@ fn main() {
     println!("{:?}", result1.len());
 
     let g32: Adj = adj32::adj32();
-    println!("{:?}", g32)
+    println!("{:?}", g32);
+
+    trye()
+}
+
+
+
+pub fn trye() {
+    let sequence: &[u32; 32] = &[18, 26, 6, 24, 22, 14, 16, 2, 10, 8, 0, 12, 20, 4, 28, 30, 31, 29, 5, 21, 13, 1, 9, 11, 3, 17, 15, 23, 25, 7, 27, 19];
+    let repeats: u32 = 1_000_000;
+    let start: Instant = Instant::now();
+    for _i in 0..=repeats {
+        edges2(&sequence);
+    }
+    elapsed_ms(start, Instant:: now(), repeats, "edges2");
+
+    let start: Instant = Instant::now();
+    for _i in 0..=repeats {
+        edges(&sequence);
+    }
+    elapsed_ms(start, Instant:: now(), repeats, "edges");
+
+    assert_eq!(edges(&sequence), edges2(&sequence))
+}
+
+pub fn edges2(data: &[u32; 32]) -> HashSet<(u32, u32)> {
+    let mut tojoin = data.clone();
+    tojoin.rotate_left(1);
+    data.iter()
+        .zip(tojoin.iter())
+        .map(|(&a, &b)| if a < b {(a, b)} else {(b, a)})
+        .collect()
+}
+
+pub fn edges(data: &[u32; 32]) -> HashSet<(u32, u32)> {
+    data.iter()
+        .zip([&data[1..], &[data[0]]].concat().iter())
+        .map(|(&a, &b)| if a < b { (a, b) } else { (b, a) })
+        .collect()
 }

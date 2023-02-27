@@ -39,7 +39,20 @@ impl Cycle<'_> {
             o_edge = (oedge.1, oedge.0);
         }
         other.rotate_to_edge(o_edge.0, o_edge.1);
-        self.data.extend(other.data[1..].to_vec());
+        self.data.extend(&other.data);
         self.joined = true;
+    }
+    
+    pub fn edges(&self) -> HashSet<(u32, u32)> {
+        self.data
+            .iter()
+            .zip([&self.data[1..], &[self.data[0]]].concat().iter())
+            .map(|(&a, &b)| if a < b { (a, b) } else { (b, a) })
+            .collect()
+    }
+
+    pub fn eadjs(&self) -> HashMap<(u32, u32), HashSet<(u32, u32)>> {
+        let e_adjs: HashMap<(u32, u32), HashSet<(u32, u32)>> = HashMap::new();
+        e_adjs
     }
 }

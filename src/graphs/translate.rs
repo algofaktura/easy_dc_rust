@@ -15,11 +15,13 @@ pub fn graph_to_map_ref<'a>(graph: &'a [(u32, &'a [u32])]) -> HashMap<&'a u32, H
 }
 
 pub fn translate_verts(verts: &[(i32, i32, i32)]) -> Vec<Vector3D> {
-    verts.iter().map(|v| Vector3D { x: v.0, y: v.1, z: v.2, }).collect()
+    verts.iter()
+         .map(|v| Vector3D { x: v.0, y: v.1, z: v.2, })
+         .collect::<Vec<Vector3D>>()
 }
 
 pub fn make_vi_mapping(verts: &Vec<Vector3D>) -> HashMap<&Vector3D, u32> {
     verts.iter()
          .enumerate()
-         .map(|(idx, vert)| {(vert, idx as u32)}).collect()
+         .map(|(idx, vert)| (vert, idx as u32)).collect::<HashMap<_, _>>()
 }
