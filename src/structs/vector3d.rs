@@ -48,12 +48,7 @@ impl Vector3D {
             y: self.y,
         }
     }
-
-    // Immutable borrowing
-    fn x(&self) -> &i32 {
-            &self.x
-        }
-        
+   
 }
 
 

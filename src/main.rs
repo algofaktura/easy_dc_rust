@@ -13,7 +13,6 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use ndarray::{Array2, ArrayView2, s, Axis};
 use structs::vector2d::color;
 
-use crate::data::adjacencies::adj32;
 use crate::data::vertices::verts32::VERTS_32;
 use crate::graphs::stratify::shrink_adjacency;
 use crate::graphs::make_weights::make_weights;
@@ -24,9 +23,8 @@ use crate::info::certify::id_seq;
 use crate::operators::cut::cut;
 use crate::operators::spin::spin;
 use crate::operators::wind::wind;
-use crate::structs::vector2d::{translate_from_nodes, reflect, shift};
+use crate::structs::vector2d::translate_from_nodes;
 use crate::structs::vector3d::Vector3D;
-use crate::types::types::Adj;
 
 fn main() {
     let verts = &VERTS_32.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vec<_>>();
@@ -103,26 +101,4 @@ fn main() {
     loom.sort_by_key(|w| w.len());
     // loom
     
-    
 }
-
-
-pub fn test_reflect_shift () {
-    let ba: Vec<[i32; 2]> = vec![[7, 1], [7, -1], [5, -1], [5, -3], [3, -3], [3, -5], [1, -5], [1, -7], [-1, -7], [-1, -5], [-3, -5], [-3, -3], [-5, -3], [-5, -1], [-7, -1], [-7, 1], [-5, 1], [-5, 3], [-3, 3], [-3, 5], [-1, 5], [-1, 7], [1, 7], [1, 5], [3, 5], [3, 3], [5, 3], [5, 1], [3, 1], [3, -1], [1, -1], [1, -3], [-1, -3], [-1, -1], [-3, -1], [-3, 1], [-1, 1], [-1, 3], [1, 3], [1, 1]];
-    let a: Array2<i32> =  Array2::from(ba);
-    let result: Array2<i32> = reflect(&a);
-    let result1: Array2<i32> = shift(result);
-    println!("{:?}", result1.len());
-    let g32: Adj = adj32::adj32();
-    println!("{:?}", g32);
-}
-
-// fn test_speed() {
-//     let start: Instant = Instant::now();
-//     for _i in 0..=REPEATS {
-//         // do something
-//     }
-//     elapsed_ms(start, Instant:: now(), REPEATS, "edges");
-
-//     assert_eq!(edges(&sequence), edges2(&sequence))
-// }
