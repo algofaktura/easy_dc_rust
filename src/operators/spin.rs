@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, start: u32, weights: &HashMap<u32, i32>) -> Vec<u32> {
-    let mut path: Vec<u32> = vec![start];
+pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, weights: &HashMap<u32, i32>) -> Vec<u32> {
+    let mut path: Vec<u32> = vec![*adj_map.keys().max().unwrap() as u32];
     for _ in 1..adj_map.len() {
         let next = adj_map.get(path.last().unwrap()).unwrap()
             .difference(&path.iter().cloned().collect::<HashSet<u32>>())

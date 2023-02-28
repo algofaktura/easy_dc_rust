@@ -15,95 +15,56 @@ use structs::vector2d::color;
 use std::time::Instant;
 
 use crate::data::adjacencies::adj32;
+use crate::data::vertices::verts32::VERTS_32;
 use crate::graphs::stratify::shrink_adjacency;
-use crate::graphs::make_weights::{make_weights, make_weights_ref};
-use crate::graphs::translate::{graph_to_map, graph_to_map_ref, translate_verts_3d, make_vi_mapping};
+use crate::graphs::make_weights::make_weights;
+use crate::graphs::translate::{graph_to_map, translate_verts_3d, make_vi_mapping};
 use crate::info::certify::SequenceID::HamCycle;
 use crate::info::certify::id_seq;
 use crate::operators::cut::cut;
-use crate::operators::spin::{spin, spinref, spin_slower};
+use crate::operators::spin::spin;
 use crate::operators::wind::wind;
 use crate::structs::vector2d::{translate_from_nodes, reflect, shift};
 use crate::structs::vector3d::Vector3D;
 use crate::utils::time::elapsed_ms;
 
-use crate::graphs::graph32::{GRAPH_LVL, GRAPH};
+use crate::graphs::graph32::GRAPH;
+
 
 use crate::types::types::Adj;
 
 const REPEATS: u32 = 1_000_000;
-const VERTS10: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, 1, -1), (1, -1, -1), (1, 1, -1), (-3, -1, -1), (-3, 1, -1), (-1, -3, -1), (-1, 3, -1), (1, -3, -1), (1, 3, -1), (3, -1, -1), (3, 1, -1)];
-const VERTS32: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, -1, 1), (-1, 1, -1), (-1, 1, 1), (1, -1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1), (-3, -1, -1), (-3, -1, 1), (-3, 1, -1), (-3, 1, 1), (-1, -3, -1), (-1, -3, 1), (-1, -1, -3), (-1, -1, 3), (-1, 1, -3), (-1, 1, 3), (-1, 3, -1), (-1, 3, 1), (1, -3, -1), (1, -3, 1), (1, -1, -3), (1, -1, 3), (1, 1, -3), (1, 1, 3), (1, 3, -1), (1, 3, 1), (3, -1, -1), (3, -1, 1), (3, 1, -1), (3, 1, 1)];
 
 fn main() {
-    let verts = VERTS32.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vec<_>>();
-    let path: Vec<u32> = test_spin();
-    let natural: Array2<i32> = translate_from_nodes(path, &verts);
-    let colored: Array2<i32> = reflect(&natural);
-    let colored: Array2<i32> = shift(colored);
+    let verts = &VERTS_32.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vec<_>>();
+    let v3verts: &Vec<Vector3D> = &translate_verts_3d(&VERTS_32);
+    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH);
+    let vert_idx: HashMap<&Vector3D, u32> = make_vi_mapping(v3verts);
+    let (z_adj, z_length) = shrink_adjacency(v3verts, &adj);
+    println!("zadj {:?} z_length {:?}", z_adj, z_length);
+    println!("{:?}", vert_idx);
 
-    let path: Vec<u32> = test_spin();
+    let weights: HashMap<u32, i32> = make_weights(&z_adj, &VERTS_32);
+
+    // spool yarn
+    let path: Vec<u32> = spin(&z_adj, &weights);
+
+    let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
+    assert_eq!(HamCycle, id_seq(&seq, &adj));
+
+    // yarn needs to be woven together: turned to vectors and colored
     let natural: Array2<i32> = translate_from_nodes(path, &verts);
-    let colored: Array2<i32> = color(&colored);
+    let colored: Array2<i32> = color(&natural);
+
 
     println!("NATURAL {:?} | COLORED: {:?}", natural, colored);
-    test_graph_to_map();
+
     test_cut();
     test_make_vi();
     test_reflect_shift();
     test_edges();
-    test_shrink();
 }
 
-fn test_shrink() {
-    let verts32: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, -1, 1), (-1, 1, -1), (-1, 1, 1), (1, -1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1), (-3, -1, -1), (-3, -1, 1), (-3, 1, -1), (-3, 1, 1), (-1, -3, -1), (-1, -3, 1), (-1, -1, -3), (-1, -1, 3), (-1, 1, -3), (-1, 1, 3), (-1, 3, -1), (-1, 3, 1), (1, -3, -1), (1, -3, 1), (1, -1, -3), (1, -1, 3), (1, 1, -3), (1, 1, 3), (1, 3, -1), (1, 3, 1), (3, -1, -1), (3, -1, 1), (3, 1, -1), (3, 1, 1)];
-    let v3verts: &Vec<Vector3D> = &translate_verts_3d(verts32);
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH);
-    let (z_adj, z_length) = shrink_adjacency(v3verts, &adj);
-    println!("zadj {:?} z_length {:?}", z_adj, z_length)
-}
-
-fn test_spin() -> Vec<u32> {
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
-    let weights: HashMap<u32, i32> = make_weights(&adj, VERTS10);
-    let path: Vec<u32> = spin(&adj, 11, &weights);
-    let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
-    assert_eq!(HamCycle, id_seq(&seq, &adj));
-
-    let start: Instant = Instant::now();
-    for _i in 0..=REPEATS { spin(&adj, 11, &weights); }
-    elapsed_ms(start, Instant:: now(), REPEATS, "spin_nodes");
-    path
-}
-
-pub fn test_spin_slower() {
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
-    let weights: HashMap<u32, i32> = make_weights(&adj, VERTS10);
-    let path: Vec<u32> = spin_slower(&adj, 11, &weights);
-    let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
-    assert_eq!(HamCycle, id_seq(&seq, &adj));
-
-    let start: Instant = Instant::now();
-    for _i in 0..=REPEATS { spin(&adj, 11, &weights); }
-    elapsed_ms(start, Instant:: now(), REPEATS, "spin_slower");
-}
-
-pub fn test_spinref() {
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
-    let adjref: HashMap<&u32, HashSet<&u32>> = graph_to_map_ref(&GRAPH_LVL);
-    let weightsref: HashMap<&u32, i32> = make_weights_ref(&adjref, VERTS10);
-    let path: Vec<u32> = spinref(&adjref, 11, &weightsref);
-    let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
-    assert_eq!(HamCycle, id_seq(&seq, &adj));
-}
-
-fn test_graph_to_map() {
-    let start: Instant = Instant::now();
-    for _i in 0..=REPEATS {
-        let _adj2: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
-    }
-    elapsed_ms(start, Instant:: now(), REPEATS, "graph_to_map");
-}
 
 fn test_cut() {
     let tour: Vec<u32> = vec![780, 778, 540, 610, 414, 5, 30, 406, 596, 516, 746, 730, 512, 576, 382, 498, 374, 562, 488, 706, 708, 490, 564, 376, 500, 384, 578, 514, 740, 756, 518, 598, 408, 532, 416, 612, 542, 346, 344, 256, 294, 246, 334, 326, 238, 286, 228, 316, 318, 230, 288, 240, 328, 336, 248, 296, 258, 190, 188, 176, 178];
