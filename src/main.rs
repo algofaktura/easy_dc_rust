@@ -31,13 +31,13 @@ use crate::utils::time::elapsed_ms;
 const REPEATS: u32 = 10_000;
 
 fn main() {
+    println!("⭕️ ORDER: {:?}", ADJ.len());
     let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&ADJ);
-    println!("⭕️ ORDER: {:?}", adj.len());
     let v3verts: Vec<Vector3D> = translate_verts_3d(&VERTS);
     let vert_idx: HashMap<&Vector3D, u32> = make_vi_mapping(&v3verts);
-
     let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
     let start: Instant = Instant::now();
+    
     for _i in 0..=REPEATS { 
         warp_loom(&z_adj, &z_length, &vert_idx, &v3verts);
     }
