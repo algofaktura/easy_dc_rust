@@ -20,7 +20,7 @@ use crate::graphs::translate::{graph_to_map, graph_to_map_ref, translate_verts, 
 use crate::info::certify::SequenceID::HamCycle;
 use crate::info::certify::id_seq;
 use crate::operators::cut::cut;
-use crate::operators::spin::{spin, spinref};
+use crate::operators::spin::{spin, spinref, spin_slower};
 use crate::operators::wind::wind;
 use crate::structs::vector2d::{reflect, shift};
 use crate::structs::vector3d::Vector3D;
@@ -35,6 +35,7 @@ const VERTS: &[(i32, i32, i32)] = &[(-1, -1, -1), (-1, 1, -1), (1, -1, -1), (1, 
 
 fn main() {
     test_spin();
+    test_spin_slower();
     test_spinref();
     test_graph_to_map();
     test_cut();
@@ -62,6 +63,18 @@ fn test_spin() {
     let start: Instant = Instant::now();
     for _i in 0..=REPEATS { spin(&adj, 11, &weights); }
     elapsed_ms(start, Instant:: now(), REPEATS, "spin_nodes");
+}
+
+fn test_spin_slower() {
+    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH_LVL);
+    let weights: HashMap<u32, i32> = make_weights(&adj, VERTS);
+    let path: Vec<u32> = spin_slower(&adj, 11, &weights);
+    let seq: [u32; 12] = path.iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
+    assert_eq!(HamCycle, id_seq(&seq, &adj));
+
+    let start: Instant = Instant::now();
+    for _i in 0..=REPEATS { spin(&adj, 11, &weights); }
+    elapsed_ms(start, Instant:: now(), REPEATS, "spin_slower");
 }
 
 fn test_spinref() {
