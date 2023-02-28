@@ -46,7 +46,7 @@ impl Cycle<'_> {
     pub fn edges(&self) -> HashSet<(u32, u32)> {
         self.data
             .iter()
-            .zip([&self.data[1..], &[self.data[0]]].concat().iter())
+            .zip([&self.data[1..], &self.data[..1]].concat().iter())
             .map(|(&a, &b)| if a < b { (a, b) } else { (b, a) })
             .collect()
     }
