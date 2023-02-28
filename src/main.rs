@@ -24,6 +24,7 @@ use crate::info::certify::{id_seq, SequenceID::HamCycle};
 use crate::operators::cut::cut;
 use crate::operators::spin::spin;
 use crate::operators::wind::wind;
+// use crate::structs::cycle::Cycle;
 use crate::structs::vector2d::translate_from_nodes;
 use crate::structs::vector3d::Vector3D;
 use crate::utils::time::elapsed_ms;
@@ -38,20 +39,29 @@ fn main() {
     let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
     let start: Instant = Instant::now();
     for _i in 0..=REPEATS { 
-        weave(&z_adj, &z_length, &vert_idx, &v3verts);
+        warp_loom(&z_adj, &z_length, &vert_idx, &v3verts);
     }
     elapsed_ms(start, Instant:: now(), REPEATS, "spin_nodes");
 
-    let woven: Vec<VecDeque<u32>> = weave(&z_adj, &z_length, &vert_idx, &v3verts);
+    let woven: Vec<VecDeque<u32>> = warp_loom(&z_adj, &z_length, &vert_idx, &v3verts);
     println!("WOVEN {:?} | LEN {:?}", woven, woven[0].len());
 
     let seq: [u32; 32] = woven[0].iter().map(|&x| x as u32).collect::<Vec<u32>>().try_into().unwrap();
     let id: SequenceID = id_seq(&seq, &adj);
     assert_eq!(HamCycle, id);
     println!("{:?}", id);
+    let ea: HashMap<(u32, u32), HashSet<(u32, u32)>> = HashMap::new();
+    weave(woven[0].clone(), &adj, ea);
 }
 
-fn weave(z_adj: &HashMap<u32, HashSet<u32>>, z_length: &Vec<(i32, usize)>, vert_idx: &HashMap<&Vector3D, u32>, v3verts: &Vec<Vector3D>) -> Vec<VecDeque<u32>> {
+// fn weave(warp: VecDeque<u32>, wefts: Vec<VecDeque<u32>>) -> Cycle {
+fn weave(warp: VecDeque<u32>, adj: &HashMap<u32, HashSet<u32>>, edge_adj: HashMap<(u32, u32), HashSet<(u32, u32)>>) {
+    let data = warp.iter().cloned().collect::<Vec<_>>();
+    // Cycle::new(data, adj, edge_adj)
+    println!("{:?} {:?} {:?}", data, edge_adj, adj);
+}
+
+fn warp_loom(z_adj: &HashMap<u32, HashSet<u32>>, z_length: &Vec<(i32, usize)>, vert_idx: &HashMap<&Vector3D, u32>, v3verts: &Vec<Vector3D>) -> Vec<VecDeque<u32>> {
     let spool: HashMap<u32, Array2<i32>> = spool_yarn(z_adj);
     let mut bobbins: Vec<u32> = Vec::new();
     let mut loom: Vec<VecDeque<u32>> = Vec::new();
