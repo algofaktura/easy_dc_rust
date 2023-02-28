@@ -50,7 +50,6 @@ fn test_shrink() {
     let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH);
     let (z_adj, z_length) = shrink_adjacency(v3verts, &adj);
     println!("zadj {:?} z_length {:?}", z_adj, z_length)
-
 }
 
 fn test_spin() {

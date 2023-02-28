@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 #[derive(Clone)]
 pub struct Cycle<'a> {
@@ -52,7 +52,22 @@ impl Cycle<'_> {
     }
 
     pub fn eadjs(&self) -> HashMap<(u32, u32), HashSet<(u32, u32)>> {
+        // requires definition:
         let e_adjs: HashMap<(u32, u32), HashSet<(u32, u32)>> = HashMap::new();
         e_adjs
     }
+
+    pub fn from<'a>(data: VecDeque<u32>, adj: &'a HashMap<u32, HashSet<u32>>) -> Cycle<'a> {
+        Cycle {
+            data: data.into_iter().collect::<Vec<u32>>(),
+            joined: false,
+            adj,
+        }
+    }
+}
+
+pub fn tryit() {
+    let data: VecDeque<u32> = VecDeque::from(vec![1, 2, 3]);
+    let adj: HashMap<u32, HashSet<u32>> = HashMap::new();
+    let _cycle = Cycle::from(data, &adj);
 }
