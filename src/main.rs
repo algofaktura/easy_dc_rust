@@ -26,6 +26,7 @@ use crate::operators::wind::wind;
 use crate::structs::vector2d::translate_from_nodes;
 use crate::structs::vector3d::Vector3D;
 
+
 fn main() {
     let verts = &VERTS_32.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vec<_>>();
     let v3verts: &Vec<Vector3D> = &translate_verts_3d(&VERTS_32);
@@ -46,7 +47,11 @@ fn main() {
     
     let mut bobbins: Vec<u32> = Vec::new();
     let mut loom: Vec<VecDeque<u32>> = Vec::new();
-    let mut warps: Vec<Vec<u32>> = Vec::new();
+    
+
+    #[allow(unused_assignments)]
+    let mut warps = Vec::new();
+
 
     for (zlevel, order) in &z_length {
         let mut woven: HashSet<usize> = HashSet::new();
