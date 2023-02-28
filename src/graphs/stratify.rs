@@ -29,13 +29,24 @@ fn filter_graph(adj: &HashMap<u32, HashSet<u32>>, nodes: &HashSet<u32>) -> HashM
     filtered
 }
 
-fn get_zlevel_length(stratified: &HashMap<i32, HashSet<u32>>) -> HashMap<i32, usize> {
-    stratified.iter()
+pub fn get_zlevel_lengthv(stratified: &HashMap<i32, HashSet<u32>>) -> HashMap<i32, usize> {
+    let vec = stratified.iter()
         .map(|(&level, nodes)| (level, nodes.len()))
+        .collect::<Vec<_>>();
+    vec.into_iter()
+        .rev()
         .collect()
 }
 
-pub fn shrink_adjacency(vects3d: &Verts, adj: &AdjDict) -> (AdjDict, HashMap<i32, usize>) {
+pub fn get_zlevel_length(stratified: &HashMap<i32, HashSet<u32>>) -> Vec<(i32, usize)> {
+    let mut vec = stratified.iter()
+        .map(|(&level, nodes)| (level, nodes.len()))
+        .collect::<Vec<_>>();
+    vec.sort_by_key(|&(level, _)| level);
+    vec
+}
+
+pub fn shrink_adjacency(vects3d: &Verts, adj: &AdjDict) -> (AdjDict, Vec<(i32, usize)> ) {
     let stratified = stratified_nodes(vects3d);
     let nodes: HashSet<u32> = stratified[&(-1 as i32)].clone();
     let z_adj: HashMap<u32, HashSet<u32>> = filter_graph(&adj, &nodes);

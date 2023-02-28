@@ -29,7 +29,6 @@ pub fn translate_verts_2d(verts: &[(i32, i32, i32)]) -> Vec<Vector2D> {
 
 pub fn make_vi_mapping(verts: &Vec<Vector3D>) -> HashMap<&Vector3D, u32> {
     verts.iter()
-        //  .clone()
          .enumerate()
          .map(|(idx, vert)| (vert, idx as u32)).collect::<HashMap<_, _>>()
 }
