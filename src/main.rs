@@ -30,16 +30,15 @@ fn main() {
 
 fn weave() -> Vec<VecDeque<u32>> {
     let v3verts: &Vec<Vector3D> = &translate_verts_3d(&VERTS_32);
-    let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&GRAPH);
-    let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
+    let (z_adj, z_length) = shrink_adjacency(&v3verts, &graph_to_map(&GRAPH));
     let spool: HashMap<u32, Array2<i32>> = spool_yarn(z_adj);
     let vert_idx: HashMap<&Vector3D, u32> = make_vi_mapping(&v3verts);
-    
     let mut bobbins: Vec<u32> = Vec::new();
     let mut loom: Vec<VecDeque<u32>> = Vec::new();
     
     #[allow(unused_assignments)]
     let mut warps = Vec::new();
+    #[warn(unused_assignments)]
 
     for (zlevel, order) in &z_length {
         let mut woven: HashSet<usize> = HashSet::new();
@@ -51,7 +50,6 @@ fn weave() -> Vec<VecDeque<u32>> {
                 *vert_idx.get(&Vector3D::new(row[0], row[1], *zlevel as i32)).unwrap()
             })
             .collect();
-
         if bobbins.is_empty() {
             warps = cut(node_yarn, &bobbins);
         } else {
@@ -83,7 +81,6 @@ fn weave() -> Vec<VecDeque<u32>> {
             bobbins = wind(&mut loom, v3verts, &vert_idx);
         }
     }
-
     for w in &mut loom {
         let nodes: Vec<u32> = w.iter().map(|&node| {
             vert_idx.get(&v3verts[node as usize].mirror_z()).unwrap().clone()
@@ -92,14 +89,12 @@ fn weave() -> Vec<VecDeque<u32>> {
     }
     loom.sort_by_key(|w| w.len());
     loom
-    
 }
 
 fn spool_yarn(z_adj: HashMap<u32, HashSet<u32>>) -> HashMap<u32, Array2<i32>>{
     let verts = &VERTS_32.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vec<_>>();
     let weights: HashMap<u32, i32> = make_weights(&z_adj, &VERTS_32);
-    let path: Vec<u32> = spin(&z_adj, &weights);
-    let natural: Array2<i32> = translate_from_nodes(path, &verts);
+    let natural: Array2<i32> = translate_from_nodes(spin(&z_adj, &weights), &verts);
     let colored: Array2<i32> = color(&natural);
     HashMap::from([(3, natural), (1, colored)])
 }
