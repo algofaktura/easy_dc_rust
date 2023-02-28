@@ -10,11 +10,27 @@ pub struct Vector3D {
 }
 
 impl Vector3D {
+    pub fn new(x: i32, y: i32, z: i32) -> Self {
+        Self { x, y, z}
+    }
+
+    pub fn to_tuple(&self) -> (i32, i32, i32) {
+        (self.x, self.y, self.z)
+    }
+
     pub fn add_scalar_z2(&self) -> Vector3D {
         Vector3D {
             x: self.x,
             y: self.y,
             z: self.z + 2,
+        }
+    }
+
+    pub fn mirror_z(&self) -> Vector3D {
+        Vector3D {
+            x: self.x,
+            y: self.y,
+            z: -self.z,
         }
     }
 
@@ -32,7 +48,14 @@ impl Vector3D {
             y: self.y,
         }
     }
+
+    // Immutable borrowing
+    fn x(&self) -> &i32 {
+            &self.x
+        }
+        
 }
+
 
 impl Into<Array2<i32>> for Vector3D {
     fn into(self) -> Array2<i32> {

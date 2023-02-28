@@ -1,4 +1,4 @@
-pub fn cut(tour: Vec<u32>, subset: Vec<u32>) -> Vec<Vec<u32>> {
+pub fn cut(tour: Vec<u32>, subset: &Vec<u32>) -> Vec<Vec<u32>> {
     let mut subtours: Vec<Vec<u32>> = vec![];
     let mut idxs: Vec<usize> = tour
         .iter()
