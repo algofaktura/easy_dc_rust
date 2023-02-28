@@ -32,6 +32,7 @@ const REPEATS: u32 = 10_000;
 
 fn main() {
     let adj: HashMap<u32, HashSet<u32>> = graph_to_map(&ADJ);
+    println!("⭕️ ORDER: {:?}", adj.len());
     let v3verts: Vec<Vector3D> = translate_verts_3d(&VERTS);
     let vert_idx: HashMap<&Vector3D, u32> = make_vi_mapping(&v3verts);
 
@@ -101,6 +102,7 @@ fn warp_loom(z_adj: &HashMap<u32, HashSet<u32>>, z_length: &Vec<(i32, usize)>, v
     }
     for w in &mut loom {
         let nodes: Vec<u32> = w.iter().map(|&node| {
+            // have mirror_z return the u32 directly
             vert_idx.get(&v3verts[node as usize].mirror_z()).unwrap().clone()
         }).collect();
         w.extend(nodes.into_iter().rev());
