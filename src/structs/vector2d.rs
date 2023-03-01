@@ -1,4 +1,4 @@
-use ndarray::{arr2, Array2};
+use ndarray::Array2;
 use std::convert::TryInto;
 use std::fmt::Debug;
 
@@ -32,15 +32,15 @@ pub fn convert_from_3d(vec3ds: &Vec<Vector3D>) -> Vec<Vector2D> {
     vec3ds.iter().map(|v| Vector2D::from_3d(*v)).collect()
 }
 
-pub fn translate_from_nodes(path: Vec<u32>, verts: &Vec<(i32, i32)>) -> Array2<i32> {
+pub fn convert_from_nodes(path: Vec<u32>, verts: &Vec<(i32, i32)>) -> Array2<i32> {
     Array2::from(path.iter().map(|&n| [verts[n as usize].0, verts[n as usize].1]).collect::<Vec<[i32; 2]>>())
 }
 
-pub fn translate_from_nodes_slice(path: &[u32], verts: &[(i32, i32)]) -> Array2<i32> {
+pub fn convert_from_nodes_slice(path: &[u32], verts: &[(i32, i32)]) -> Array2<i32> {
     Array2::from(path.iter().map(|&n| [verts[n as usize].0, verts[n as usize].1]).collect::<Vec<[i32; 2]>>())
 }
 
-pub fn translate_from_nodes_gen2<T>(path: &[T], verts: &[(i32, i32)]) -> Array2<i32>
+pub fn convert_from_nodes_general<T>(path: &[T], verts: &[(i32, i32)]) -> Array2<i32>
 where
     T: TryInto<usize> + Copy,
     <T as TryInto<usize>>::Error: std::fmt::Debug,
@@ -49,16 +49,4 @@ where
         let vector = verts[n.try_into().unwrap()];
         [vector.0, vector.1]
     }).collect::<Vec<[i32; 2]>>())
-}
-
-pub fn reflect(a: &Array2<i32>) -> Array2<i32> {
-    a.clone().dot(&arr2(&[[-1, 0], [0, -1]]))
-}
-
-pub fn shift(a: Array2<i32>) -> Array2<i32> {
-    a + arr2(&[[0, 2]])
-}
-
-pub fn color(a: &Array2<i32>) -> Array2<i32> {
-    a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
 }

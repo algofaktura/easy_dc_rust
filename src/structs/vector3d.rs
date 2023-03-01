@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use ndarray::{arr2, Array2};
 
 use crate::structs::vector2d::Vector2D;
@@ -26,12 +28,19 @@ impl Vector3D {
         }
     }
 
-    pub fn mirror_z(&self) -> Vector3D {
+    pub fn mirror_zi(&self) -> Vector3D {
         Vector3D {
             x: self.x,
             y: self.y,
             z: -self.z,
         }
+    }
+
+    pub fn mirror_z(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+        vert_idx.get(
+            &Vector3D { x: self.x, y: self.y, z: -self.z })
+            .unwrap()
+            .clone()
     }
 
     pub fn from_2d(vec: &Vector2D, z: i32) -> Vector3D {
