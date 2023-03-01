@@ -4,6 +4,7 @@ use crate::structs::{vector3d::Vector3D, vector2d::Vector2D};
 pub fn graph_to_map(graph: &[(u32, &[u32])]) -> HashMap<u32, HashSet<u32>> {
     graph.iter()
          .map(|(node, neighbors)| (*node, neighbors.iter().cloned().collect()))
+        //  .map(|(node, neighbors)| (*node, neighbors.iter().cloned().collect()))
          .collect()
 }
 

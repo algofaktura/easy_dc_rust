@@ -4,20 +4,30 @@ use std::collections::{HashMap, HashSet, VecDeque};
 pub struct Cycle<'a> {
     data: Vec<u32>,
     joined: bool,
+    last: bool,
     adj: &'a HashMap<u32, HashSet<u32>>,
     edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>
 }
 
-impl Cycle<'_> {
-    pub fn new<'a>(data: Vec<u32>, adj: &'a HashMap<u32, HashSet<u32>>, edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>) -> Cycle<'a> {
-        Cycle {
-            data,
+impl<'a> Cycle<'a> {
+    pub fn new(data: &VecDeque<u32>, adj: &'a HashMap<u32, HashSet<u32>>, edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>) -> &'a mut Cycle<'a> {
+        let cycle = Cycle {
+            data: data.iter().cloned().collect::<Vec<u32>>(),
             joined: false,
+            last: false,
             adj,
             edge_adj
-        }
+        };
+        Box::leak(Box::new(cycle))
     }
-    
+
+    pub fn retrieve(&self) -> Vec<u32> {
+        self.data.iter().cloned().collect::<Vec<u32>>()
+    }
+
+    pub fn set_last(&mut self) {
+        self.last = true;
+    }
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
         if left == self.data[self.data.len() - 1] && right == self.data[0] {
             self.data.reverse();
@@ -61,10 +71,11 @@ impl Cycle<'_> {
             .collect()
     }
     
-    pub fn from<'a>(vecdata: VecDeque<u32>, adj: &'a HashMap<u32, HashSet<u32>>, edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>) -> Cycle<'a> {
+    pub fn from<'b>(vecdata: VecDeque<u32>, adj: &'a HashMap<u32, HashSet<u32>>, edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>) -> Cycle<'a> {
         Cycle {
             data: vecdata.into_iter().collect::<Vec<u32>>(),
             joined: false,
+            last: false,
             adj,
             edge_adj
         }

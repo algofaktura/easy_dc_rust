@@ -23,7 +23,6 @@ impl Vector2D {
     }
 }
 
-
 pub fn convert_to_2d(vec3ds: &Vec<Vector3D>) -> Vec<Vector2D> {
     vec3ds.iter().map(|v| v.to_2d()).collect()
 }

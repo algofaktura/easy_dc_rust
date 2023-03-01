@@ -16,35 +16,44 @@ impl Vector3D {
         Self { x, y, z}
     }
 
+    pub fn new_from_2d(vec: &Vector2D, z: i32, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+        vert_idx.get(&Vector3D { x: vec.x, y: vec.y, z }).unwrap().clone()
+    }
+
     pub fn to_tuple(&self) -> (i32, i32, i32) {
         (self.x, self.y, self.z)
     }
+    
+    pub fn get_upper_node(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+        vert_idx.get(&Vector3D { x: self.x, y: self.y, z: self.z + 2 }).unwrap().clone()
+    }
 
-    pub fn add_scalar_z2(&self) -> Vector3D {
-        Vector3D {
+    pub fn mirror_z(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+        vert_idx.get(&Vector3D { x: self.x, y: self.y, z: -self.z }).unwrap().clone()
+    }
+
+    pub fn to_node(x: i32, y:i32, z: i32, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+        vert_idx.get(&Vector3D { x, y, z }).unwrap().clone()
+    }
+
+    pub fn add_scalar_z2(&self) -> Self {
+        Self {
             x: self.x,
             y: self.y,
             z: self.z + 2,
         }
     }
 
-    pub fn mirror_zi(&self) -> Vector3D {
-        Vector3D {
+    pub fn mirror_zi(&self) -> Self {
+        Self {
             x: self.x,
             y: self.y,
             z: -self.z,
         }
     }
 
-    pub fn mirror_z(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
-        vert_idx.get(
-            &Vector3D { x: self.x, y: self.y, z: -self.z })
-            .unwrap()
-            .clone()
-    }
-
-    pub fn from_2d(vec: &Vector2D, z: i32) -> Vector3D {
-        Vector3D {
+    pub fn from_2d(vec: &Vector2D, z: i32) -> Self {
+        Self {
             x: vec.x,
             y: vec.y,
             z,
@@ -59,7 +68,6 @@ impl Vector3D {
     }
    
 }
-
 
 impl Into<Array2<i32>> for Vector3D {
     fn into(self) -> Array2<i32> {
