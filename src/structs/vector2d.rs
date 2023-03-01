@@ -40,10 +40,6 @@ pub fn translate_from_nodes_slice(path: &[u32], verts: &[(i32, i32)]) -> Array2<
     Array2::from(path.iter().map(|&n| [verts[n as usize].0, verts[n as usize].1]).collect::<Vec<[i32; 2]>>())
 }
 
-pub fn translate_from_nodes3(path: Vec<u32>, verts: &[(i32, i32)]) -> Array2<i32> {
-    Array2::from(path.iter().map(|&n| [verts[n as usize].0, verts[n as usize].1]).collect::<Vec<[i32; 2]>>())
-}
-
 pub fn translate_from_nodes_gen2<T>(path: &[T], verts: &[(i32, i32)]) -> Array2<i32>
 where
     T: TryInto<usize> + Copy,
