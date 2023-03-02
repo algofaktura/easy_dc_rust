@@ -1,7 +1,5 @@
-pub mod data;
 pub mod enums;
 pub mod graphs;
-pub mod info;
 pub mod operators;
 pub mod structs;
 pub mod types;
@@ -12,7 +10,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 
 use crate::graphs::data::g_280::{VERTS, ADJ, EDGES};
-use crate::graphs::make::{make_weights, make_vi_mapping, make_edges_adj, graph_to_map, shrink_adjacency, translate_verts_3d};
+use crate::graphs::make::make::{make_weights, make_vi_mapping, make_edges_adj, graph_to_map, shrink_adjacency, translate_verts_3d};
 use crate::graphs::info::certify::id_seq;
 use crate::graphs::info::certify::{SequenceID, SequenceID::HamCycle};
 use crate::operators::operators::{cut, spin, wind};
