@@ -1,4 +1,3 @@
-pub mod enums;
 pub mod graphs;
 pub mod operators;
 pub mod structs;
@@ -10,13 +9,12 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 
 use crate::graphs::data::g_280::{VERTS, ADJ, EDGES};
-use crate::graphs::make::make::{make_weights, make_vi_mapping, make_edges_adj, graph_to_map, shrink_adjacency, translate_verts_3d};
+use crate::graphs::make::make::{make_weights, make_vi_mapping, make_edges_adj, graph_to_map, shrink_adjacency, translate_verts_3d, convert_from_nodes};
 use crate::graphs::info::certify::id_seq;
 use crate::graphs::info::certify::{SequenceID, SequenceID::HamCycle};
 use crate::operators::operators::{cut, spin, wind};
 use crate::operators::operators::color;
-use crate::structs::vector2d::convert_from_nodes;
-use crate::structs::vector3d::Vector3D;
+use crate::structs::vector::Vector3D;
 use crate::structs::cycle::Cycle;
 use crate::utils::time::elapsed_ms;
 

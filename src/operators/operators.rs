@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 
 use ndarray::{Array2, arr2};
 
-use crate::structs::vector3d::Vector3D;
+use crate::structs::vector::Vector3D;
 
 pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, weights: &HashMap<u32, i32>) -> Vec<u32> {
     let mut path: Vec<u32> = vec![*adj_map.keys().max().unwrap() as u32];

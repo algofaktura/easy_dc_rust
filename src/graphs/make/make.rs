@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
-use crate::structs::vector3d::Vector3D;
+use ndarray::Array2;
+
+use crate::structs::vector::Vector3D;
 
 type AdjDict = HashMap<u32, HashSet<u32>>;
 type Verts = Vec<Vector3D>;
@@ -76,4 +78,8 @@ pub fn get_zlevel_length(stratified: &HashMap<i32, HashSet<u32>>) -> Vec<(i32, u
         .collect::<Vec<_>>();
     vec.sort_by_key(|&(level, _)| level);
     vec
+}
+
+pub fn convert_from_nodes(path: Vec<u32>, verts: &Vec<(i32, i32)>) -> Array2<i32> {
+    Array2::from(path.iter().map(|&n| [verts[n as usize].0, verts[n as usize].1]).collect::<Vec<[i32; 2]>>())
 }
