@@ -8,7 +8,7 @@ pub mod structs;
 pub mod types;
 pub mod utils;
 
-use graphs::data::g_280::{VERTS, ADJ, EDGES};
+use graphs::data::g_16192::{VERTS, ADJ, EDGES};
 use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
 use graphs::utils::map::{map_graph, vectorize, convert_from_nodes};
 use graphs::utils::shrink::shrink_adjacency;
@@ -19,7 +19,7 @@ use structs::cycle::Cycle;
 use utils::time::elapsed_ms;
 use types::types::*;
 
-const REPEATS: u32 = 10_000;
+const REPEATS: u32 = 1;
 
 fn main() {
     let adj: Adjacency = map_graph(&ADJ);
@@ -37,25 +37,25 @@ fn main() {
     let id: SequenceID = id_seq(&solution, &adj);
     assert_eq!(HamCycle, id);
     println!("{:?}", id);
-    println!("⭕️ ORDER: {:?} | ID: {:?} | {:?}", ADJ.len(), id, solution);
+    println!("⭕️ ORDER: {:?} | ID: {:?} | {:?}", ADJ.len(), id, solution.len());
 }
 
 fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj: &EdgeAdjacency) -> Solution {
     let mut warp_wefts: Wefts = warp_loom(v3verts, &adj, vert_idx);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
-    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj);
-    let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj))).collect();
+    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, true);
+    let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, false))).collect();
     let mut processed: Processed = HashSet::new();
     if loom.keys().len() > 0 {
         'weaving: loop {
             for idx in loom.keys() {
+                if processed.len() == loom.keys().len() { break 'weaving }
                 if processed.contains(idx) { continue }
                 if processed.len() - 1 == loom.keys().len() { warp.set_last() }
-                else if processed.len() == loom.keys().len() { break 'weaving }
-                let mut bridge: Edges = warp.edges().intersection(&loom[idx].eadjs()).into_iter().cloned().collect::<Edges>();
+                let mut other: Cycle = loom[&*idx].clone();
+                let mut bridge: Edges = warp.edges().intersection(&other.eadjs()).into_iter().cloned().collect::<Edges>();
                 if !bridge.is_empty() {
                     let warp_e: Edge = bridge.drain().next().unwrap();
-                    let mut other: Cycle = loom[&*idx].clone();
                     let mut weft_es: Edges = edge_adj.get(&warp_e).unwrap().intersection(&other.edges()).into_iter().cloned().collect::<Edges>();
                     if !weft_es.is_empty() {
                         let weft_e: Edge = weft_es.drain().next().unwrap();

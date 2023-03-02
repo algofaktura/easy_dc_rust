@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use ndarray::{Array2, arr2};
 
 use crate::structs::vector::Vector3D;
+use crate::types::types::*;
 
 pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, weights: &HashMap<u32, i32>) -> Vec<u32> {
     let mut path: Vec<u32> = vec![*adj_map.keys().max().unwrap() as u32];
@@ -18,7 +19,7 @@ pub fn spin(adj_map: &HashMap<u32, HashSet<u32>>, weights: &HashMap<u32, i32>) -
     path
 }
 
-pub fn cut(tour: Vec<u32>, subset: &Vec<u32>) -> Vec<Vec<u32>> {
+pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
     let mut subtours: Vec<Vec<u32>> = vec![];
     let mut idxs: Vec<usize> = tour
         .iter()
