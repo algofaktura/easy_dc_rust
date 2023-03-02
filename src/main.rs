@@ -1,46 +1,28 @@
-use ndarray::{Array2, Axis, Slice};
+use ndarray::{Axis, Slice};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 
 pub mod graphs;
 pub mod operators;
 pub mod structs;
+pub mod types;
 pub mod utils;
 
 use crate::graphs::data::g_280::{VERTS, ADJ, EDGES};
-use crate::graphs::make::make::{make_weights, make_vi_mapping, make_edges_adj, graph_to_map, shrink_adjacency, translate_verts_3d, convert_from_nodes};
-use crate::graphs::info::certify::id_seq;
-use crate::graphs::info::certify::{SequenceID, SequenceID::HamCycle};
-use crate::operators::operators::{cut, spin, wind};
-use crate::operators::operators::color;
+use crate::graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
+use crate::graphs::utils::map::{map_graph, translate_verts_3d, convert_from_nodes};
+use crate::graphs::utils::shrink::shrink_adjacency;
+use crate::graphs::info::certify::{id_seq, SequenceID, SequenceID::HamCycle};
+use crate::operators::operators::{cut, spin, wind, color};
 use crate::structs::vector::Vector3D;
 use crate::structs::cycle::Cycle;
 use crate::utils::time::elapsed_ms;
-
-type Adjacency = HashMap<u32, HashSet<u32>>;
-type Bobbins = Vec<u32>;
-type Loom = Vec<VecDeque<u32>>;
-type WarpedLoom<'a> = HashMap<usize, &'a mut Cycle<'a>>;
-type Spool = HashMap<u32, Array2<i32>>;
-type Vert2d = (i32, i32);
-type Edge = (u32, u32);
-type Edges = HashSet<Edge>;
-type EdgeAdjacency = HashMap<Edge, HashSet<Edge>>;
-type Path = Vec<u32>;
-type Processed = HashSet<usize>;
-type Solution = Vec<u32>;
-type Thread = VecDeque<u32>;
-type Vectors3d = Vec<Vector3D>;
-type VertIdx<'a> = HashMap<&'a Vector3D, u32>;
-type Verts2d = Vec<Vert2d>;
-type Wefts = Vec<VecDeque<u32>>;
-type Weights = HashMap<u32, i32>;
-type Yarn = Array2<i32>;
+use crate::types::types::*;
 
 const REPEATS: u32 = 10_000;
 
 fn main() {
-    let adj: Adjacency = graph_to_map(&ADJ);
+    let adj: Adjacency = map_graph(&ADJ);
     let v3verts: Vectors3d = translate_verts_3d(&VERTS);
     let vert_idx: VertIdx = make_vi_mapping(&v3verts);
     let edge_adj: EdgeAdjacency = make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>());
