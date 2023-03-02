@@ -20,6 +20,7 @@ pub type Thread = VecDeque<u32>;
 pub type Vectors3d = Vec<Vector3D>;
 pub type VertIdx<'a> = HashMap<&'a Vector3D, u32>;
 pub type Verts2d = Vec<Vert2d>;
+pub type Warps = Vec<Vec<u32>>;
 pub type Wefts = Vec<VecDeque<u32>>;
 pub type Weights = HashMap<u32, i32>;
 pub type Yarn = Array2<i32>;

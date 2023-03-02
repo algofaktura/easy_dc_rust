@@ -49,9 +49,9 @@ fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj: &Ed
     if loom.keys().len() > 0 {
         'weaving: loop {
             for idx in loom.keys() {
-                if processed.len() == loom.keys().len() { break 'weaving };
-                if processed.len() - 1 == loom.keys().len() { warp.set_last() };
-                if processed.contains(idx) { continue };
+                if processed.contains(idx) { continue }
+                if processed.len() - 1 == loom.keys().len() { warp.set_last() }
+                else if processed.len() == loom.keys().len() { break 'weaving }
                 let mut bridge: Edges = warp.edges().intersection(&loom[idx].eadjs()).into_iter().cloned().collect::<Edges>();
                 if !bridge.is_empty() {
                     let warp_e: Edge = bridge.drain().next().unwrap();
@@ -73,7 +73,7 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
     let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
     let spool: Spool = spool_yarn(&z_adj);
     let mut bobbins: Bobbins = Vec::new();
-    let mut warps: Vec<Vec<u32>>;
+    let mut warps: Warps;
     let mut loom: Loom = Vec::new();
     for (zlevel, order) in z_length {
         let mut yarn: Yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
