@@ -10,7 +10,7 @@ pub mod utils;
 
 use graphs::data::g_280::{VERTS, ADJ, EDGES};
 use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
-use graphs::utils::map::{map_graph, translate_verts_3d, convert_from_nodes};
+use graphs::utils::map::{map_graph, vectorize, convert_from_nodes};
 use graphs::utils::shrink::shrink_adjacency;
 use graphs::info::certify::{id_seq, SequenceID, SequenceID::HamCycle};
 use operators::operators::{cut, spin, wind, color};
@@ -23,7 +23,7 @@ const REPEATS: u32 = 10_000;
 
 fn main() {
     let adj: Adjacency = map_graph(&ADJ);
-    let v3verts: Vectors3d = translate_verts_3d(&VERTS);
+    let v3verts: Vectors3d = vectorize(&VERTS);
     let vert_idx: VertIdx = make_vi_mapping(&v3verts);
     let edge_adj: EdgeAdjacency = make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>());
     let mut solution: Solution = Vec::new();
@@ -98,12 +98,12 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
         for (_, seq) in warps.iter().enumerate().filter(|(idx, _)| !woven.contains(idx)) {
             loom.extend(vec![VecDeque::from(seq.iter().cloned().collect::<Thread>())]);
         }
-        let v3verts: &Vectors3d = &translate_verts_3d(&VERTS);
+        let v3verts: &Vectors3d = &vectorize(&VERTS);
         if zlevel != -1 { bobbins = wind(&mut loom, v3verts, &vert_idx) }
     }
-    for w in &mut loom {
-        let nodes: Path = w.iter().map(|&node| v3verts[node as usize].mirror_z(&vert_idx)).collect();
-        w.extend(nodes.into_iter().rev());
+    for thread in &mut loom {
+        let nodes: Path = thread.iter().map(|&node| v3verts[node as usize].mirror_z(&vert_idx)).collect();
+        thread.extend(nodes.into_iter().rev());
     }
     loom.sort_by_key(|w| w.len());
     loom
