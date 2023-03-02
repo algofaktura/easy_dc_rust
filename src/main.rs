@@ -8,16 +8,16 @@ pub mod structs;
 pub mod types;
 pub mod utils;
 
-use crate::graphs::data::g_280::{VERTS, ADJ, EDGES};
-use crate::graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
-use crate::graphs::utils::map::{map_graph, translate_verts_3d, convert_from_nodes};
-use crate::graphs::utils::shrink::shrink_adjacency;
-use crate::graphs::info::certify::{id_seq, SequenceID, SequenceID::HamCycle};
-use crate::operators::operators::{cut, spin, wind, color};
-use crate::structs::vector::Vector3D;
-use crate::structs::cycle::Cycle;
-use crate::utils::time::elapsed_ms;
-use crate::types::types::*;
+use graphs::data::g_280::{VERTS, ADJ, EDGES};
+use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
+use graphs::utils::map::{map_graph, translate_verts_3d, convert_from_nodes};
+use graphs::utils::shrink::shrink_adjacency;
+use graphs::info::certify::{id_seq, SequenceID, SequenceID::HamCycle};
+use operators::operators::{cut, spin, wind, color};
+use structs::vector::Vector3D;
+use structs::cycle::Cycle;
+use utils::time::elapsed_ms;
+use types::types::*;
 
 const REPEATS: u32 = 10_000;
 
