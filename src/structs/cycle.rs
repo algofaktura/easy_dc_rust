@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Cycle<'a> {
     data: Vec<u32>,
     joined: bool,
