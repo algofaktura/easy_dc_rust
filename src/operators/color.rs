@@ -1,13 +1,16 @@
-use ndarray::{arr2, Array2};
+use ndarray::arr2;
 
-pub fn color(a: &Array2<i32>) -> Array2<i32> {
+use crate::types::types::Yarn;
+
+pub fn color(a: &Yarn) -> Yarn {
+    // A combination of reflect() and shift()
     a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
 }
 
-pub fn reflect(a: &Array2<i32>) -> Array2<i32> {
+pub fn reflect(a: &Yarn) -> Yarn {
     a.clone().dot(&arr2(&[[-1, 0], [0, -1]]))
 }
 
-pub fn shift(a: Array2<i32>) -> Array2<i32> {
+pub fn shift(a: Yarn) -> Yarn {
     a + arr2(&[[0, 2]])
 }

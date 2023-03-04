@@ -1,20 +1,19 @@
-use std::collections::HashMap;
+use crate::types::types::{Node, Path, Point, Slice, Vectors2d, Vectors3d, VertIdx, VertsC2, Vert2dd, Yarn};
 
-use ndarray::Array2;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Vector3D {
-    pub x: i32,
-    pub y: i32,
-    pub z: i32,
+    pub x: Point,
+    pub y: Point,
+    pub z: Point,
 }
 
 impl Vector3D {
-    pub fn new(x: i32, y: i32, z: i32) -> Self {
+    pub fn new(x: Point, y: Point, z: Point) -> Self {
         Self { x, y, z }
     }
 
-    pub fn get_upper_node(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+    pub fn get_upper_node(&self, vert_idx: &VertIdx) -> Node {
         vert_idx
             .get(&Vector3D {
                 x: self.x,
@@ -25,7 +24,7 @@ impl Vector3D {
             .clone()
     }
 
-    pub fn mirror_z(&self, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+    pub fn mirror_z(&self, vert_idx: &VertIdx) -> Node {
         vert_idx
             .get(&Vector3D {
                 x: self.x,
@@ -36,7 +35,7 @@ impl Vector3D {
             .clone()
     }
 
-    pub fn to_node(x: i32, y: i32, z: i32, vert_idx: &HashMap<&Vector3D, u32>) -> u32 {
+    pub fn to_node(x: Point, y: Point, z: Point, vert_idx: &VertIdx) -> Node {
         vert_idx.get(&Vector3D { x, y, z }).unwrap().clone()
     }
 
@@ -67,36 +66,36 @@ impl Vector2D {
     }
 }
 
-pub fn convert_to_2d(vec3ds: &Vec<Vector3D>) -> Vec<Vector2D> {
+pub fn convert_to_2d(vec3ds: &Vectors3d) -> Vectors2d {
     vec3ds.iter().map(|v| v.to_2d()).collect()
 }
 
-pub fn convert_from_3d(vec3ds: &Vec<Vector3D>) -> Vec<Vector2D> {
+pub fn convert_from_3d(vec3ds: &Vectors3d) -> Vectors2d {
     vec3ds.iter().map(|v| Vector2D::from_3d(*v)).collect()
 }
 
-pub fn convert_from_nodes(path: Vec<u32>, verts: &Vec<(i32, i32)>) -> Array2<i32> {
-    Array2::from(
+pub fn convert_from_nodes(path: Path, verts: &Vert2dd) -> Yarn {
+    Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
             .collect::<Vec<[i32; 2]>>(),
     )
 }
 
-pub fn convert_from_nodes_slice(path: &[u32], verts: &[(i32, i32)]) -> Array2<i32> {
-    Array2::from(
+pub fn convert_from_nodes_slice(path: Slice, verts: &VertsC2) -> Yarn {
+    Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
             .collect::<Vec<[i32; 2]>>(),
     )
 }
 
-pub fn convert_from_nodes_general<T>(path: &[T], verts: &[(i32, i32)]) -> Array2<i32>
+pub fn convert_from_nodes_general<T>(path: &[T], verts: &VertsC2) -> Yarn
 where
     T: TryInto<usize> + Copy,
     <T as TryInto<usize>>::Error: std::fmt::Debug,
 {
-    Array2::from(
+    Yarn::from(
         path.iter()
             .map(|&n| {
                 let vector = verts[n.try_into().unwrap()];

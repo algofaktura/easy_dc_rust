@@ -1,11 +1,9 @@
-use std::collections::HashSet;
-
 use crate::types::types::*;
 
 pub fn make_weights(adj: &Adjacency, verts: &VertsC3) -> Weights {
     adj.iter()
         .map(|(&n, _)| {
-            let (x, y, z): VertsTriple = verts[n as usize];
+            let (x, y, z): Vert3d = verts[n as usize];
             let weight: i32 = x.abs() + y.abs() + z.abs();
             (n, weight)
         })
@@ -26,13 +24,13 @@ pub fn make_edges_adj(a: &Adjacency, edges: &Edges) -> EdgeAdjacency {
             let lhs = a
                 .get(&u)
                 .unwrap()
-                .difference(&HashSet::from([p]))
+                .difference(&Neighbors::from([p]))
                 .cloned()
                 .collect::<Neighbors>();
             let rhs = a
                 .get(&p)
                 .unwrap()
-                .difference(&HashSet::from([u]))
+                .difference(&Neighbors::from([u]))
                 .cloned()
                 .collect::<Neighbors>();
             let prod = lhs

@@ -1,5 +1,6 @@
-use std::collections::{HashMap, HashSet};
 use std::fmt;
+
+use crate::types::types::{Solution, Adjacency};
 
 #[derive(Debug, PartialEq)]
 pub enum SequenceID {
@@ -18,7 +19,7 @@ impl fmt::Display for SequenceID {
     }
 }
 
-pub fn id_seq(seq: &Vec<u32>, adj: &HashMap<u32, HashSet<u32>>) -> SequenceID {
+pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
     for i in 1..seq.len() {
         if !adj.get(&seq[i - 1]).unwrap().contains(&seq[i]) {
             return SequenceID::Broken;

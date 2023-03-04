@@ -1,4 +1,4 @@
-use crate::types::types::*;
+use crate::types::types::{Bobbins, Loom, Vectors3d, VertIdx};
 
 pub fn wind(loom: &mut Loom, verts: &Vectors3d, vert_idx: &VertIdx) -> Bobbins {
     let mut bobbins: Vec<u32> = Vec::new();
