@@ -1,4 +1,4 @@
-use crate::types::types::{Node, Path, Point, Slice, Vectors2d, Vectors3d, VertIdx, VertsC2, Vert2dd, Yarn};
+use crate::types::types::{Node, Path, Point, PathSlice, Vectors2d, Vectors3d, VertIdx, VertsC2, Vert2dd, Yarn};
 
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -82,7 +82,7 @@ pub fn convert_from_nodes(path: Path, verts: &Vert2dd) -> Yarn {
     )
 }
 
-pub fn convert_from_nodes_slice(path: Slice, verts: &VertsC2) -> Yarn {
+pub fn convert_from_nodes_slice(path: PathSlice, verts: &VertsC2) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])

@@ -5,7 +5,7 @@ pub mod graphs;
 pub mod operators;
 pub mod structs;
 pub mod types;
-pub mod utils;
+pub mod utils; 
 
 use graphs::data::g_16192::{VERTS, ADJ, EDGES, VAR};
 use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
@@ -32,7 +32,7 @@ fn main() {
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..REPEATS{ solution = weave(&v3verts, &adj, &vert_idx, &edge_adj) }
-    elapsed_ms(start, Instant::now(), REPEATS, "weave");
+    elapsed_ms(start, Instant::now(), REPEATS, "WEAVE");
 
     let id: SequenceID = id_seq(&solution, &adj);
     assert_eq!(HamCycle, id);
@@ -113,7 +113,7 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
 }
 
 fn spool_yarn(z_adj: &Adjacency) -> Spool {
-    let verts: &Verts2d = &VERTS.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Verts2d>();
+    let verts: &Vert2dd = &VERTS.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vert2dd>();
     let weights: Weights = make_weights(&z_adj, &VERTS);
     let path: Path = spin(&z_adj, &weights, &VAR);
     let natural: Yarn = convert_from_nodes(path, &verts);

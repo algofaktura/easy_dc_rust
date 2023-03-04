@@ -1,4 +1,4 @@
-use crate::types::types::{Adjacency, Count, Idx, Neighbors, Node, Path, Slice, Weights, V3d, V3Slice};
+use crate::types::types::{Adjacency, Count, Idx, Neighbors, Node, Path, PathSlice, Weights, V3d, V3Slice};
 
 #[derive(PartialEq, Debug, Eq, Hash)]
 pub enum Axis {
@@ -56,7 +56,7 @@ pub fn spin(
 }
 
 pub fn get_next(
-    path: Slice,
+    path: PathSlice,
     adj: &Adjacency,
     weights: &Weights,
 ) -> Node {
@@ -71,7 +71,7 @@ pub fn get_next(
 }
 
 pub fn get_next1(
-    path: Slice,
+    path: PathSlice,
     adj: &Adjacency,
     weights: &Weights,
 ) -> Node {
@@ -84,7 +84,7 @@ pub fn get_next1(
 }
 
 pub fn get_next_xyz(
-    path: Slice,
+    path: PathSlice,
     adj: &Adjacency,
     weights: &Weights,
     verts: V3Slice,
