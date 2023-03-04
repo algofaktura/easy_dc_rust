@@ -1,4 +1,4 @@
-use crate::types::types::{Nodes, Adjacency, ZlevelNodesMap, ZOrder, Points, Vectors3d};
+use crate::types::types::{Adjacency, Nodes, Point, Points, Vectors3d, ZlevelNodesMap, Count};
 
 pub fn shrink_adjacency(vects3d: &Vectors3d, adj: &Adjacency) -> (Adjacency, Vec<(i32, usize)>) {
     let stratified: ZlevelNodesMap = stratified_nodes(vects3d);
@@ -38,11 +38,11 @@ fn filter_graph(
     filtered
 }
 
-pub fn get_zlevel_length(stratified: &ZlevelNodesMap) -> ZOrder {
+pub fn get_zlevel_length(stratified: &ZlevelNodesMap) -> Vec<(Point, Count)> {
     let mut vec = stratified
         .iter()
         .map(|(&level, nodes)| (level, nodes.len()))
-        .collect::<ZOrder>();
+        .collect::<Vec<(Point, Count)>>();
     vec.sort_by_key(|&(level, _)| level);
     vec
 }
