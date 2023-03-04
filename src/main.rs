@@ -1,5 +1,5 @@
 use ndarray::{Axis, Slice};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::time::Instant;
 
 pub mod graphs;
 pub mod operators;
@@ -18,10 +18,7 @@ use operators::spin::spin;
 use operators::wind::wind;
 use structs::vector::Vector3D;
 use structs::cycle::Cycle;
-
 use types::types::*;
-
-use std::time::Instant;
 use utils::time::elapsed_ms;
 
 const REPEATS: u32 = 1000;
@@ -32,7 +29,7 @@ fn main() {
     let vert_idx: VertIdx = make_vi_mapping(&v3verts);
     let edge_adj: EdgeAdjacency = make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>());
 
-    let mut solution: Vec<u32> = Vec::new();
+    let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..REPEATS{ solution = weave(&v3verts, &adj, &vert_idx, &edge_adj) }
     elapsed_ms(start, Instant::now(), REPEATS, "weave");
@@ -48,12 +45,14 @@ fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj: &Ed
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, VERTS, true);
     let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, VERTS, false))).collect();
-    let mut done: Done = HashSet::new();
-    if loom.keys().len() > 0 {
+    let mut done: Done = Done::new();
+    let loom_order = loom.keys().len();
+    if loom_order > 0 {
         'weaving: loop {
             for idx in loom.keys() {
-                if done.len() == loom.keys().len() { break 'weaving }
-                if done.len() == loom.keys().len() - 1 { warp.set_last() }
+                let done_len = done.len();
+                if done_len == loom_order { break 'weaving }
+                if done_len == loom_order - 1 { warp.set_last() }
                 if done.contains(idx) { continue }
                 let mut other: Cycle = loom[&*idx].clone();
                 let mut bridge: Edges = warp.edges().intersection(&other.eadjs()).into_iter().cloned().collect::<Edges>();
@@ -76,13 +75,13 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
     let spool: Spool = spool_yarn(&z_adj);
     let mut bobbins: Bobbins = Vec::new();
     let mut warps: Warps;
-    let mut loom: Loom = Vec::new();
+    let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_length {
         let mut yarn: Yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
         yarn.slice_axis_inplace(Axis(0), Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1));
-        let node_yarn: Vec<u32> = yarn.outer_iter().map(|row| Vector3D::to_node(row[0], row[1], zlevel, &vert_idx)).collect();
+        let node_yarn: Path = yarn.outer_iter().map(|row| Vector3D::to_node(row[0], row[1], zlevel, &vert_idx)).collect();
         if bobbins.is_empty() { warps = vec![node_yarn] } else { warps = cut(node_yarn, &bobbins) }
-        let mut woven: Vec<usize> = Vec::new();
+        let mut woven: Woven = Woven::new();
         for thread in &mut loom {
             for (idx, warp) in warps.iter().enumerate() {
                 if !woven.contains(&idx) {
@@ -100,7 +99,7 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
             }
         }
         for (_, seq) in warps.iter().enumerate().filter(|(idx, _)| !woven.contains(idx)) {
-            loom.extend(vec![VecDeque::from(seq.iter().cloned().collect::<Thread>())]);
+            loom.extend(vec![Thread::from(seq.iter().cloned().collect::<Thread>())]);
         }
         if zlevel == -1 { break }
         bobbins = wind(&mut loom, &vectorize(&VERTS), &vert_idx);
@@ -116,8 +115,8 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
 fn spool_yarn(z_adj: &Adjacency) -> Spool {
     let verts: &Verts2d = &VERTS.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Verts2d>();
     let weights: Weights = make_weights(&z_adj, &VERTS);
-    let path = spin(&z_adj, &weights, &VAR);
+    let path: Path = spin(&z_adj, &weights, &VAR);
     let natural: Yarn = convert_from_nodes(path, &verts);
     let colored: Yarn = color(&natural);
-    HashMap::from([(3, natural), (1, colored)])
+    Spool::from([(3, natural), (1, colored)])
 }

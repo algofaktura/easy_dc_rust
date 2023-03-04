@@ -1,14 +1,11 @@
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    iter::zip,
-};
+use std::iter::zip;
 
-use crate::types::types::*;
+use crate::types::types::{Adjacency, Edge, Edges, EdgeAdjacency, Neighbors, Path, Solution, Thread, VertsC3};
 
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct Cycle<'a> {
-    data: Vec<u32>,
+    data: Path,
     joined: bool,
     last: bool,
     lead: bool,
@@ -16,7 +13,7 @@ pub struct Cycle<'a> {
     _eadjs: Edges,
     _edges: Edges,
 
-    verts: &'a [(i32, i32, i32)],
+    verts: &'a VertsC3,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
 }
@@ -26,7 +23,7 @@ impl<'a> Cycle<'a> {
         data: &Thread,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
-        verts: &'a [(i32, i32, i32)],
+        verts: &'a VertsC3,
         lead: bool,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
@@ -34,9 +31,9 @@ impl<'a> Cycle<'a> {
             joined: false,
             last: false,
             lead,
-            prev: Vec::new(),
-            _eadjs: HashSet::new(),
-            _edges: HashSet::new(),
+            prev: Path::new(),
+            _eadjs: Edges::new(),
+            _edges: Edges::new(),
             verts,
             adj,
             edge_adj,
@@ -48,7 +45,7 @@ impl<'a> Cycle<'a> {
         data: &Path,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
-        verts: &'a [(i32, i32, i32)],
+        verts: &'a VertsC3,
         lead: bool,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
@@ -56,9 +53,9 @@ impl<'a> Cycle<'a> {
             joined: false,
             last: false,
             lead,
-            prev: Vec::new(),
-            _eadjs: HashSet::new(),
-            _edges: HashSet::new(),
+            prev: Path::new(),
+            _eadjs: Edges::new(),
+            _edges: Edges::new(),
             verts,
             adj,
             edge_adj,
@@ -66,7 +63,7 @@ impl<'a> Cycle<'a> {
         Box::leak(Box::new(cycle))
     }
 
-    pub fn retrieve(&self) -> Vec<u32> {
+    pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect::<Vec<u32>>()
     }
 
@@ -93,10 +90,10 @@ impl<'a> Cycle<'a> {
         }
     }
 
-    pub fn join(&mut self, edge: (u32, u32), oedge: (u32, u32), other: &mut Cycle) {
+    pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
-        let neighs = self.adj.get(&edge.1).unwrap();
-        let mut o_edge = (oedge.0, oedge.1);
+        let neighs: &Neighbors = self.adj.get(&edge.1).unwrap();
+        let mut o_edge: Edge = (oedge.0, oedge.1);
         if !neighs.contains(&oedge.0) {
             o_edge = (oedge.1, oedge.0);
         }
@@ -105,7 +102,7 @@ impl<'a> Cycle<'a> {
         self.joined = true;
     }
 
-    pub fn make_edges(&self) -> HashSet<(u32, u32)> {
+    pub fn make_edges(&self) -> Edges {
         zip(
             self.data.clone(),
             [&self.data[1..], &self.data[..1]].concat(),
@@ -114,7 +111,7 @@ impl<'a> Cycle<'a> {
         .collect()
     }
 
-    pub fn eadjs(&mut self) -> HashSet<(u32, u32)> {
+    pub fn eadjs(&mut self) -> Edges {
         self.edges()
             .iter()
             .flat_map(|edge| self.edge_adj.get(edge).unwrap().iter())
@@ -122,7 +119,7 @@ impl<'a> Cycle<'a> {
             .collect()
     }
 
-    pub fn edges(&mut self) -> HashSet<(u32, u32)> {
+    pub fn edges(&mut self) -> Edges {
         if self.prev != self.data {
             if self.lead && !self.last {
                 self._edges = zip(
@@ -148,20 +145,20 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn from<'b>(
-        vecdata: VecDeque<u32>,
-        adj: &'a HashMap<u32, HashSet<u32>>,
-        edge_adj: &'a HashMap<(u32, u32), HashSet<(u32, u32)>>,
-        verts: &'a [(i32, i32, i32)],
+        vecdata: Thread,
+        adj: &'a Adjacency,
+        edge_adj: &'a EdgeAdjacency,
+        verts: &'a VertsC3,
         lead: bool,
     ) -> Cycle<'a> {
         Cycle {
-            data: vecdata.into_iter().collect::<Vec<u32>>(),
+            data: vecdata.into_iter().collect::<Path>(),
             joined: false,
             last: false,
             lead,
-            prev: Vec::new(),
-            _eadjs: HashSet::new(),
-            _edges: HashSet::new(),
+            prev: Path::new(),
+            _eadjs: Edges::new(),
+            _edges: Edges::new(),
             verts,
             adj,
             edge_adj,

@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use crate::types::types::{Adjacency, Count, Idx, Neighbors, Node, Path, Slice, Weights, V3d, V3Slice};
 
 #[derive(PartialEq, Debug, Eq, Hash)]
 pub enum Axis {
@@ -26,41 +26,41 @@ impl Into<Axis> for usize {
     }
 }
 
-pub fn get_edge_axis(m_vert: &[i32; 3], n_vert: &[i32; 3]) -> Axis {
+pub fn get_edge_axis(m_vert: &V3d, n_vert: &V3d) -> Axis {
     match (0..2).find(|&i| m_vert[i] != n_vert[i]) {
         Some(i) => i.into(),
         None => Axis::S,
     }
 }
 
-pub fn get_axis(m_vert: &[i32; 3], n_vert: &[i32; 3]) -> usize {
+pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2).find(|&i| m_vert[i] != n_vert[i]).expect("VERTS ARE SIMILAR")
 }
 
 pub fn spin(
-    adj_map: &HashMap<u32, HashSet<u32>>,
-    weights: &HashMap<u32, i32>,
-    verts: &[[i32; 3]],
-) -> Vec<u32> {
-    let path = &mut vec![*adj_map.keys().max().unwrap() as u32];
-    let order = adj_map.len();
-    let limit: usize = order - 5;
+    adj: &Adjacency,
+    weights: &Weights,
+    verts: V3Slice,
+) -> Path {
+    let path: &mut Path = &mut vec![*adj.keys().max().unwrap() as Node];
+    let order: Count = adj.len();
+    let limit: Count = order - 5;
     for idx in 1..order {
         path.push(if idx < limit {
-            get_next(&path, adj_map, weights)
+            get_next(&path, adj, weights)
         } else {
-            get_next_xyz(&path, adj_map, weights, verts)
+            get_next_xyz(&path, adj, weights, verts)
         })
     }
     path.to_vec()
 }
 
 pub fn get_next(
-    path: &[u32],
-    adj_map: &HashMap<u32, HashSet<u32>>,
-    weights: &HashMap<u32, i32>,
-) -> u32 {
-    adj_map
+    path: Slice,
+    adj: &Adjacency,
+    weights: &Weights,
+) -> Node {
+    adj
         .get(path.last().unwrap())
         .unwrap()
         .iter()
@@ -71,28 +71,28 @@ pub fn get_next(
 }
 
 pub fn get_next1(
-    path: &[u32],
-    adj_map: &HashMap<u32, HashSet<u32>>,
-    weights: &HashMap<u32, i32>,
-) -> u32 {
-    *adj_map
+    path: Slice,
+    adj: &Adjacency,
+    weights: &Weights,
+) -> Node {
+    *adj
         .get(path.last().expect("Path is empty"))
         .expect("No adjacent vertices found")
-        .difference(&path.iter().copied().collect::<HashSet<u32>>())
+        .difference(&path.iter().copied().collect::<Neighbors>())
         .max_by_key(|&n| weights.get_key_value(&n).unwrap().1)
         .expect("No unvisited adjacent vertices found")
 }
 
 pub fn get_next_xyz(
-    path: &[u32],
-    adj_map: &HashMap<u32, HashSet<u32>>,
-    weights: &HashMap<u32, i32>,
-    verts: &[[i32; 3]],
-) -> u32 {
-    let curr = path.last().unwrap();
-    let curr_vert = &verts[*curr as usize];
-    let prev_vert = &verts[path[path.len() - 2] as usize];
-    adj_map
+    path: Slice,
+    adj: &Adjacency,
+    weights: &Weights,
+    verts: V3Slice,
+) -> Node {
+    let curr: &Node = path.last().unwrap();
+    let curr_vert: &V3d = &verts[*curr as usize];
+    let prev_vert: &V3d = &verts[path[path.len() - 2] as usize];
+    adj
         .get(curr)
         .unwrap()
         .iter()

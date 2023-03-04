@@ -1,8 +1,8 @@
-use crate::types::types::*;
+use crate::types::types::{Bobbins, Idx, Idxs, Path, Paths, Subtours};
 
 pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
-    let mut subtours: Vec<Vec<u32>> = vec![];
-    let mut idxs: Vec<usize> = tour
+    let mut subtours: Paths = vec![];
+    let mut idxs: Idxs = tour
         .iter()
         .enumerate()
         .filter_map(|(i, &node)| {
@@ -12,9 +12,9 @@ pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
                 None
             }
         })
-        .collect::<Vec<usize>>();
+        .collect::<Idxs>();
     idxs.sort();
-    let last_ix: usize = tour.len() - 1;
+    let last_ix: Idx = tour.len() - 1;
     let mut prev: i32 = -1 as i32;
     for (e, idx) in idxs.iter().enumerate() {
         if e == idxs.len() - 1 && *idx != last_ix {
@@ -31,7 +31,7 @@ pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
                 }
             }
         } else {
-            let subtour: Vec<u32> = tour[(prev + 1) as usize..=*idx].to_vec();
+            let subtour: Path = tour[(prev + 1) as usize..=*idx].to_vec();
             if !subtour.is_empty() {
                 if subset.contains(&subtour[0]) {
                     subtours.push(subtour)
