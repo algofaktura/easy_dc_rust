@@ -1,8 +1,8 @@
 use ndarray::Array2;
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::structs::vector::Vector3D;
 use crate::structs::cycle::Cycle;
+use crate::structs::vector::Vector3D;
 
 pub type Adjacency = HashMap<u32, HashSet<u32>>;
 pub type AdjC<'a> = [(u32, &'a [u32])];

@@ -1,9 +1,9 @@
-pub mod g_32;
-pub mod g_80;
 pub mod g_160;
 pub mod g_280;
+pub mod g_32;
 pub mod g_448;
 pub mod g_672;
+pub mod g_80;
 pub mod g_960;
 // pub mod g_1320;
 // pub mod g_1760;
