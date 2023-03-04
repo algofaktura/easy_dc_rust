@@ -1,4 +1,3 @@
-use ndarray::{Axis, Slice};
 use std::time::Instant;
 
 pub mod graphs;
@@ -7,116 +6,33 @@ pub mod structs;
 pub mod types;
 pub mod utils; 
 
-use graphs::data::g_16192::{VERTS, ADJ, EDGES, VAR};
-use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
-use graphs::utils::map::{map_graph, vectorize, convert_from_nodes};
-use graphs::utils::shrink::shrink_adjacency;
+use graphs::data::g_16192::{ADJ, EDGES, VERTS, VAR};
 use graphs::info::certify::{id_seq, SequenceID, SequenceID::HamCycle};
-use operators::color::color;
-use operators::cut::cut;
-use operators::spin::spin;
-use operators::wind::wind;
-use structs::vector::Vector3D;
-use structs::cycle::Cycle;
+use graphs::utils::map::map_graph;
+use operators::solve::solve;
 use types::types::*;
 use utils::time::elapsed_ms;
 
-const REPEATS: u32 = 1000;
+use crate::graphs::utils::make::{make_vi_mapping, make_edges_adj};
+use crate::graphs::utils::map::vectorize;
+
+const REPEATS: u32 = 1;
 
 fn main() {
+    let order: u32 = 16192;
     let adj: Adjacency = map_graph(&ADJ);
     let v3verts: Vectors3d = vectorize(&VERTS);
     let vert_idx: VertIdx = make_vi_mapping(&v3verts);
     let edge_adj: EdgeAdjacency = make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>());
-
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
-    for _ in 0..REPEATS{ solution = weave(&v3verts, &adj, &vert_idx, &edge_adj) }
+    for _ in 0..REPEATS { 
+        solution = solve(order, &adj, &v3verts, &vert_idx, &edge_adj, &VERTS, VAR) 
+    }
     elapsed_ms(start, Instant::now(), REPEATS, "WEAVE");
 
     let id: SequenceID = id_seq(&solution, &adj);
     assert_eq!(HamCycle, id);
     println!("{:?}", id);
-    println!("⭕️ ORDER: {:?} | ID: {:?} | {:?}", ADJ.len(), id, solution.len());
-}
-
-fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj: &EdgeAdjacency) -> Solution {
-    let mut warp_wefts: Wefts = warp_loom(v3verts, &adj, vert_idx);
-    let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
-    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, VERTS, true);
-    let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, VERTS, false))).collect();
-    let mut done: Done = Done::new();
-    let loom_order = loom.keys().len();
-    if loom_order > 0 {
-        'weaving: loop {
-            for idx in loom.keys() {
-                let done_len = done.len();
-                if done_len == loom_order { break 'weaving }
-                if done_len == loom_order - 1 { warp.set_last() }
-                if done.contains(idx) { continue }
-                let mut other: Cycle = loom[&*idx].clone();
-                let mut bridge: Edges = warp.edges().intersection(&other.eadjs()).into_iter().cloned().collect::<Edges>();
-                if !bridge.is_empty() {
-                    let warp_e: Edge = bridge.drain().next().unwrap();
-                    let mut weft_es: Edges = edge_adj.get(&warp_e).unwrap().intersection(&other.edges()).into_iter().cloned().collect::<Edges>();
-                    if !weft_es.is_empty() {
-                        warp.join(warp_e, weft_es.drain().next().unwrap(), &mut other);
-                        done.extend([idx]);
-                    }
-                }
-            }
-        }
-    }
-    warp.retrieve()
-}
-    
-fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
-    let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
-    let spool: Spool = spool_yarn(&z_adj);
-    let mut bobbins: Bobbins = Vec::new();
-    let mut warps: Warps;
-    let mut loom: Loom = Loom::new();
-    for (zlevel, order) in z_length {
-        let mut yarn: Yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
-        yarn.slice_axis_inplace(Axis(0), Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1));
-        let node_yarn: Path = yarn.outer_iter().map(|row| Vector3D::to_node(row[0], row[1], zlevel, &vert_idx)).collect();
-        if bobbins.is_empty() { warps = vec![node_yarn] } else { warps = cut(node_yarn, &bobbins) }
-        let mut woven: Woven = Woven::new();
-        for thread in &mut loom {
-            for (idx, warp) in warps.iter().enumerate() {
-                if !woven.contains(&idx) {
-                    for end in vec![0 as usize, thread.len() - 1] {
-                        if thread[end] == warp[0 as usize] {
-                            woven.extend([idx]);
-                            if end == 0 as usize { 
-                                warp[1..].iter().map(|item| thread.push_front(*item)).fold((), |_, _| ());
-                            } else { 
-                                thread.extend(&warp[1..]) 
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        for (_, seq) in warps.iter().enumerate().filter(|(idx, _)| !woven.contains(idx)) {
-            loom.extend(vec![Thread::from(seq.iter().cloned().collect::<Thread>())]);
-        }
-        if zlevel == -1 { break }
-        bobbins = wind(&mut loom, &vectorize(&VERTS), &vert_idx);
-    }
-    for thread in &mut loom {
-        let nodes: Path = thread.iter().map(|&node| v3verts[node as usize].mirror_z(&vert_idx)).collect();
-        thread.extend(nodes.into_iter().rev());
-    }
-    loom.sort_by_key(|w| w.len());
-    loom
-}
-
-fn spool_yarn(z_adj: &Adjacency) -> Spool {
-    let verts: &Vert2dd = &VERTS.iter().clone().map(|&(x, y, _)| (x, y)).collect::<Vert2dd>();
-    let weights: Weights = make_weights(&z_adj, &VERTS);
-    let path: Path = spin(&z_adj, &weights, &VAR);
-    let natural: Yarn = convert_from_nodes(path, &verts);
-    let colored: Yarn = color(&natural);
-    Spool::from([(3, natural), (1, colored)])
+    println!("⭕️ ORDER: {:?} | ID: {:?} | {:?}", order, id, solution.len());
 }
