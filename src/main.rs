@@ -6,7 +6,6 @@ pub mod operators;
 pub mod structs;
 pub mod types;
 pub mod utils;
-pub mod solver;
 
 use graphs::data::g_448::{VERTS, ADJ, EDGES, VAR};
 use graphs::utils::make::{make_weights, make_vi_mapping, make_edges_adj};
@@ -99,11 +98,10 @@ fn warp_loom(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx) -> Loom {
                 }
             }
         }
-        for (_, seq) in warps.iter().enumerate().filter(|(idx, _)| !woven.contains(idx)) {
+        for (_, seq) in warps.iter().enumerate().filter(|(i, _)| !woven.contains(i)) {
             loom.extend(vec![VecDeque::from(seq.iter().cloned().collect::<Thread>())]);
         }
-        if zlevel == -1 { break }
-        bobbins = wind(&mut loom, &vectorize(&VERTS), &vert_idx);
+        if zlevel != -1 { bobbins = wind(&mut loom, &vectorize(&VERTS), &vert_idx) }
     }
     for thread in &mut loom {
         let nodes: Path = thread.iter().map(|&node| v3verts[node as usize].mirror_z(&vert_idx)).collect();
