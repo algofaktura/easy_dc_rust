@@ -1,2 +1,2 @@
-pub mod vector;
 pub mod cycle;
+pub mod vector;

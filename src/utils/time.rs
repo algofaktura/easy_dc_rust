@@ -1,4 +1,4 @@
-use std::time::{Instant, Duration};
+use std::time::{Duration, Instant};
 
 pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) {
     let dur: Duration = end - start;

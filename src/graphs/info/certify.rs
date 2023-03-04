@@ -5,7 +5,7 @@ use std::fmt;
 pub enum SequenceID {
     Broken,
     HamChain,
-    HamCycle
+    HamCycle,
 }
 
 impl fmt::Display for SequenceID {
@@ -20,7 +20,7 @@ impl fmt::Display for SequenceID {
 
 pub fn id_seq(seq: &Vec<u32>, adj: &HashMap<u32, HashSet<u32>>) -> SequenceID {
     for i in 1..seq.len() {
-        if !adj.get(&seq[i-1]).unwrap().contains(&seq[i]) {
+        if !adj.get(&seq[i - 1]).unwrap().contains(&seq[i]) {
             return SequenceID::Broken;
         }
     }
