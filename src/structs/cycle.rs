@@ -6,13 +6,9 @@ use crate::types::types::{Adjacency, Edge, Edges, EdgeAdjacency, Neighbors, Path
 #[allow(dead_code)]
 pub struct Cycle<'a> {
     data: Path,
-    joined: bool,
-    last: bool,
-    lead: bool,
     prev: Path,
     _eadjs: Edges,
     _edges: Edges,
-
     verts: &'a VertsC3,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
@@ -24,13 +20,9 @@ impl<'a> Cycle<'a> {
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a VertsC3,
-        lead: bool,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
             data: data.iter().cloned().collect::<Path>(),
-            joined: false,
-            last: false,
-            lead,
             prev: Path::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
@@ -46,13 +38,9 @@ impl<'a> Cycle<'a> {
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a VertsC3,
-        lead: bool,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
             data: data.iter().cloned().collect::<Path>(),
-            joined: false,
-            last: false,
-            lead,
             prev: Path::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
@@ -65,14 +53,6 @@ impl<'a> Cycle<'a> {
 
     pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect::<Vec<u32>>()
-    }
-
-    pub fn set_last(&mut self) {
-        self.last = true;
-    }
-
-    pub fn set_lead(&mut self) {
-        self.lead = true;
     }
 
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
@@ -99,7 +79,6 @@ impl<'a> Cycle<'a> {
         }
         other.rotate_to_edge(o_edge.0, o_edge.1);
         self.data.extend(&other.data);
-        self.joined = true;
     }
 
     pub fn make_edges(&self) -> Edges {
@@ -116,29 +95,20 @@ impl<'a> Cycle<'a> {
             .iter()
             .flat_map(|edge| self.edge_adj.get(edge).unwrap().iter())
             .map(|&ea| ea)
+            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
             .collect()
     }
 
     pub fn edges(&mut self) -> Edges {
         if self.prev != self.data {
-            if self.lead && !self.last {
-                self._edges = zip(
+            self._edges = zip(
                     self.data.clone(),
                     [&self.data[1..], &self.data[..1]].concat(),
                 )
                 .into_iter()
                 .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
-                .filter(|&(a, b)| {
-                    let total = self.verts[a as usize].0
-                        + self.verts[a as usize].1
-                        + self.verts[b as usize].0
-                        + self.verts[b as usize].1;
-                    (3 <= total) && (total < 9)
-                })
+                .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
                 .collect();
-            } else {
-                self._edges = self.make_edges()
-            }
             self.prev = self.data.clone()
         }
         self._edges.clone()
@@ -149,13 +119,9 @@ impl<'a> Cycle<'a> {
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a VertsC3,
-        lead: bool,
     ) -> Cycle<'a> {
         Cycle {
             data: vecdata.into_iter().collect::<Path>(),
-            joined: false,
-            last: false,
-            lead,
             prev: Path::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
@@ -164,4 +130,9 @@ impl<'a> Cycle<'a> {
             edge_adj,
         }
     }
+}
+
+fn is_valid_edge((x1, y1, _): (i32, i32, i32), (x2, y2, _): (i32, i32, i32)) -> bool {
+    let total = (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF);
+    (4 <= total) && (total <= 10)
 }

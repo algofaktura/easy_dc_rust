@@ -7,8 +7,8 @@ use super::warp::warp_loom;
 pub fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj: &EdgeAdjacency, verts: &VertsC3, var: &[[i32; 3]]) -> Solution {
     let mut warp_wefts: Wefts = warp_loom(v3verts, &adj, vert_idx, verts, var);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
-    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, VERTS, true);
-    let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, VERTS, false))).collect();
+    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, VERTS);
+    let loom: WarpedLoom = wefts.iter().enumerate().map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, VERTS))).collect();
     let mut done: Done = Done::new();
     let loom_order = loom.keys().len();
     if loom_order > 0 {
@@ -16,7 +16,6 @@ pub fn weave(v3verts: &Vectors3d, adj: &Adjacency, vert_idx: &VertIdx, edge_adj:
             for idx in loom.keys() {
                 let done_len = done.len();
                 if done_len == loom_order { break 'weaving }
-                if done_len == loom_order - 1 { warp.set_last() }
                 if done.contains(idx) { continue }
                 let mut other: Cycle = loom[&*idx].clone();
                 let mut bridge: Edges = warp.edges().intersection(&other.eadjs()).into_iter().cloned().collect::<Edges>();

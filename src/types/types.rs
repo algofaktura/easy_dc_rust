@@ -47,4 +47,3 @@ pub type Woven = Vec<usize>;
 pub type Yarn = Array2<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;
 pub type ZOrder = Vec<(Point, usize)>;
-
