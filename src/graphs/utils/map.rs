@@ -44,3 +44,7 @@ pub fn translate_verts_2d(verts: &VertsC3) -> Vectors2d {
         .map(|v| Vector2D { x: v.0, y: v.1 })
         .collect::<Vectors2d>()
 }
+
+pub fn make_verts2dd(verts: &VertsC3) -> Vert2dd {
+    verts.iter().clone().map(|&(x, y, _)| (x, y)).collect()
+}
