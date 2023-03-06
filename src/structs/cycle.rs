@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, iter::zip};
+use std::iter::zip;
 
 use crate::{
     graphs::info::info::is_valid_edge,
@@ -89,23 +89,6 @@ impl<'a> Cycle<'a> {
         }
     }
 
-    pub fn rotate_to_edge4(&mut self, left: u32, right: u32) {
-        if left == self.data[self.data.len() - 1] && right == self.data[0] {
-            self.data.reverse();
-        } else {
-            let idx_left = self.data.iter().position(|&x| x == left).unwrap();
-            let idx_right = self.data.iter().position(|&x| x == right).unwrap();
-            match idx_left.cmp(&idx_right) {
-                Ordering::Greater => self.data.rotate_left(idx_left),
-                Ordering::Less => {
-                    self.data.rotate_left(idx_right);
-                    self.data.reverse()
-                }
-                Ordering::Equal => (),
-            }
-        }
-    }
-
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
         let reversed = !self.adj.get(&edge.1).unwrap().contains(&oedge.0);
@@ -130,7 +113,6 @@ impl<'a> Cycle<'a> {
             .iter()
             .flat_map(|edge| self.edge_adj.get(edge).unwrap().iter())
             .map(|&ea| ea)
-            // .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
             .collect()
     }
 

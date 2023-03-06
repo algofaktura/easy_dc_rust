@@ -1,6 +1,6 @@
 use ndarray::{Axis, Slice};
 
-use super::spool::{cut, spool_yarn, wind};
+use super::spool;
 use crate::{
     graphs::utils::{map::vectorize, shrink::shrink_adjacency},
     structs::vector::Vector3D,
@@ -18,7 +18,7 @@ pub fn warp_loom(
     var: &[[i32; 3]],
 ) -> Loom {
     let (z_adj, z_length) = shrink_adjacency(&v3verts, &adj);
-    let spool: Spool = spool_yarn(&z_adj, verts, var);
+    let spool: Spool = spool::yarn(&z_adj, verts, var);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_length {
@@ -26,7 +26,7 @@ pub fn warp_loom(
         let woven: Woven = join_threads(&mut loom, &warps);
         add_leftovers_to_loom(&mut loom, warps, woven);
         if zlevel != -1 {
-            bobbins = wind(&mut loom, &vectorize(verts), &vert_idx);
+            bobbins = spool::wind(&mut loom, &vectorize(verts), &vert_idx);
         }
     }
     reflect_solution(&mut loom, v3verts, vert_idx);
@@ -50,7 +50,7 @@ pub fn get_warps(
     if bobbins.is_empty() {
         vec![node_yarn]
     } else {
-        cut(node_yarn, &bobbins)
+        spool::cut(node_yarn, &bobbins)
     }
 }
 

@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::structs::cycle::Cycle;
 use crate::types::types::{
     Adjacency, Done, EdgeAdjacency, Solution, Vectors3d, VertIdx, VertsC3, WarpedLoom, Wefts,
@@ -16,22 +18,24 @@ pub fn weave(
     let mut warp_wefts: Wefts = warp_loom(v3verts, &adj, vert_idx, verts, var);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, verts);
+    join_loops(warp, wefts, adj, verts, edge_adj);
+    warp.retrieve()
+}
+
+pub fn join_loops(
+    warp: &mut Cycle,
+    wefts: &mut [VecDeque<u32>],
+    adj: &Adjacency,
+    verts: &VertsC3,
+    edge_adj: &EdgeAdjacency,
+) {
     let loom: WarpedLoom = wefts
         .iter()
         .enumerate()
         .map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, verts)))
         .collect();
-    join_loops(loom.keys().len(), warp, &loom, edge_adj);
-    warp.retrieve()
-}
-
-pub fn join_loops(
-    loom_order: usize,
-    warp: &mut Cycle,
-    loom: &WarpedLoom,
-    edge_adj: &EdgeAdjacency,
-) {
     let mut done: Done = Done::new();
+    let loom_order = loom.keys().len();
     if loom_order > 0 {
         loop {
             for idx in loom.keys() {
