@@ -27,12 +27,10 @@ fn stratified_nodes(vects3d: &Vectors3d) -> ZlevelNodesMap {
 }
 
 fn filter_graph(adj: &Adjacency, nodes: &Nodes) -> Adjacency {
-    let filtered: Adjacency = adj
-        .iter()
+    adj.iter()
         .filter(|(k, _)| nodes.contains(k))
         .map(|(k, v)| (*k, v.intersection(nodes).copied().collect()))
-        .collect();
-    filtered
+        .collect()
 }
 
 pub fn get_zlevel_length(stratified: &ZlevelNodesMap) -> Vec<(Point, Count)> {
