@@ -45,25 +45,3 @@ fn main() {
         solution.len()
     );
 }
-
-// struct T;
-
-// fn speed_testT<T>(repeats: u32, data: T, f: & dyn Fn(T) -> T) -> T {
-//     let mut _result: Option<T> = None;
-//     let start = Instant::now();
-//     for _ in 0..repeats {
-//         _result = Some(f(&data));
-//     }
-//     elapsed_ms(start, Instant::now(), repeats, "WEAVE");
-//     _result.expect("No result found")
-// }
-
-// fn speed_test<T>(repeats: u32) {
-//     let mut _result: Option<T> = None;
-//     let start = Instant::now();
-//     for _ in 0..repeats {
-//         _result = Some();
-//     }
-//     elapsed_ms(start, Instant::now(), repeats, "WEAVE");
-//     _result.expect("No result found")
-// }
