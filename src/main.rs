@@ -27,7 +27,8 @@ fn main() {
     let adj: Adjacency = map_graph(&ADJ);
     let v3verts: Vectors3d = vectorize(&VERTS);
     let vert_idx: VertIdx = make_vi_mapping(&v3verts);
-    let edge_adj: EdgeAdjacency = make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>());
+    let edge_adj: EdgeAdjacency =
+        make_edges_adj(&adj, &EDGES.iter().cloned().collect::<Edges>(), VERTS);
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats {
@@ -37,11 +38,6 @@ fn main() {
 
     let id: SequenceID = id_seq(&solution, &adj);
     assert_eq!(HamCycle, id);
-    println!("{:?}", id);
-    println!(
-        "⭕️ ORDER: {:?} | ID: {:?} | {:?}",
-        order,
-        id,
-        solution.len()
-    );
+    println!("{}", id);
+    println!("⭕️ ORDER: {:?} | ID: {} | {:?}", order, id, solution.len());
 }

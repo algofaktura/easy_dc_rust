@@ -1,7 +1,6 @@
 use crate::structs::cycle::Cycle;
 use crate::types::types::{
-    Adjacency, Done, Edge, EdgeAdjacency, Edges, Solution, Vectors3d, VertIdx, VertsC3, WarpedLoom,
-    Wefts,
+    Adjacency, Done, EdgeAdjacency, Solution, Vectors3d, VertIdx, VertsC3, WarpedLoom, Wefts,
 };
 
 use super::warp::warp_loom;
@@ -22,41 +21,39 @@ pub fn weave(
         .enumerate()
         .map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, verts)))
         .collect();
+    join_loops(loom.keys().len(), warp, &loom, edge_adj);
+    warp.retrieve()
+}
+
+pub fn join_loops(
+    loom_order: usize,
+    warp: &mut Cycle,
+    loom: &WarpedLoom,
+    edge_adj: &EdgeAdjacency,
+) {
     let mut done: Done = Done::new();
-    let loom_order = loom.keys().len();
     if loom_order > 0 {
-        'weaving: loop {
+        loop {
             for idx in loom.keys() {
-                let done_len = done.len();
-                if done_len == loom_order {
-                    break 'weaving;
-                }
-                if done.contains(idx) {
-                    continue;
-                }
-                let mut other: Cycle = loom[&*idx].clone();
-                let mut bridge: Edges = warp
-                    .edges()
-                    .intersection(&other.eadjs())
-                    .into_iter()
-                    .cloned()
-                    .collect::<Edges>();
-                if !bridge.is_empty() {
-                    let warp_e: Edge = bridge.drain().next().unwrap();
-                    let mut weft_es: Edges = edge_adj
-                        .get(&warp_e)
-                        .unwrap()
-                        .intersection(&other.edges())
-                        .into_iter()
-                        .cloned()
-                        .collect::<Edges>();
-                    if !weft_es.is_empty() {
-                        warp.join(warp_e, weft_es.drain().next().unwrap(), &mut other);
-                        done.extend([idx]);
+                if done.len() != loom_order {
+                    if !done.contains(idx) {
+                        let mut other: Cycle = loom[&*idx].clone();
+                        if let Some(warp_e) = warp.edges().intersection(&other.eadjs()).next() {
+                            if let Some(weft_e) = edge_adj
+                                .get(&warp_e)
+                                .unwrap()
+                                .intersection(&other.edges())
+                                .next()
+                            {
+                                warp.join(*warp_e, *weft_e, &mut other);
+                                done.extend([idx])
+                            }
+                        }
                     }
+                } else {
+                    return;
                 }
             }
         }
     }
-    warp.retrieve()
 }

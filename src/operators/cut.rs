@@ -1,8 +1,15 @@
-use crate::types::types::{Bobbins, Idx, Idxs, Subtours, Tour};
+extern crate itertools;
+
+use itertools::Itertools;
+
+use crate::types::types::{Bobbins, Idx, Subtours, Tour};
 
 pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
-    let mut subtours: Subtours = vec![];
-    let mut idxs: Idxs = tour
+    let mut subtours: Subtours = Vec::new();
+    let last_ix: Idx = tour.len() - 1;
+    let last_idx: Idx = subset.len() - 1;
+    let mut prev: i32 = -1 as i32;
+    for (e, idx) in tour
         .iter()
         .enumerate()
         .filter_map(|(i, &node)| {
@@ -12,34 +19,32 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
                 None
             }
         })
-        .collect::<Idxs>();
-    idxs.sort();
-    let last_ix: Idx = tour.len() - 1;
-    let mut prev: i32 = -1 as i32;
-    for (e, idx) in idxs.iter().enumerate() {
-        if e == idxs.len() - 1 && *idx != last_ix {
+        .sorted()
+        .enumerate()
+    {
+        if e == last_idx && idx != last_ix {
             for subtour in vec![
-                tour[(prev + 1) as usize..*idx].to_vec(),
-                tour[*idx..].to_vec(),
+                tour[(prev + 1) as usize..idx].to_vec(),
+                tour[idx..].to_vec(),
             ] {
                 if !subtour.is_empty() {
-                    if subset.contains(&subtour[0]) {
-                        subtours.push(subtour)
+                    subtours.push(if subset.contains(&subtour[0]) {
+                        subtour
                     } else {
-                        subtours.push(subtour.into_iter().rev().collect())
-                    }
+                        subtour.iter().rev().cloned().collect()
+                    });
                 }
             }
         } else {
-            let subtour: Tour = tour[(prev + 1) as usize..=*idx].to_vec();
+            let subtour = tour[(prev + 1) as usize..=idx].to_vec();
             if !subtour.is_empty() {
-                if subset.contains(&subtour[0]) {
-                    subtours.push(subtour)
+                subtours.push(if subset.contains(&subtour[0]) {
+                    subtour
                 } else {
-                    subtours.push(subtour.iter().rev().cloned().collect())
-                }
+                    subtour.iter().rev().cloned().collect()
+                });
             }
-            prev = *idx as i32
+            prev = idx as i32;
         }
     }
     subtours
