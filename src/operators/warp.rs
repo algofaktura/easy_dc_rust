@@ -1,6 +1,6 @@
 use ndarray::{Axis, Slice};
 
-use super::{cut::cut, spool::spool_yarn, wind::wind};
+use super::spool::{cut, spool_yarn, wind};
 use crate::{
     graphs::utils::{map::vectorize, shrink::shrink_adjacency},
     structs::vector::Vector3D,
