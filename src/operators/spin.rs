@@ -1,4 +1,6 @@
-use crate::types::types::{Adjacency, Count, Idx, Neighbors, Node, Path, PathSlice, Weights, V3d, V3Slice};
+use crate::types::types::{
+    Adjacency, Count, Idx, Neighbors, Node, Tour, TourSlice, V3Slice, V3d, Weights,
+};
 
 #[derive(PartialEq, Debug, Eq, Hash)]
 pub enum Axis {
@@ -34,15 +36,13 @@ pub fn get_edge_axis(m_vert: &V3d, n_vert: &V3d) -> Axis {
 }
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
-    (0..2).find(|&i| m_vert[i] != n_vert[i]).expect("VERTS ARE SIMILAR")
+    (0..2)
+        .find(|&i| m_vert[i] != n_vert[i])
+        .expect("VERTS ARE SIMILAR")
 }
 
-pub fn spin(
-    adj: &Adjacency,
-    weights: &Weights,
-    verts: V3Slice,
-) -> Path {
-    let path: &mut Path = &mut vec![*adj.keys().max().unwrap() as Node];
+pub fn spin(adj: &Adjacency, weights: &Weights, verts: V3Slice) -> Tour {
+    let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
     let order: Count = adj.len();
     let limit: Count = order - 5;
     for idx in 1..order {
@@ -55,13 +55,8 @@ pub fn spin(
     path.to_vec()
 }
 
-pub fn get_next(
-    path: PathSlice,
-    adj: &Adjacency,
-    weights: &Weights,
-) -> Node {
-    adj
-        .get(path.last().unwrap())
+pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
+    adj.get(path.last().unwrap())
         .unwrap()
         .iter()
         .filter(|n| !path.contains(*n))
@@ -70,30 +65,19 @@ pub fn get_next(
         .unwrap()
 }
 
-pub fn get_next1(
-    path: PathSlice,
-    adj: &Adjacency,
-    weights: &Weights,
-) -> Node {
-    *adj
-        .get(path.last().expect("Path is empty"))
+pub fn get_next1(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
+    *adj.get(path.last().expect("Path is empty"))
         .expect("No adjacent vertices found")
         .difference(&path.iter().copied().collect::<Neighbors>())
         .max_by_key(|&n| weights.get_key_value(&n).unwrap().1)
         .expect("No unvisited adjacent vertices found")
 }
 
-pub fn get_next_xyz(
-    path: PathSlice,
-    adj: &Adjacency,
-    weights: &Weights,
-    verts: V3Slice,
-) -> Node {
+pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: V3Slice) -> Node {
     let curr: &Node = path.last().unwrap();
     let curr_vert: &V3d = &verts[*curr as usize];
     let prev_vert: &V3d = &verts[path[path.len() - 2] as usize];
-    adj
-        .get(curr)
+    adj.get(curr)
         .unwrap()
         .iter()
         .filter(|n| !path.contains(*n))

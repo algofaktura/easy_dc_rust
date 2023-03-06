@@ -1,12 +1,11 @@
 use std::iter::zip;
 
-use crate::types::types::{Adjacency, Edge, Edges, EdgeAdjacency, Neighbors, Path, Solution, Thread, VertsC3};
+use crate::types::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3};
 
 #[derive(Clone, Debug)]
-#[allow(dead_code)]
 pub struct Cycle<'a> {
-    data: Path,
-    prev: Path,
+    data: Tour,
+    prev: Tour,
     _eadjs: Edges,
     _edges: Edges,
     verts: &'a VertsC3,
@@ -22,8 +21,8 @@ impl<'a> Cycle<'a> {
         verts: &'a VertsC3,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
-            data: data.iter().cloned().collect::<Path>(),
-            prev: Path::new(),
+            data: data.iter().cloned().collect::<Tour>(),
+            prev: Tour::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
             verts,
@@ -34,14 +33,14 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn new_from_vec(
-        data: &Path,
+        data: &Tour,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a VertsC3,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
-            data: data.iter().cloned().collect::<Path>(),
-            prev: Path::new(),
+            data: data.iter().cloned().collect::<Tour>(),
+            prev: Tour::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
             verts,
@@ -72,12 +71,11 @@ impl<'a> Cycle<'a> {
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
-        let neighs: &Neighbors = self.adj.get(&edge.1).unwrap();
-        let mut o_edge: Edge = (oedge.0, oedge.1);
-        if !neighs.contains(&oedge.0) {
-            o_edge = (oedge.1, oedge.0);
-        }
-        other.rotate_to_edge(o_edge.0, o_edge.1);
+        let reversed = !self.adj.get(&edge.1).unwrap().contains(&oedge.0);
+        other.rotate_to_edge(
+            if reversed { oedge.1 } else { oedge.0 },
+            if reversed { oedge.0 } else { oedge.1 },
+        );
         self.data.extend(&other.data);
     }
 
@@ -102,13 +100,13 @@ impl<'a> Cycle<'a> {
     pub fn edges(&mut self) -> Edges {
         if self.prev != self.data {
             self._edges = zip(
-                    self.data.clone(),
-                    [&self.data[1..], &self.data[..1]].concat(),
-                )
-                .into_iter()
-                .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
-                .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
-                .collect();
+                self.data.clone(),
+                [&self.data[1..], &self.data[..1]].concat(),
+            )
+            .into_iter()
+            .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
+            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            .collect();
             self.prev = self.data.clone()
         }
         self._edges.clone()
@@ -121,8 +119,8 @@ impl<'a> Cycle<'a> {
         verts: &'a VertsC3,
     ) -> Cycle<'a> {
         Cycle {
-            data: vecdata.into_iter().collect::<Path>(),
-            prev: Path::new(),
+            data: vecdata.into_iter().collect::<Tour>(),
+            prev: Tour::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
             verts,

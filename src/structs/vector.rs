@@ -1,5 +1,6 @@
-use crate::types::types::{Node, Path, Point, PathSlice, Vectors2d, Vectors3d, VertIdx, VertsC2, Vert2dd, Yarn};
-
+use crate::types::types::{
+    Node, Point, Tour, TourSlice, Vectors2d, Vectors3d, Vert2dd, VertIdx, VertsC2, Yarn,
+};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Vector3D {
@@ -74,7 +75,7 @@ pub fn convert_from_3d(vec3ds: &Vectors3d) -> Vectors2d {
     vec3ds.iter().map(|v| Vector2D::from_3d(*v)).collect()
 }
 
-pub fn convert_from_nodes(path: Path, verts: &Vert2dd) -> Yarn {
+pub fn convert_from_nodes(path: Tour, verts: &Vert2dd) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
@@ -82,7 +83,7 @@ pub fn convert_from_nodes(path: Path, verts: &Vert2dd) -> Yarn {
     )
 }
 
-pub fn convert_from_nodes_slice(path: PathSlice, verts: &VertsC2) -> Yarn {
+pub fn convert_from_nodes_slice(path: TourSlice, verts: &VertsC2) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])

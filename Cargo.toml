@@ -8,5 +8,11 @@ edition = "2021"
 ndarray = "0.15.6"
 common_macros = "0.1.1"
 lazy_static = "1.4.0"
-quote = "1.0.23"
-syn = "1.0"
+
+[profile.release]
+debug = true
+lto = true
+opt-level = 3
+
+
+

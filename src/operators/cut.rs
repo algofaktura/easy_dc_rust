@@ -1,7 +1,7 @@
-use crate::types::types::{Bobbins, Idx, Idxs, Path, Paths, Subtours};
+use crate::types::types::{Bobbins, Idx, Idxs, Subtours, Tour};
 
-pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
-    let mut subtours: Paths = vec![];
+pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
+    let mut subtours: Subtours = vec![];
     let mut idxs: Idxs = tour
         .iter()
         .enumerate()
@@ -31,7 +31,7 @@ pub fn cut(tour: Path, subset: &Bobbins) -> Subtours {
                 }
             }
         } else {
-            let subtour: Path = tour[(prev + 1) as usize..=*idx].to_vec();
+            let subtour: Tour = tour[(prev + 1) as usize..=*idx].to_vec();
             if !subtour.is_empty() {
                 if subset.contains(&subtour[0]) {
                     subtours.push(subtour)

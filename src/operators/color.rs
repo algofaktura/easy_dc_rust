@@ -3,7 +3,6 @@ use ndarray::arr2;
 use crate::types::types::Yarn;
 
 pub fn color(a: &Yarn) -> Yarn {
-    // A combination of reflect() and shift()
     a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
 }
 

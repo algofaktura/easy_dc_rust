@@ -4,7 +4,7 @@ use crate::types::types::*;
 pub fn map_graph(graph: &AdjC) -> Adjacency {
     graph
         .iter()
-        .map(|(node, neighbors)| (*node, neighbors.iter().cloned().collect()))
+        .map(|(node, neighbors)| (*node, neighbors.iter().cloned().collect::<Neighbors>()))
         .collect()
 }
 
@@ -19,7 +19,18 @@ pub fn vectorize(verts: &VertsC3) -> Vectors3d {
         .collect::<Vectors3d>()
 }
 
-pub fn convert_from_nodes(path: Path, verts: &Vert2dd) -> Yarn {
+pub fn vectorize2(verts: &VertsC3) -> Vectors3d {
+    verts
+        .iter()
+        .map(|(_x, _y, _z)| Vector3D {
+            x: *_x,
+            y: *_y,
+            z: *_z
+        })
+        .collect::<Vectors3d>()
+}
+
+pub fn convert_from_nodes(path: Tour, verts: &Vert2dd) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
