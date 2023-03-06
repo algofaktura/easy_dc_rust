@@ -38,7 +38,8 @@ impl Vector3D {
         x: Point, 
         y: Point, 
         z: Point, 
-        vert_idx: &VertIdx) -> Node {
+        vert_idx: &VertIdx
+    ) -> Node {
         vert_idx
             .get(&Vector3D { x, y, z })
             .unwrap()
