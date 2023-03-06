@@ -34,8 +34,14 @@ impl Vector3D {
             .unwrap()
     }
 
-    pub fn to_node(x: Point, y: Point, z: Point, vert_idx: &VertIdx) -> Node {
-        vert_idx.get(&Vector3D { x, y, z }).unwrap().clone()
+    pub fn to_node(
+        x: Point, 
+        y: Point, 
+        z: Point, 
+        vert_idx: &VertIdx) -> Node {
+        vert_idx
+            .get(&Vector3D { x, y, z })
+            .unwrap()
     }
 
     pub fn to_2d(&self) -> Vector2D {
@@ -66,7 +72,10 @@ impl Vector2D {
 }
 
 pub fn convert_to_2d(vec3ds: &Vectors3d) -> Vectors2d {
-    vec3ds.iter().map(|v| v.to_2d()).collect()
+    vec3ds
+        .iter()
+        .map(|v| v.to_2d())
+        .collect()
 }
 
 pub fn convert_from_3d(vec3ds: &Vectors3d) -> Vectors2d {
@@ -97,12 +106,12 @@ where
     T: TryInto<usize> + Copy,
     <T as TryInto<usize>>::Error: std::fmt::Debug,
 {
-    Yarn::from(
-        path.iter()
-            .map(|&n| {
-                let vector = verts[n.try_into().unwrap()];
-                [vector.0, vector.1]
-            })
-            .collect::<Vec<[i32; 2]>>(),
+    Yarn::from(path
+        .iter()
+        .map(|&n| {
+            let vector = verts[n.try_into().unwrap()];
+            [vector.0, vector.1]
+        })
+        .collect::<Vec<[i32; 2]>>(),
     )
 }
