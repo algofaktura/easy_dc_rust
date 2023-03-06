@@ -1,6 +1,9 @@
-use std::iter::zip;
+use std::{cmp::Ordering, iter::zip};
 
-use crate::types::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3};
+use crate::{
+    graphs::info::info::is_valid_edge,
+    types::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
+};
 
 #[derive(Clone, Debug)]
 pub struct Cycle<'a> {
@@ -58,6 +61,23 @@ impl<'a> Cycle<'a> {
         if left == self.data[self.data.len() - 1] && right == self.data[0] {
             self.data.reverse();
         } else {
+            match (
+                self.data.iter().position(|&x| x == left).unwrap(),
+                self.data.iter().position(|&x| x == right).unwrap(),
+            ) {
+                (ixl, ixr) if ixl < ixr => {
+                    self.data.rotate_left(ixr);
+                    self.data.reverse()
+                }
+                (ixl, _) => self.data.rotate_left(ixl),
+            }
+        }
+    }
+
+    pub fn rotate_to_edge2(&mut self, left: u32, right: u32) {
+        if left == self.data[self.data.len() - 1] && right == self.data[0] {
+            self.data.reverse();
+        } else {
             let idx_left = self.data.iter().position(|&x| x == left).unwrap();
             let idx_right = self.data.iter().position(|&x| x == right).unwrap();
             if idx_left > idx_right {
@@ -65,6 +85,23 @@ impl<'a> Cycle<'a> {
             } else {
                 self.data.rotate_left(idx_right);
                 self.data.reverse()
+            }
+        }
+    }
+
+    pub fn rotate_to_edge4(&mut self, left: u32, right: u32) {
+        if left == self.data[self.data.len() - 1] && right == self.data[0] {
+            self.data.reverse();
+        } else {
+            let idx_left = self.data.iter().position(|&x| x == left).unwrap();
+            let idx_right = self.data.iter().position(|&x| x == right).unwrap();
+            match idx_left.cmp(&idx_right) {
+                Ordering::Greater => self.data.rotate_left(idx_left),
+                Ordering::Less => {
+                    self.data.rotate_left(idx_right);
+                    self.data.reverse()
+                }
+                Ordering::Equal => (),
             }
         }
     }
@@ -93,7 +130,7 @@ impl<'a> Cycle<'a> {
             .iter()
             .flat_map(|edge| self.edge_adj.get(edge).unwrap().iter())
             .map(|&ea| ea)
-            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            // .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
             .collect()
     }
 
@@ -128,9 +165,4 @@ impl<'a> Cycle<'a> {
             edge_adj,
         }
     }
-}
-
-fn is_valid_edge((x1, y1, _): (i32, i32, i32), (x2, y2, _): (i32, i32, i32)) -> bool {
-    let total = (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF);
-    (4 <= total) && (total <= 10)
 }

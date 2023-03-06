@@ -25,7 +25,7 @@ pub fn vectorize2(verts: &VertsC3) -> Vectors3d {
         .map(|(_x, _y, _z)| Vector3D {
             x: *_x,
             y: *_y,
-            z: *_z
+            z: *_z,
         })
         .collect::<Vectors3d>()
 }
