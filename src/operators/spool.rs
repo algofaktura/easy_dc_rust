@@ -1,13 +1,18 @@
 extern crate itertools;
 
 use itertools::Itertools;
-use ndarray::arr2;
 
-use super::spin::spin;
+use super::operators::{color, get_axis};
 
 use crate::{
-    graphs::utils::{make::make_weights, map::{convert_from_nodes, make_verts2dd}},
-    types::types::{Adjacency, Bobbins, Idx, Loom, Spool, Subtours, Tour, Vectors3d, Vert2dd, VertsC3, VertIdx, Weights, Yarn},
+    graphs::utils::{
+        make::make_weights,
+        map::{convert_from_nodes, make_verts2dd},
+    },
+    types::types::{
+        Adjacency, Bobbins, Count, Idx, Loom, Node, Spool, Subtours, Tour, TourSlice, V3Slice, V3d,
+        Vectors3d, Vert2dd, VertIdx, VertsC3, Weights, Yarn,
+    },
 };
 
 pub fn spool_yarn(z_adj: &Adjacency, verts: &VertsC3, var: &[[i32; 3]]) -> Spool {
@@ -17,18 +22,6 @@ pub fn spool_yarn(z_adj: &Adjacency, verts: &VertsC3, var: &[[i32; 3]]) -> Spool
     let natural: Yarn = convert_from_nodes(path, verts2dd);
     let colored: Yarn = color(&natural);
     Spool::from([(3, natural), (1, colored)])
-}
-
-pub fn color(a: &Yarn) -> Yarn {
-    a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
-}
-
-pub fn reflect(a: &Yarn) -> Yarn {
-    a.clone().dot(&arr2(&[[-1, 0], [0, -1]]))
-}
-
-pub fn shift(a: Yarn) -> Yarn {
-    a + arr2(&[[0, 2]])
 }
 
 pub fn wind(loom: &mut Loom, verts: &Vectors3d, vert_idx: &VertIdx) -> Bobbins {
@@ -88,4 +81,43 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
         }
     }
     subtours
+}
+
+pub fn spin(adj: &Adjacency, weights: &Weights, verts: V3Slice) -> Tour {
+    let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
+    let order: Count = adj.len();
+    let limit: Count = order - 5;
+    for idx in 1..order {
+        path.push(if idx < limit {
+            get_next(&path, adj, weights)
+        } else {
+            get_next_xyz(&path, adj, weights, verts)
+        })
+    }
+    path.to_vec()
+}
+
+pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
+    adj.get(path.last().unwrap())
+        .unwrap()
+        .iter()
+        .filter(|n| !path.contains(*n))
+        .copied()
+        .max_by_key(|&n| *weights.get(&n).unwrap())
+        .unwrap()
+}
+
+pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: V3Slice) -> Node {
+    let curr: &Node = path.last().unwrap();
+    let curr_vert: &V3d = &verts[*curr as usize];
+    let prev_vert: &V3d = &verts[path[path.len() - 2] as usize];
+    adj.get(curr)
+        .unwrap()
+        .iter()
+        .filter(|n| !path.contains(*n))
+        .map(|&n| (n, get_axis(curr_vert, &verts[n as usize])))
+        .filter(|(_, next_axis)| *next_axis != get_axis(prev_vert, curr_vert))
+        .max_by_key(|&(n, _)| weights[&n])
+        .unwrap()
+        .0
 }
