@@ -1,9 +1,11 @@
+use ndarray::arr2;
+
+use super::spin::spin;
+
 use crate::{
     graphs::utils::{make::make_weights, map::convert_from_nodes},
     types::types::{Adjacency, Spool, Tour, Vert2dd, VertsC3, Weights, Yarn},
 };
-
-use super::{color::color, spin::spin};
 
 pub fn spool_yarn(z_adj: &Adjacency, verts: &VertsC3, var: &[[i32; 3]]) -> Spool {
     let verts2dd: &Vert2dd = &make_verts2dd(verts);
@@ -16,4 +18,16 @@ pub fn spool_yarn(z_adj: &Adjacency, verts: &VertsC3, var: &[[i32; 3]]) -> Spool
 
 pub fn make_verts2dd(verts: &VertsC3) -> Vert2dd {
     verts.iter().clone().map(|&(x, y, _)| (x, y)).collect()
+}
+
+pub fn color(a: &Yarn) -> Yarn {
+    a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
+}
+
+pub fn reflect(a: &Yarn) -> Yarn {
+    a.clone().dot(&arr2(&[[-1, 0], [0, -1]]))
+}
+
+pub fn shift(a: Yarn) -> Yarn {
+    a + arr2(&[[0, 2]])
 }
