@@ -1,4 +1,4 @@
-use crate::types::types::{Adjacency, Nodes, Point, Points, Vectors3d, ZlevelNodesMap, Count};
+use crate::types::types::{Adjacency, Count, Nodes, Point, Points, Vectors3d, ZlevelNodesMap};
 
 pub fn shrink_adjacency(vects3d: &Vectors3d, adj: &Adjacency) -> (Adjacency, Vec<(i32, usize)>) {
     let stratified: ZlevelNodesMap = stratified_nodes(vects3d);
@@ -26,10 +26,7 @@ fn stratified_nodes(vects3d: &Vectors3d) -> ZlevelNodesMap {
         .collect()
 }
 
-fn filter_graph(
-    adj: &Adjacency,
-    nodes: &Nodes,
-) -> Adjacency {
+fn filter_graph(adj: &Adjacency, nodes: &Nodes) -> Adjacency {
     let filtered: Adjacency = adj
         .iter()
         .filter(|(k, _)| nodes.contains(k))

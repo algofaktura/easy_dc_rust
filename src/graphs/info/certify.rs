@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::types::types::{Solution, Adjacency};
+use crate::types::types::{Adjacency, Solution};
 
 #[derive(Debug, PartialEq)]
 pub enum SequenceID {
