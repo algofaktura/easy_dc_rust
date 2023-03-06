@@ -22,7 +22,6 @@ impl Vector3D {
                 z: self.z + 2,
             })
             .unwrap()
-            .clone()
     }
 
     pub fn mirror_z(&self, vert_idx: &VertIdx) -> Node {
@@ -33,7 +32,6 @@ impl Vector3D {
                 z: -self.z,
             })
             .unwrap()
-            .clone()
     }
 
     pub fn to_node(x: Point, y: Point, z: Point, vert_idx: &VertIdx) -> Node {
@@ -72,22 +70,25 @@ pub fn convert_to_2d(vec3ds: &Vectors3d) -> Vectors2d {
 }
 
 pub fn convert_from_3d(vec3ds: &Vectors3d) -> Vectors2d {
-    vec3ds.iter().map(|v| Vector2D::from_3d(*v)).collect()
+    vec3ds
+        .iter()
+        .map(|v| Vector2D::from_3d(*v))
+        .collect()
 }
 
 pub fn convert_from_nodes(path: Tour, verts: &Vert2dd) -> Yarn {
-    Yarn::from(
-        path.iter()
-            .map(|&n| [verts[n as usize].0, verts[n as usize].1])
-            .collect::<Vec<[i32; 2]>>(),
+    Yarn::from(path
+        .iter()
+        .map(|&n| [verts[n as usize].0, verts[n as usize].1])
+        .collect::<Vec<[i32; 2]>>()
     )
 }
 
 pub fn convert_from_nodes_slice(path: TourSlice, verts: &VertsC2) -> Yarn {
-    Yarn::from(
-        path.iter()
-            .map(|&n| [verts[n as usize].0, verts[n as usize].1])
-            .collect::<Vec<[i32; 2]>>(),
+    Yarn::from(path
+        .iter()
+        .map(|&n| [verts[n as usize].0, verts[n as usize].1])
+        .collect::<Vec<[i32; 2]>>()
     )
 }
 
