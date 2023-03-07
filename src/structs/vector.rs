@@ -10,9 +10,10 @@ pub struct Vector3D {
 }
 
 impl Vector3D {
-    pub fn new(x: Point, y: Point, z: Point) -> Self {
-        Self { x, y, z }
-    }
+    pub fn new(
+        x: Point, 
+        y: Point, 
+        z: Point) -> Self { Self { x, y, z } }
 
     pub fn get_upper_node(&self, vert_idx: &VertIdx) -> Node {
         vert_idx
