@@ -109,7 +109,10 @@ impl<'a> Cycle<'a> {
             )
             .into_iter()
             .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
-            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            .filter(
+                |&(a, b)| 
+                is_valid_edge(self.verts[a as usize], self.verts[b as usize])
+            )
             .collect();
             self.prev = self.data.clone()
         }
