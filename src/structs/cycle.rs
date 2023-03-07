@@ -74,21 +74,6 @@ impl<'a> Cycle<'a> {
         }
     }
 
-    pub fn rotate_to_edge2(&mut self, left: u32, right: u32) {
-        if left == self.data[self.data.len() - 1] && right == self.data[0] {
-            self.data.reverse();
-        } else {
-            let idx_left = self.data.iter().position(|&x| x == left).unwrap();
-            let idx_right = self.data.iter().position(|&x| x == right).unwrap();
-            if idx_left > idx_right {
-                self.data.rotate_left(idx_left);
-            } else {
-                self.data.rotate_left(idx_right);
-                self.data.reverse()
-            }
-        }
-    }
-
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
         let reversed = !self.adj.get(&edge.1).unwrap().contains(&oedge.0);
