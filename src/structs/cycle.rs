@@ -1,8 +1,8 @@
 use std::iter::zip;
 
 use crate::{
-    graphs::info::info::is_valid_edge,
-    types::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
+    graph::check::is_valid_edge,
+    graph::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
 };
 
 #[derive(Clone, Debug)]
@@ -109,10 +109,7 @@ impl<'a> Cycle<'a> {
             )
             .into_iter()
             .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
-            .filter(
-                |&(a, b)| 
-                is_valid_edge(self.verts[a as usize], self.verts[b as usize])
-            )
+            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
             .collect();
             self.prev = self.data.clone()
         }

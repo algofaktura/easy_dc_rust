@@ -1,8 +1,9 @@
 use std::time::{Duration, Instant};
 
-pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) {
+pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
     let dur: Duration = end - start;
-    println!("x{repeats}: {name}() took {} secs", dur.as_secs_f64())
+    println!("x{repeats}: {name}() took {} secs", dur.as_secs_f64());
+    dur.as_secs_f64()
 }
 
 // struct T;
