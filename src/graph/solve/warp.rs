@@ -2,22 +2,19 @@ use ndarray::{Axis, Slice};
 
 use super::spool;
 use crate::{
-    graph::translate::from_v3c_to_vect3d,
     graph::types::{
-        Adjacency, Bobbins, Count, Loom, Point, Spool, Thread, Tour, Vectors3d,
-        Warps, Woven, Yarn, Verts, Weights, VIMap, Varr
+        Adjacency, Bobbins, Count, Loom, Point, Spool, Thread, Tour,
+        Warps, Woven, Yarn, Verts, Weights, VIMap, Varr, ZOrder
     },
-    structs::vector::Vector3D,
 };
 
 pub fn warp_loom(
-    v3verts: &Vectors3d,
     vert_idx: &VIMap,
     verts: &Verts,
     var: &Varr,
     weights: &Weights,
     z_adj: &Adjacency,
-    z_length: &Vec<(i32, usize)>
+    z_length: &ZOrder
 ) -> Loom {
     let spool: Spool = spool::yarn(&z_adj, verts, var, weights);
     let mut bobbins: Bobbins = Vec::new();
@@ -27,10 +24,10 @@ pub fn warp_loom(
         let woven: Woven = join_threads(&mut loom, &warps);
         affix_loose_threads(&mut loom, warps, woven);
         if *zlevel != -1 {
-            bobbins = spool::wind(&mut loom, &from_v3c_to_vect3d(verts), &vert_idx);
+            bobbins = spool::wind(&mut loom, verts, &vert_idx);
         }
     }
-    reflect_solution(&mut loom, v3verts, vert_idx);
+    reflect_solution(&mut loom, verts, vert_idx);
     loom.sort_by_key(|w| w.len());
     loom
 }
@@ -61,7 +58,7 @@ pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vert_idx: &VIM
         Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1),
     );
     yarn.outer_iter()
-        .map(|row| Vector3D::to_node(row[0], row[1], zlevel, &vert_idx))
+        .map(|row| vert_idx[&(row[0], row[1], zlevel)])
         .collect()
 }
 
@@ -100,14 +97,15 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_solution(loom: &mut Loom, v3verts: &Vectors3d, vert_idx: &VIMap) {
+pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) {
     for thread in loom {
         thread.extend(
             thread
                 .iter()
                 .rev()
-                .map(|&node| v3verts[node as usize].mirror_z(vert_idx))
-                .collect::<Tour>(),
+                .map(|&node| verts[node as usize])
+                .map(|(x, y, z)| vert_idx[&(x, y, -z)])
+                .collect::<Tour>()
         )
     }
 }

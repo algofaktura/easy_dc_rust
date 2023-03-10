@@ -8,7 +8,6 @@ use crate::structs::vector::{Vector2D, Vector3D};
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];
 pub type Bobbins = Vec<Node>;
-
 pub type Count = usize;
 pub type Done = HashSet<usize>;
 pub type Edge = (Node, Node);
