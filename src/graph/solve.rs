@@ -1,16 +1,22 @@
 extern crate itertools;
-
 use itertools::Itertools;
 
-use crate::graph::translate::{self, from_verts_to_vertsc};
+use crate::graph::structs::Cycle;
+use crate::graph::translate::{
+    self, from_verts_to_vertsc
+};
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
     Subtours, Thread, Tour, VIMap, Vert2dd, Verts, VertsC3, WarpedLoom, Warps, Wefts, Weights,
     Woven, Yarn, ZOrder,
 };
-use crate::utils::operators::{color, get_next, get_next_xyz, get_node_yarn, get_upper_nodes};
-
-use crate::graph::structs::Cycle;
+use crate::graph::utils::{
+    color, 
+    get_next, 
+    get_next_xyz, 
+    get_node_yarn, 
+    get_upper_nodes
+};
 
 pub fn weave(
     adj: &Adjacency,
