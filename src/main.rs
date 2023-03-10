@@ -2,17 +2,16 @@ use std::collections::HashMap;
 use std::env;
 use std::time::Instant;
 
-pub mod compare;
 pub mod graph;
 pub mod structs;
 pub mod utils;
 
 use graph::check::{id_seq, SequenceID};
-use graph::make::adjacency_edges::{make_adj, make_edges_from_adj};
-use graph::make::edges_adjacency::make_edges_adj;
-use graph::make::vert_idx::make_vi_mapping;
-use graph::make::vertices::make_vertices;
-use graph::make::weights::make_weights;
+use graph::make::{make_adj, make_edges_from_adj};
+use graph::make::make_edges_adj;
+use graph::make::make_vi_mapping;
+use graph::make::make_vertices;
+use graph::make::make_weights;
 use graph::measure::get_max_xyz;
 use graph::shrink::shrink_adjacency;
 use graph::solve::weave::weave;
