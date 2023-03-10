@@ -52,7 +52,7 @@ pub fn warp_loom(
 pub fn yarn(z_adj: &Adjacency, verts: &Verts, weights: &Weights) -> Spool {
     let verts2dd: &Vert2dd = &convert::from_v3c_to_v2c(verts);
     let path: Tour = spin(&z_adj, &weights, verts);
-    let natural: Yarn = convert::from_nodes_to_yarn(path, verts2dd);
+    let natural: Yarn = from_nodes_to_yarn(path, verts2dd);
     let colored: Yarn = color(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
@@ -104,6 +104,14 @@ pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2)
         .find(|&i| m_vert[i] != n_vert[i])
         .expect("VERTS ARE SIMILAR")
+}
+
+pub fn from_nodes_to_yarn(path: Tour, verts: &Vert2dd) -> Yarn {
+    Yarn::from(
+        path.iter()
+            .map(|&n| [verts[n as usize].0, verts[n as usize].1])
+            .collect::<Vec<[Point; 2]>>(),
+    )
 }
 
 pub fn color(a: &Yarn) -> Yarn {
