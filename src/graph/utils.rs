@@ -86,10 +86,6 @@ pub fn edist((x, y, z): Vert) -> Point {
     ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
 }
 
-pub fn edist_f32((x, y, z): Vert) -> f32 {
-    ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt()
-}
-
 pub fn get_max_xyz(order: i32) -> Point {
     (0..order)
         .map(|n| {
