@@ -28,7 +28,7 @@ fn filtered_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
         .collect()
 }
 
-pub fn get_zlevel_length(stratified: &ZlevelNodesMap) -> ZOrder {
+pub fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
     stratified
         .iter()
         .map(|(&level, nodes)| (level, nodes.len()))
@@ -40,6 +40,6 @@ pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
     let stratified: ZlevelNodesMap = stratified_nodes(verts);
     (
         filtered_adjacency(&adj, stratified[&(-1 as Point)].clone()),
-        get_zlevel_length(&stratified),
+        get_zlevel_order(&stratified),
     )
 }
