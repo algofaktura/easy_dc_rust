@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 use ndarray::{Array2, Array3};
 
-use crate::graph::cycle::Cycle;
+use crate::graph::structs::Cycle;
 // use crate::structs::vector::{Vector2D, Vector3D};
 
 pub type Adjacency = HashMap<Node, Nodes>;

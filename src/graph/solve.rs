@@ -12,7 +12,7 @@ use crate::graph::types::{
     WarpedLoom, Warps, Wefts, Weights, Woven, ZOrder
 };
 
-use crate::graph::cycle::Cycle;
+use crate::graph::structs::Cycle;
 
 pub fn weave(
     adj: &Adjacency,
