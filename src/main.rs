@@ -27,10 +27,10 @@ fn main() {
         .unwrap_or(&"100".to_string())
         .parse()
         .unwrap_or(10);
-    solve_node_version(order, repeats);
+    weave_nodes(order, repeats);
 }
 
-pub fn solve_node_version(order: u32, repeats: u32) {
+pub fn weave_nodes(order: u32, repeats: u32) {
     println!(
         "MAKING GRAPH::: | ⭕️ ORDER: {:?} | REPEATS: {}",
         order, repeats
