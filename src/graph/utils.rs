@@ -42,8 +42,8 @@ pub fn absumv((x, y, z): Vert) -> Point {
         .sum()
 }
 
-pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vert_idx: &VIMap) -> (u32, u32) {
-    (vert_idx[&(x, y, z + 2)], vert_idx[&(x1, y1, z1 + 2)])
+pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
 pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
@@ -72,13 +72,13 @@ pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: 
         .0
 }
 
-pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vert_idx: &VIMap) -> Tour {
+pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         Axis(0),
         Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1),
     );
     yarn.outer_iter()
-        .map(|row| vert_idx[&(row[0], row[1], zlevel)])
+        .map(|row| vi_map[&(row[0], row[1], zlevel)])
         .collect()
 }
 
