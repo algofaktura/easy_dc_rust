@@ -1,8 +1,6 @@
 pub mod check;
-pub mod gens;
+pub mod cycle;
 pub mod make;
-pub mod measure;
-pub mod operators;
 pub mod shrink;
 pub mod solve;
 pub mod translate;

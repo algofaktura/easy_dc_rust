@@ -1,8 +1,8 @@
 use itertools::Itertools;
 use ndarray::arr2;
 
-use crate::graph::measure::{absumv, edist};
-use crate::graph::operators::shift_xyz;
+use crate::utils::operators::{absumv, edist};
+use crate::utils::operators::shift_xyz;
 
 use crate::graph::types::{Adjacency, Edges, EdgeAdjacency, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights, Vert};
 use crate::graph::check::is_valid_edge;
