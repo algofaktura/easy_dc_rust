@@ -57,10 +57,6 @@ pub fn yarn(z_adj: &Adjacency, verts: &Verts, weights: &Weights) -> Spool {
     Spool::from([(3, natural), (1, colored)])
 }
 
-pub fn color(a: &Yarn) -> Yarn {
-    a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
-}
-
 pub fn spin(adj: &Adjacency, weights: &Weights, verts: &Verts) -> Tour {
     let var = convert::from_verts_to_vertsc(verts);
     let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
@@ -110,6 +106,10 @@ pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
         .expect("VERTS ARE SIMILAR")
 }
 
+pub fn color(a: &Yarn) -> Yarn {
+    a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
+}
+
 pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
@@ -128,6 +128,40 @@ pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
 
 pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
+}
+
+pub fn get_warps(
+    zlevel: Point,
+    order: Count,
+    bobbins: &Bobbins,
+    spool: &Spool,
+    vi_map: &VIMap,
+) -> Warps {
+    let node_yarn: Tour = get_node_yarn(
+        spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
+        zlevel,
+        order,
+        vi_map,
+    );
+    if bobbins.is_empty() {
+        vec![node_yarn]
+    } else {
+        cut(node_yarn, &bobbins)
+    }
+}
+
+pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+    yarn.slice_axis_inplace(
+        ndarray::Axis(0),
+        ndarray::Slice::new(
+            (yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(),
+            None,
+            1,
+        ),
+    );
+    yarn.outer_iter()
+        .map(|row| vi_map[&(row[0], row[1], zlevel)])
+        .collect()
 }
 
 pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
@@ -174,40 +208,6 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
         }
     }
     subtours
-}
-
-pub fn get_warps(
-    zlevel: Point,
-    order: Count,
-    bobbins: &Bobbins,
-    spool: &Spool,
-    vi_map: &VIMap,
-) -> Warps {
-    let node_yarn: Tour = get_node_yarn(
-        spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
-        zlevel,
-        order,
-        vi_map,
-    );
-    if bobbins.is_empty() {
-        vec![node_yarn]
-    } else {
-        cut(node_yarn, &bobbins)
-    }
-}
-
-pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
-    yarn.slice_axis_inplace(
-        ndarray::Axis(0),
-        ndarray::Slice::new(
-            (yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(),
-            None,
-            1,
-        ),
-    );
-    yarn.outer_iter()
-        .map(|row| vi_map[&(row[0], row[1], zlevel)])
-        .collect()
 }
 
 pub fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
