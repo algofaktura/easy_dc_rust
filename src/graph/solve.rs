@@ -44,7 +44,7 @@ pub fn warp_loom(
             bobbins = wind(&mut loom, verts, &vi_map);
         }
     }
-    reflect_solution(&mut loom, verts, vi_map);
+    reflect_loom(&mut loom, verts, vi_map);
     loom.sort_by_key(|w| w.len());
     loom
 }
@@ -244,7 +244,7 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
+pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     for thread in loom {
         thread.extend(
             thread
