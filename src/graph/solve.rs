@@ -2,12 +2,12 @@ extern crate itertools;
 use itertools::Itertools;
 use ndarray;
 
-use crate::graph::structs;
 use crate::graph::convert;
+use crate::graph::structs;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, V3d, Varr, VIMap, Vert2dd, Vert, Verts, VertsC3, WarpedLoom, Warps, Wefts, Weights,
-    Woven, Yarn, ZOrder
+    Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Vert2dd, Verts, VertsC3, WarpedLoom,
+    Warps, Wefts, Weights, Woven, Yarn, ZOrder,
 };
 
 pub fn weave(
@@ -71,15 +71,22 @@ pub fn spin(adj: &Adjacency, weights: &Weights, verts: &Verts) -> Tour {
     path.to_vec()
 }
 
-pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: &Varr, idx: usize, order: usize) -> Node {
+pub fn get_next(
+    path: TourSlice,
+    adj: &Adjacency,
+    weights: &Weights,
+    verts: &Varr,
+    idx: usize,
+    order: usize,
+) -> Node {
     if idx < order - 5 {
         adj.get(path.last().unwrap())
-        .unwrap()
-        .iter()
-        .filter(|n| !path.contains(*n))
-        .copied()
-        .max_by_key(|&n| *weights.get(&n).unwrap())
-        .unwrap()
+            .unwrap()
+            .iter()
+            .filter(|n| !path.contains(*n))
+            .copied()
+            .max_by_key(|&n| *weights.get(&n).unwrap())
+            .unwrap()
     } else {
         let curr: &Node = path.last().unwrap();
         let curr_vert: &V3d = &verts[*curr as usize];
@@ -95,7 +102,6 @@ pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: &Var
             .unwrap()
             .0
     }
-
 }
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
@@ -119,7 +125,6 @@ pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .flatten()
         .collect()
 }
-
 
 pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
@@ -194,7 +199,11 @@ pub fn get_warps(
 pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
-        ndarray::Slice::new((yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(), None, 1),
+        ndarray::Slice::new(
+            (yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(),
+            None,
+            1,
+        ),
     );
     yarn.outer_iter()
         .map(|row| vi_map[&(row[0], row[1], zlevel)])

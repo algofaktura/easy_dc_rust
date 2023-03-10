@@ -10,10 +10,7 @@ pub fn from_const_adj_to_adj(graph: &AdjC) -> Adjacency {
 }
 
 pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 3]> {
-    verts
-        .iter()
-        .map(|(_x, _y, _z)| [*_x, *_y, *_z])
-        .collect()
+    verts.iter().map(|(_x, _y, _z)| [*_x, *_y, *_z]).collect()
 }
 
 pub fn from_nodes_to_yarn(path: Tour, verts: &Vert2dd) -> Yarn {

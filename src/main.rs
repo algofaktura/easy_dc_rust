@@ -6,7 +6,8 @@ pub mod graph;
 
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
-    make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vi_map, make_weights,
+    make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vi_map,
+    make_weights,
 };
 
 use graph::shrink::shrink_adjacency;
