@@ -55,9 +55,7 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats {
-        solution = weave(
-            &adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length,
-        );
+        solution = weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
     }
     let dur = elapsed_ms(start, Instant::now(), repeats, "WEAVE");
     let id: SequenceID = id_seq(&solution, &adj);

@@ -6,8 +6,8 @@ use crate::graph::convert;
 use crate::graph::structs;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom,
-    Warps, Wefts, Weights, Woven, Yarn, ZOrder,
+    Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom, Warps,
+    Wefts, Weights, Woven, Yarn, ZOrder,
 };
 
 use super::make::make_weights;
@@ -27,12 +27,7 @@ pub fn weave(
     warp.retrieve()
 }
 
-pub fn warp_loom(
-    vi_map: &VIMap,
-    verts: &Verts,
-    z_adj: &Adjacency,
-    z_length: &ZOrder,
-) -> Loom {
+pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_length: &ZOrder) -> Loom {
     let spool: Spool = yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
