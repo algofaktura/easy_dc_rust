@@ -25,7 +25,7 @@ pub fn make_vertices(max_xyz: Point) -> Verts {
         })
         .into_iter()
         .sorted_by_key(|v| (edist(*v), v.0, v.1, v.2))
-        .collect::<Verts>()
+        .collect()
 }
 
 pub fn make_vi_mapping(verts: &Verts) -> VIMap {
@@ -33,7 +33,7 @@ pub fn make_vi_mapping(verts: &Verts) -> VIMap {
         .iter()
         .enumerate()
         .map(|(idx, vert)| (*vert, idx as Node))
-        .collect::<VIMap>()
+        .collect()
 }
 
 pub fn make_adj(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
@@ -53,7 +53,7 @@ pub fn make_adj(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
                     .collect::<Nodes>(),
             )
         })
-        .collect::<Adjacency>()
+        .collect()
 }
 
 pub fn make_edges_from_adj(adj: &Adjacency) -> Edges {

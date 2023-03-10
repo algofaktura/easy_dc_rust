@@ -33,7 +33,7 @@ pub fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
         .iter()
         .map(|(&level, nodes)| (level, nodes.len()))
         .sorted_by_key(|&(level, _)| level)
-        .collect::<ZOrder>()
+        .collect()
 }
 
 pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
