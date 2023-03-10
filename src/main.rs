@@ -7,14 +7,13 @@ pub mod utils;
 
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
-    make_vertices, make_vi_mapping,make_weights,
-    make_adj, make_edges_from_adj, make_edges_adj
+    make_adj, make_edges_adj, make_edges_from_adj, make_vertices, make_vi_mapping, make_weights,
 };
 
-use utils::operators::{get_max_xyz, elapsed_ms};
 use graph::shrink::shrink_adjacency;
 use graph::solve::weave;
 use graph::types::{Adjacency, Edges, Solution, Verts};
+use utils::operators::{elapsed_ms, get_max_xyz};
 
 fn main() {
     // cargo run --release 32 100

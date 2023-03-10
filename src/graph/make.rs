@@ -1,11 +1,13 @@
 use itertools::Itertools;
 use ndarray::arr2;
 
-use crate::utils::operators::{absumv, edist};
 use crate::utils::operators::shift_xyz;
+use crate::utils::operators::{absumv, edist};
 
-use crate::graph::types::{Adjacency, Edges, EdgeAdjacency, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights, Vert};
 use crate::graph::check::is_valid_edge;
+use crate::graph::types::{
+    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Vert, Verts, VertsC3, Weights,
+};
 
 pub fn make_vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
