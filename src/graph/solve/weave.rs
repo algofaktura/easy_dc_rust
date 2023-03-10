@@ -1,12 +1,12 @@
+
 use crate::structs::cycle::Cycle;
 use crate::graph::types::{
-    Adjacency, Done, EdgeAdjacency, Solution, Vectors3d, VertsC3, WarpedLoom, Wefts, Verts, Weights, VIMap, ZOrder, Varr, Loom,
+    Adjacency, Done, EdgeAdjacency, Solution, VertsC3, WarpedLoom, Wefts, Verts, Weights, VIMap, ZOrder, Varr, Loom,
 };
 
 use super::warp::warp_loom;
 
 pub fn weave(
-    v3verts: &Vectors3d,
     adj: &Adjacency,
     vert_idx: &VIMap,
     edge_adj: &EdgeAdjacency,
@@ -16,7 +16,7 @@ pub fn weave(
     z_adj: &Adjacency,
     z_length: &ZOrder
 ) -> Solution {
-    let mut warp_wefts: Loom = warp_loom(v3verts, vert_idx, verts, var, weights, z_adj, z_length);
+    let mut warp_wefts: Loom = warp_loom(vert_idx, verts, var, weights, z_adj, z_length);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, verts);
     join_loops(warp, wefts, adj, verts, edge_adj);

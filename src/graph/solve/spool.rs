@@ -1,17 +1,15 @@
 extern crate itertools;
 
-use std::collections::HashMap;
-
 use itertools::Itertools;
 
 use crate::graph::operators::{color, get_axis};
 use crate::graph::translate;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Idx, Loom, Node, Spool, Subtours, Tour, TourSlice, V3Slice, V3d,
-    Vectors3d, Vert2dd, Verts, Weights, Yarn,
+    Vert2dd, Verts, Weights, Yarn, VIMap, Varr, Vert,
 };
 
-pub fn yarn(z_adj: &Adjacency, verts: &Verts, var: &[[i32; 3]], weights: &Weights) -> Spool {
+pub fn yarn(z_adj: &Adjacency, verts: &Verts, var: &Varr, weights: &Weights) -> Spool {
     let verts2dd: &Vert2dd = &translate::from_v3c_to_v2c(verts);
     let path: Tour = spin(&z_adj, &weights, var);
     let natural: Yarn = translate::from_nodes_to_yarn(path, verts2dd);
@@ -58,17 +56,24 @@ pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: 
         .0
 }
 
-pub fn wind(loom: &mut Loom, verts: &Vectors3d, vert_idx: &HashMap<(i32, i32, i32), u32>) -> Bobbins {
+pub fn wind(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
-            let left = verts[thread[0] as usize].get_upper_node(&vert_idx);
-            let right = verts[thread[thread.len() - 1] as usize].get_upper_node(&vert_idx);
+            let (left, right) = get_upper_nodes(
+                verts[thread[0] as usize], 
+                verts[thread[thread.len() - 1] as usize], 
+                vert_idx
+            );
             thread.push_front(left);
             thread.push_back(right);
             vec![left, right]
         })
         .flatten()
         .collect()
+}
+
+pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vert_idx: &VIMap) -> (u32, u32) {
+    (vert_idx[&(x, y, z + 2)], vert_idx[&(x1, y1, z1 + 2)])
 }
 
 pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
