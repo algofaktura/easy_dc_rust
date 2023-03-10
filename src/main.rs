@@ -53,15 +53,13 @@ pub fn solve_node_version(order: u32, repeats: u32) {
     );
 
     println!("SOLVING::GRAPH:::⭕️ {:?} * {}", order, repeats);
+    let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats - 1 {
-        weave(
+        solution = weave(
             &adj, &vert_idx, &edge_adj, &verts, &weights, &z_adj, &z_length,
         );
     }
-    let solution: Solution = weave(
-        &adj, &vert_idx, &edge_adj, &verts, &weights, &z_adj, &z_length,
-    );
     let dur = elapsed_ms(start, Instant::now(), repeats, "WEAVE");
     let id: SequenceID = id_seq(&solution, &adj);
     assert_eq!(SequenceID::HamCycle, id);
