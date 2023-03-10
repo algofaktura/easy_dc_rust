@@ -6,7 +6,7 @@ pub mod graph;
 
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
-    make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vert_idx, make_weights,
+    make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vi_map, make_weights,
 };
 
 use graph::shrink::shrink_adjacency;
@@ -37,8 +37,8 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     );
     let max_xyz = get_max_xyz(order as i32);
     let verts: Verts = make_vertices(max_xyz);
-    let vert_idx: HashMap<(i32, i32, i32), u32> = make_vert_idx(&verts);
-    let adj: Adjacency = make_adjacency(&verts, max_xyz, &vert_idx);
+    let vi_map: HashMap<(i32, i32, i32), u32> = make_vi_map(&verts);
+    let adj: Adjacency = make_adjacency(&verts, max_xyz, &vi_map);
     let edges: Edges = make_edges_from_adjacency(&adj);
     let edge_adj = make_edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink_adjacency(&verts, &adj);
@@ -47,7 +47,7 @@ pub fn weave_nodes(order: u32, repeats: u32) {
         "MAX XYZ i32 {:?} | len VERTS{:?} VI{:?} ADJ{:?}, EA{:?}",
         max_xyz,
         verts.len(),
-        vert_idx.len(),
+        vi_map.len(),
         adj.len(),
         edge_adj.len(),
     );
@@ -57,7 +57,7 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     let start: Instant = Instant::now();
     for _ in 0..repeats - 1 {
         solution = weave(
-            &adj, &vert_idx, &edge_adj, &verts, &weights, &z_adj, &z_length,
+            &adj, &vi_map, &edge_adj, &verts, &weights, &z_adj, &z_length,
         );
     }
     let dur = elapsed_ms(start, Instant::now(), repeats, "WEAVE");

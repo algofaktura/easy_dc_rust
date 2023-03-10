@@ -28,7 +28,7 @@ pub fn make_vertices(max_xyz: Point) -> Verts {
         .collect()
 }
 
-pub fn make_vert_idx(verts: &Verts) -> VIMap {
+pub fn make_vi_map(verts: &Verts) -> VIMap {
     verts
         .iter()
         .enumerate()

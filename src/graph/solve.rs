@@ -12,14 +12,14 @@ use crate::graph::utils::{color, get_next, get_next_xyz, get_node_yarn, get_uppe
 
 pub fn weave(
     adj: &Adjacency,
-    vert_idx: &VIMap,
+    vi_map: &VIMap,
     edge_adj: &EdgeAdjacency,
     verts: &Verts,
     weights: &Weights,
     z_adj: &Adjacency,
     z_length: &ZOrder,
 ) -> Solution {
-    let mut warp_wefts: Loom = warp_loom(vert_idx, verts, weights, z_adj, z_length);
+    let mut warp_wefts: Loom = warp_loom(vi_map, verts, weights, z_adj, z_length);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, verts);
     join_loops(warp, wefts, adj, verts, edge_adj);
@@ -27,7 +27,7 @@ pub fn weave(
 }
 
 pub fn warp_loom(
-    vert_idx: &VIMap,
+    vi_map: &VIMap,
     verts: &Verts,
     weights: &Weights,
     z_adj: &Adjacency,
@@ -37,14 +37,14 @@ pub fn warp_loom(
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_length {
-        let warps: Warps = get_warps(*zlevel, *order, &bobbins, &spool, vert_idx);
+        let warps: Warps = get_warps(*zlevel, *order, &bobbins, &spool, vi_map);
         let woven: Woven = join_threads(&mut loom, &warps);
         affix_loose_threads(&mut loom, warps, woven);
         if *zlevel != -1 {
-            bobbins = wind(&mut loom, verts, &vert_idx);
+            bobbins = wind(&mut loom, verts, &vi_map);
         }
     }
-    reflect_solution(&mut loom, verts, vert_idx);
+    reflect_solution(&mut loom, verts, vi_map);
     loom.sort_by_key(|w| w.len());
     loom
 }
@@ -71,13 +71,13 @@ pub fn spin(adj: &Adjacency, weights: &Weights, verts: &Verts) -> Tour {
     path.to_vec()
 }
 
-pub fn wind(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) -> Bobbins {
+pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
             let (left, right) = get_upper_nodes(
                 verts[thread[0] as usize],
                 verts[thread[thread.len() - 1] as usize],
-                vert_idx,
+                vi_map,
             );
             thread.push_front(left);
             thread.push_back(right);
@@ -138,13 +138,13 @@ pub fn get_warps(
     order: Count,
     bobbins: &Bobbins,
     spool: &Spool,
-    vert_idx: &VIMap,
+    vi_map: &VIMap,
 ) -> Warps {
     let node_yarn: Tour = get_node_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
         order,
-        vert_idx,
+        vi_map,
     );
     if bobbins.is_empty() {
         vec![node_yarn]
@@ -187,14 +187,14 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) {
+pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     for thread in loom {
         thread.extend(
             thread
                 .iter()
                 .rev()
                 .map(|&node| verts[node as usize])
-                .map(|(x, y, z)| vert_idx[&(x, y, -z)])
+                .map(|(x, y, z)| vi_map[&(x, y, -z)])
                 .collect::<Tour>(),
         )
     }
