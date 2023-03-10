@@ -1,24 +1,22 @@
-use std::collections::{HashMap, HashSet};
-
 use ndarray::{Axis, Slice};
 
 use super::spool;
 use crate::{
     graph::translate::from_v3c_to_vect3d,
     graph::types::{
-        Bobbins, Count, Loom, Point, Spool, Thread, Tour, Vectors3d,
-        Warps, Woven, Yarn, Verts, Weights,
+        Adjacency, Bobbins, Count, Loom, Point, Spool, Thread, Tour, Vectors3d,
+        Warps, Woven, Yarn, Verts, Weights, VIMap, Varr
     },
     structs::vector::Vector3D,
 };
 
 pub fn warp_loom(
     v3verts: &Vectors3d,
-    vert_idx: &HashMap<(i32, i32, i32), u32>,
+    vert_idx: &VIMap,
     verts: &Verts,
-    var: &[[i32; 3]],
+    var: &Varr,
     weights: &Weights,
-    z_adj: &HashMap<u32, HashSet<u32>>,
+    z_adj: &Adjacency,
     z_length: &Vec<(i32, usize)>
 ) -> Loom {
     let spool: Spool = spool::yarn(&z_adj, verts, var, weights);
@@ -42,7 +40,7 @@ pub fn get_warps(
     order: Count,
     bobbins: &Bobbins,
     spool: &Spool,
-    vert_idx: &HashMap<(i32, i32, i32), u32>,
+    vert_idx: &VIMap,
 ) -> Warps {
     let node_yarn: Tour = get_node_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
@@ -57,7 +55,7 @@ pub fn get_warps(
     }
 }
 
-pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vert_idx: &HashMap<(i32, i32, i32), u32>) -> Tour {
+pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vert_idx: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         Axis(0),
         Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1),
@@ -102,7 +100,7 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_solution(loom: &mut Loom, v3verts: &Vectors3d, vert_idx: &HashMap<(i32, i32, i32), u32>) {
+pub fn reflect_solution(loom: &mut Loom, v3verts: &Vectors3d, vert_idx: &VIMap) {
     for thread in loom {
         thread.extend(
             thread

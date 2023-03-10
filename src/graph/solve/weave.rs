@@ -1,8 +1,6 @@
-use std::collections::{VecDeque, HashMap, HashSet};
-
 use crate::structs::cycle::Cycle;
 use crate::graph::types::{
-    Adjacency, Done, EdgeAdjacency, Solution, Vectors3d, VertsC3, WarpedLoom, Wefts, Verts, Weights,
+    Adjacency, Done, EdgeAdjacency, Solution, Vectors3d, VertsC3, WarpedLoom, Wefts, Verts, Weights, VIMap, ZOrder, Varr, Loom,
 };
 
 use super::warp::warp_loom;
@@ -10,15 +8,15 @@ use super::warp::warp_loom;
 pub fn weave(
     v3verts: &Vectors3d,
     adj: &Adjacency,
-    vert_idx: &HashMap<(i32, i32, i32), u32>,
+    vert_idx: &VIMap,
     edge_adj: &EdgeAdjacency,
     verts: &Verts,
-    var: &Vec<[i32; 3]>,
+    var: &Varr,
     weights: &Weights,
-    z_adj: &HashMap<u32, HashSet<u32>>,
-    z_length: &Vec<(i32, usize)>
+    z_adj: &Adjacency,
+    z_length: &ZOrder
 ) -> Solution {
-    let mut warp_wefts: Wefts = warp_loom(v3verts, vert_idx, verts, var, weights, z_adj, z_length);
+    let mut warp_wefts: Loom = warp_loom(v3verts, vert_idx, verts, var, weights, z_adj, z_length);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, verts);
     join_loops(warp, wefts, adj, verts, edge_adj);
@@ -27,7 +25,7 @@ pub fn weave(
 
 pub fn join_loops(
     warp: &mut Cycle,
-    wefts: &mut [VecDeque<u32>],
+    wefts: &mut Wefts,
     adj: &Adjacency,
     verts: &VertsC3,
     edge_adj: &EdgeAdjacency,

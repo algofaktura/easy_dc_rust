@@ -1,10 +1,9 @@
 pub mod check;
-// pub mod gens;
+pub mod gens;
 pub mod make;
 pub mod measure;
 pub mod operators;
 pub mod shrink;
-pub mod shrink_ref;
 pub mod solve;
 pub mod translate;
 pub mod types;

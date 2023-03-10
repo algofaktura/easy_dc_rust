@@ -1,17 +1,16 @@
 use itertools::Itertools;
 use ndarray::arr2;
-use std::collections::{HashMap, HashSet};
 
-use crate::graph::types::Edges;
+use crate::graph::types::{Edges, VIMap, Adjacency, VertsC3, Nodes};
 
 use super::super::operators::shift_xyz;
 use super::super::measure::absumv;
 
-pub fn get_adj(
-    verts: &[(i32, i32, i32)],
+pub fn make_adj(
+    verts: &VertsC3,
     max_xyz: i32,
-    vi: &HashMap<(i32, i32, i32), u32>,
-) -> HashMap<u32, HashSet<u32>> {
+    vi: &VIMap,
+) -> Adjacency {
     verts
         .iter()
         .enumerate()
@@ -21,23 +20,23 @@ pub fn get_adj(
                 shift_xyz(arr2(&[[vert.0, vert.1, vert.2]]))
                     .outer_iter()
                     .filter(|new_vert| {
-                        absumv((new_vert[0], new_vert[1], new_vert[2])) <= max_xyz as u32 + 2
+                        absumv((new_vert[0], new_vert[1], new_vert[2])) <= max_xyz + 2
                     })
                     .map(|new_vert| *vi.get(&(new_vert[0], new_vert[1], new_vert[2])).unwrap())
                     .filter(|&m| m != (idx as u32))
-                    .collect::<HashSet<_>>(),
+                    .collect::<Nodes>(),
             )
         })
-        .collect::<HashMap<_, _>>()
+        .collect::<Adjacency>()
 }
 
-pub fn get_edges(adj: &HashMap<u32, HashSet<u32>>) -> HashSet<(u32, u32)> {
+pub fn make_edges_from_adj(adj: &Adjacency) -> Edges {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .collect()
 }
 
-pub fn make_edges(vertices: &[(i32, i32, i32)]) -> Edges {
+pub fn make_edges1(vertices: &VertsC3) -> Edges {
     vertices
         .iter()
         .enumerate()
