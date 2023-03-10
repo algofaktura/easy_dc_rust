@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 use ndarray::{Array2, Array3};
 
-use crate::structs::cycle::Cycle;
-use crate::structs::vector::{Vector2D, Vector3D};
+use crate::graph::cycle::Cycle;
+// use crate::structs::vector::{Vector2D, Vector3D};
 
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];
@@ -33,8 +33,8 @@ pub type V2Slice<'a> = &'a [V2d];
 pub type V3d = [Point; 3];
 pub type V3Slice<'a> = &'a [V3d];
 pub type Varr = Vec<V3d>;
-pub type Vectors2d = Vec<Vector2D>;
-pub type Vectors3d = Vec<Vector3D>;
+// pub type Vectors2d = Vec<Vector2D>;
+// pub type Vectors3d = Vec<Vector3D>;
 pub type Vert = (i32, i32, i32);
 pub type Verts = Vec<Vert>;
 pub type Vert2d = (Point, Point);
@@ -43,7 +43,7 @@ pub type Vert2dd = Vec<Vert2d>;
 pub type Vert3dd = Vec<Vert3d>;
 pub type VertsC2 = [Vert2d];
 pub type VertsC3 = [Vert3d];
-pub type VertIdx<'a> = HashMap<&'a Vector3D, Node>;
+// pub type VertIdx<'a> = HashMap<&'a Vector3D, Node>;
 pub type VIMap<'a> = HashMap<Vert, Node>;
 pub type WarpedLoom<'a> = HashMap<usize, &'a mut Cycle<'a>>;
 pub type Warps = Subtours;
