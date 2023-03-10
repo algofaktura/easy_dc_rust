@@ -3,7 +3,6 @@ use std::env;
 use std::time::Instant;
 
 pub mod graph;
-pub mod utils;
 
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
@@ -13,7 +12,7 @@ use graph::make::{
 use graph::shrink::shrink_adjacency;
 use graph::solve::weave;
 use graph::types::{Adjacency, Edges, Solution, Verts};
-use utils::operators::{elapsed_ms, get_max_xyz};
+use graph::utils::{elapsed_ms, get_max_xyz};
 
 fn main() {
     // cargo run --release 32 100
