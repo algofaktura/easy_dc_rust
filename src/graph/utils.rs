@@ -1,19 +1,15 @@
-use ndarray::{arr2, Array2, Axis, Slice};
+use ndarray::{arr2, Array2};
 
 use std::time::{Duration, Instant};
 
 use crate::graph::types::{
-    Adjacency, Count, Idx, Node, Point, Tour, TourSlice, V3d, VIMap, Varr, Vert, Weights, Yarn,
+    Idx, Point, V3d, Vert, Yarn,
 };
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2)
         .find(|&i| m_vert[i] != n_vert[i])
         .expect("VERTS ARE SIMILAR")
-}
-
-pub fn color(a: &Yarn) -> Yarn {
-    a.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]])
 }
 
 pub fn reflect(a: &Yarn) -> Yarn {
@@ -40,46 +36,6 @@ pub fn absumv((x, y, z): Vert) -> Point {
         .iter()
         .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
-}
-
-pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
-    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
-}
-
-pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
-    adj.get(path.last().unwrap())
-        .unwrap()
-        .iter()
-        .filter(|n| !path.contains(*n))
-        .copied()
-        .max_by_key(|&n| *weights.get(&n).unwrap())
-        .unwrap()
-}
-
-pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: &Varr) -> Node {
-    let curr: &Node = path.last().unwrap();
-    let curr_vert: &V3d = &verts[*curr as usize];
-    adj.get(curr)
-        .unwrap()
-        .iter()
-        .filter(|n| !path.contains(*n))
-        .map(|&n| (n, get_axis(curr_vert, &verts[n as usize])))
-        .filter(|(_, next_axis)| {
-            *next_axis != get_axis(&verts[path[path.len() - 2] as usize], curr_vert)
-        })
-        .max_by_key(|&(n, _)| weights[&n])
-        .unwrap()
-        .0
-}
-
-pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
-    yarn.slice_axis_inplace(
-        Axis(0),
-        Slice::new((yarn.len_of(Axis(0)) - order).try_into().unwrap(), None, 1),
-    );
-    yarn.outer_iter()
-        .map(|row| vi_map[&(row[0], row[1], zlevel)])
-        .collect()
 }
 
 pub fn edist((x, y, z): Vert) -> Point {

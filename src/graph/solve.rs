@@ -1,14 +1,14 @@
 extern crate itertools;
 use itertools::Itertools;
+use ndarray;
 
-use crate::graph::structs::Cycle;
-use crate::graph::translate::{self, from_verts_to_vertsc};
+use crate::graph::structs;
+use crate::graph::convert;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, VIMap, Vert2dd, Verts, VertsC3, WarpedLoom, Warps, Wefts, Weights,
-    Woven, Yarn, ZOrder,
+    Subtours, Thread, Tour, TourSlice, V3d, Varr, VIMap, Vert2dd, Vert, Verts, VertsC3, WarpedLoom, Warps, Wefts, Weights,
+    Woven, Yarn, ZOrder
 };
-use crate::graph::utils::{color, get_next, get_next_xyz, get_node_yarn, get_upper_nodes};
 
 pub fn weave(
     adj: &Adjacency,
@@ -21,7 +21,7 @@ pub fn weave(
 ) -> Solution {
     let mut warp_wefts: Loom = warp_loom(vi_map, verts, weights, z_adj, z_length);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
-    let warp: &mut Cycle = Cycle::new(warp, &adj, &edge_adj, verts);
+    let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
     join_loops(warp, wefts, adj, verts, edge_adj);
     warp.retrieve()
 }
@@ -50,15 +50,15 @@ pub fn warp_loom(
 }
 
 pub fn yarn(z_adj: &Adjacency, verts: &Verts, weights: &Weights) -> Spool {
-    let verts2dd: &Vert2dd = &translate::from_v3c_to_v2c(verts);
+    let verts2dd: &Vert2dd = &convert::from_v3c_to_v2c(verts);
     let path: Tour = spin(&z_adj, &weights, verts);
-    let natural: Yarn = translate::from_nodes_to_yarn(path, verts2dd);
+    let natural: Yarn = convert::from_nodes_to_yarn(path, verts2dd);
     let colored: Yarn = color(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
 pub fn spin(adj: &Adjacency, weights: &Weights, verts: &Verts) -> Tour {
-    let var = from_verts_to_vertsc(verts);
+    let var = convert::from_verts_to_vertsc(verts);
     let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
     let order: Count = adj.len();
     for idx in 1..order {
@@ -201,7 +201,7 @@ pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
 }
 
 pub fn join_loops(
-    warp: &mut Cycle,
+    warp: &mut structs::Cycle,
     wefts: &mut Wefts,
     adj: &Adjacency,
     verts: &VertsC3,
@@ -210,7 +210,7 @@ pub fn join_loops(
     let loom: WarpedLoom = wefts
         .iter()
         .enumerate()
-        .map(|(idx, seq)| (idx, Cycle::new(&seq, &adj, &edge_adj, verts)))
+        .map(|(idx, seq)| (idx, structs::Cycle::new(&seq, &adj, &edge_adj, verts)))
         .collect();
     let mut done: Done = Done::new();
     let loom_order = loom.keys().len();
@@ -219,7 +219,7 @@ pub fn join_loops(
             for idx in loom.keys() {
                 if done.len() != loom_order {
                     if !done.contains(idx) {
-                        let mut other: Cycle = loom[&*idx].clone();
+                        let mut other: structs::Cycle = loom[&*idx].clone();
                         if let Some(warp_e) = warp.edges().intersection(&other.eadjs()).next() {
                             if let Some(weft_e) = edge_adj
                                 .get(&warp_e)
@@ -238,4 +238,54 @@ pub fn join_loops(
             }
         }
     }
+}
+
+pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
+}
+
+pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
+    adj.get(path.last().unwrap())
+        .unwrap()
+        .iter()
+        .filter(|n| !path.contains(*n))
+        .copied()
+        .max_by_key(|&n| *weights.get(&n).unwrap())
+        .unwrap()
+}
+
+pub fn get_next_xyz(path: TourSlice, adj: &Adjacency, weights: &Weights, verts: &Varr) -> Node {
+    let curr: &Node = path.last().unwrap();
+    let curr_vert: &V3d = &verts[*curr as usize];
+    adj.get(curr)
+        .unwrap()
+        .iter()
+        .filter(|n| !path.contains(*n))
+        .map(|&n| (n, get_axis(curr_vert, &verts[n as usize])))
+        .filter(|(_, next_axis)| {
+            *next_axis != get_axis(&verts[path[path.len() - 2] as usize], curr_vert)
+        })
+        .max_by_key(|&(n, _)| weights[&n])
+        .unwrap()
+        .0
+}
+
+pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+    yarn.slice_axis_inplace(
+        ndarray::Axis(0),
+        ndarray::Slice::new((yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(), None, 1),
+    );
+    yarn.outer_iter()
+        .map(|row| vi_map[&(row[0], row[1], zlevel)])
+        .collect()
+}
+
+pub fn color(a: &Yarn) -> Yarn {
+    a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
+}
+
+pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
+    (0..2)
+        .find(|&i| m_vert[i] != n_vert[i])
+        .expect("VERTS ARE SIMILAR")
 }
