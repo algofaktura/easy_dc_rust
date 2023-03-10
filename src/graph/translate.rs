@@ -13,7 +13,7 @@ pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 3]> {
     verts
         .iter()
         .map(|(_x, _y, _z)| [*_x, *_y, *_z])
-        .collect::<Vec<[Point; 3]>>()
+        .collect()
 }
 
 pub fn from_nodes_to_yarn(path: Tour, verts: &Vert2dd) -> Yarn {
