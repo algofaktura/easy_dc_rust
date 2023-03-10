@@ -6,20 +6,21 @@ use crate::graph::convert;
 use crate::graph::structs;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Vert2dd, Verts, VertsC3, WarpedLoom,
+    Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom,
     Warps, Wefts, Weights, Woven, Yarn, ZOrder,
 };
+
+use super::make::make_weights;
 
 pub fn weave(
     adj: &Adjacency,
     vi_map: &VIMap,
     edge_adj: &EdgeAdjacency,
     verts: &Verts,
-    weights: &Weights,
     z_adj: &Adjacency,
     z_length: &ZOrder,
 ) -> Solution {
-    let mut warp_wefts: Loom = warp_loom(vi_map, verts, weights, z_adj, z_length);
+    let mut warp_wefts: Loom = warp_loom(vi_map, verts, z_adj, z_length);
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
     join_loops(warp, wefts, adj, verts, edge_adj);
@@ -29,11 +30,10 @@ pub fn weave(
 pub fn warp_loom(
     vi_map: &VIMap,
     verts: &Verts,
-    weights: &Weights,
     z_adj: &Adjacency,
     z_length: &ZOrder,
 ) -> Loom {
-    let spool: Spool = yarn(&z_adj, verts, weights);
+    let spool: Spool = yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_length {
@@ -49,22 +49,21 @@ pub fn warp_loom(
     loom
 }
 
-pub fn yarn(z_adj: &Adjacency, verts: &Verts, weights: &Weights) -> Spool {
-    let verts2dd: &Vert2dd = &convert::from_v3c_to_v2c(verts);
-    let path: Tour = spin(&z_adj, &weights, verts);
-    let natural: Yarn = from_nodes_to_yarn(path, verts2dd);
+pub fn yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
+    let natural: Yarn = spin(&z_adj, verts);
     let colored: Yarn = color(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-pub fn spin(adj: &Adjacency, weights: &Weights, verts: &Verts) -> Tour {
+pub fn spin(adj: &Adjacency, verts: &Verts) -> Yarn {
+    let weights = make_weights(&adj, &verts);
     let var = convert::from_verts_to_vertsc(verts);
     let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
     let order: Count = adj.len();
     for idx in 1..order {
-        path.push(get_next(&path, adj, weights, &var, idx, order))
+        path.push(get_next(&path, adj, &weights, &var, idx, order))
     }
-    path.to_vec()
+    from_nodes_to_yarn(path, verts)
 }
 
 pub fn get_next(
@@ -106,7 +105,7 @@ pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
         .expect("VERTS ARE SIMILAR")
 }
 
-pub fn from_nodes_to_yarn(path: Tour, verts: &Vert2dd) -> Yarn {
+pub fn from_nodes_to_yarn(path: &mut Vec<u32>, verts: &Verts) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
