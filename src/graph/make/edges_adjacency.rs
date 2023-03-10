@@ -1,5 +1,5 @@
-use crate::graph::types::{Adjacency, EdgeAdjacency, Edges, Node, Verts, Verti16};
-use crate::graph::check::{is_valid_edge, is_valid_edge_i16};
+use crate::graph::types::{Adjacency, EdgeAdjacency, Edges, Node, Verts};
+use crate::graph::check::is_valid_edge;
 
 pub fn make_edges_adj(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
@@ -20,24 +20,3 @@ pub fn get_adj_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts)
         .map(|(m, n)| if m < n { (m, n) } else { (n, m) })
         .collect()
 }
-
-pub fn make_edges_adj_i16(adj: &Adjacency, edges: &Edges, verts: &Vec<Verti16>) -> EdgeAdjacency {
-    edges
-        .iter()
-        .filter(|&(a, b)| is_valid_edge_i16(verts[*a as usize], verts[*b as usize]))
-        .map(|&(m, n)| ((m, n), get_adj_edges_i16(adj, m, n, verts)))
-        .collect()
-}
-
-pub fn get_adj_edges_i16(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Vec<Verti16>) -> Edges {
-    adj.get(&m_node)
-        .unwrap()
-        .iter()
-        .flat_map(|m| adj.get(&n_node).unwrap().iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| {
-            adj.get(m).unwrap().contains(n) && is_valid_edge_i16(verts[*m as usize], verts[*n as usize])
-        })
-        .map(|(m, n)| if m < n { (m, n) } else { (n, m) })
-        .collect()
-}
-

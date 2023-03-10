@@ -22,7 +22,6 @@ impl<'a> Frozen<'a> {
     }
     
     pub fn is_valid_edge(&self) -> bool {
-
         let total = (self.0.0 & 0xFFFF) + (self.0.1 & 0xFFFF) + (self.1.0 & 0xFFFF) + (self.1.1 & 0xFFFF);
         (4 <= total) && (total <= 10)
     }
