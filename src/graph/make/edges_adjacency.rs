@@ -1,5 +1,5 @@
-use crate::graph::types::{Adjacency, EdgeAdjacency, Edges, Node, Verts, Idx};
 use crate::graph::check::is_valid_edge;
+use crate::graph::types::{Adjacency, EdgeAdjacency, Edges, Idx, Node, Verts};
 
 pub fn make_edges_adj(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges

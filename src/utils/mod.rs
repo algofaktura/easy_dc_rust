@@ -1,2 +1,2 @@
-pub mod time;
 pub mod macros;
+pub mod time;

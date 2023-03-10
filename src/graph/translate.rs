@@ -1,5 +1,8 @@
+use super::types::{
+    AdjC, Adjacency, Neighbors, Point, Tour, TourSlice, Vectors2d, Vectors3d, Vert2dd, Verts,
+    VertsC2, VertsC3, Yarn,
+};
 use crate::structs::vector::{Vector2D, Vector3D};
-use super::types::{Adjacency, AdjC, Neighbors, Tour, TourSlice, Vert2dd, VertsC2, VertsC3, Vectors2d, Vectors3d, Yarn, Verts, Point};
 
 pub fn from_const_adj_to_adj(graph: &AdjC) -> Adjacency {
     graph
@@ -22,7 +25,7 @@ pub fn from_v3c_to_vect3d(verts: &VertsC3) -> Vectors3d {
 pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 3]> {
     verts
         .iter()
-        .map(|(_x, _y, _z)| [*_x, *_y, *_z] )
+        .map(|(_x, _y, _z)| [*_x, *_y, *_z])
         .collect::<Vec<[Point; 3]>>()
 }
 

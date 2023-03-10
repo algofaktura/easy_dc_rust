@@ -3,14 +3,10 @@ use ndarray::arr2;
 
 use crate::graph::types::{Adjacency, Edges, Node, Nodes, Point, VIMap, VertsC3};
 
-use super::super::operators::shift_xyz;
 use super::super::measure::absumv;
+use super::super::operators::shift_xyz;
 
-pub fn make_adj(
-    verts: &VertsC3,
-    max_xyz: Point,
-    vi: &VIMap,
-) -> Adjacency {
+pub fn make_adj(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .iter()
         .enumerate()

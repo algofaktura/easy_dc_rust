@@ -6,7 +6,7 @@ use crate::graph::operators::{color, get_axis};
 use crate::graph::translate;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Idx, Loom, Node, Spool, Subtours, Tour, TourSlice, V3Slice, V3d,
-    Vert2dd, Verts, Weights, Yarn, VIMap, Varr, Vert,
+    VIMap, Varr, Vert, Vert2dd, Verts, Weights, Yarn,
 };
 
 pub fn yarn(z_adj: &Adjacency, verts: &Verts, var: &Varr, weights: &Weights) -> Spool {
@@ -60,9 +60,9 @@ pub fn wind(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
             let (left, right) = get_upper_nodes(
-                verts[thread[0] as usize], 
-                verts[thread[thread.len() - 1] as usize], 
-                vert_idx
+                verts[thread[0] as usize],
+                verts[thread[thread.len() - 1] as usize],
+                vert_idx,
             );
             thread.push_front(left);
             thread.push_back(right);

@@ -17,15 +17,11 @@ impl Vector3D {
     }
 
     pub fn get_upper_node(&self, vert_idx: &HashMap<(i32, i32, i32), u32>) -> Node {
-        *vert_idx
-            .get(&(self.x, self.y, self.z + 2))
-            .unwrap()
+        *vert_idx.get(&(self.x, self.y, self.z + 2)).unwrap()
     }
 
     pub fn mirror_z(&self, vert_idx: &HashMap<(i32, i32, i32), u32>) -> Node {
-        *vert_idx
-            .get(&(self.x, self.y, -self.z))
-            .unwrap()
+        *vert_idx.get(&(self.x, self.y, -self.z)).unwrap()
     }
 
     pub fn to_node(x: Point, y: Point, z: Point, vert_idx: &HashMap<(i32, i32, i32), u32>) -> Node {
