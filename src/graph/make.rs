@@ -3,14 +3,10 @@ use ndarray::arr2;
 
 use crate::graph::check::is_valid_edge;
 use crate::graph::types::{
-    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Vert, Verts, VertsC3, Weights,
+    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights,
 };
 
-use crate::graph::utils::{
-    absumv, 
-    edist, 
-    shift_xyz
-};
+use crate::graph::utils::{absumv, edist, shift_xyz};
 
 pub fn make_vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
@@ -88,9 +84,6 @@ pub fn get_adj_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts)
 
 pub fn make_weights(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.iter()
-        .map(|(&n, _)| {
-            let (x, y, z): Vert = verts[n as usize];
-            (n, x.abs() + y.abs() + z.abs())
-        })
+        .map(|(&n, _)| (n, absumv(verts[n as usize])))
         .collect()
 }

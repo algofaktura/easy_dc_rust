@@ -1,9 +1,4 @@
-use ndarray::{
-    arr2, 
-    Array2, 
-    Axis, 
-    Slice
-};
+use ndarray::{arr2, Array2, Axis, Slice};
 
 use std::time::{Duration, Instant};
 
