@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::env;
 use std::time::Instant;
 
@@ -7,13 +6,13 @@ pub mod graph;
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
     make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vi_map,
-    make_weights,
 };
-
 use graph::shrink::shrink_adjacency;
 use graph::solve::weave;
 use graph::types::{Adjacency, Edges, Solution, Verts};
 use graph::utils::{elapsed_ms, get_max_xyz};
+
+use crate::graph::types::VIMap;
 
 fn main() {
     // cargo run --release 32 100
@@ -38,12 +37,11 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     );
     let max_xyz = get_max_xyz(order as i32);
     let verts: Verts = make_vertices(max_xyz);
-    let vi_map: HashMap<(i32, i32, i32), u32> = make_vi_map(&verts);
+    let vi_map: VIMap = make_vi_map(&verts);
     let adj: Adjacency = make_adjacency(&verts, max_xyz, &vi_map);
     let edges: Edges = make_edges_from_adjacency(&adj);
     let edge_adj = make_edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink_adjacency(&verts, &adj);
-    let weights = make_weights(&z_adj, &verts);
     println!(
         "MAX XYZ i32 {:?} | len VERTS{:?} VI{:?} ADJ{:?}, EA{:?}",
         max_xyz,
@@ -56,9 +54,9 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     println!("SOLVING::GRAPH:::⭕️ {:?} * {}", order, repeats);
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
-    for _ in 0..repeats - 1 {
+    for _ in 0..repeats {
         solution = weave(
-            &adj, &vi_map, &edge_adj, &verts, &weights, &z_adj, &z_length,
+            &adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length,
         );
     }
     let dur = elapsed_ms(start, Instant::now(), repeats, "WEAVE");
