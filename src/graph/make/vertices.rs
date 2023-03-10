@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::graph::measure::{absumv, edist};
-use crate::graph::types::{Verts, Point};
+use crate::graph::types::{Point, Verts};
 
 pub fn make_vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))

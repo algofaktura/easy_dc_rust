@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use super::super::graph::types::{Adjacency, Nodes, Point, Points, Verts, ZlevelNodesMap, ZOrder};
+use super::super::graph::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
 fn stratified_nodes(verts: &Verts) -> ZlevelNodesMap {
     verts
@@ -39,7 +39,7 @@ pub fn get_zlevel_length(stratified: &ZlevelNodesMap) -> ZOrder {
 pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
     let stratified: ZlevelNodesMap = stratified_nodes(verts);
     (
-        filtered_adjacency(&adj, stratified[&(-1 as Point)].clone()), 
-        get_zlevel_length(&stratified)
+        filtered_adjacency(&adj, stratified[&(-1 as Point)].clone()),
+        get_zlevel_length(&stratified),
     )
 }

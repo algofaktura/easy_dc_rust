@@ -1,4 +1,4 @@
-use super::types::{Vert, Point};
+use super::types::{Point, Vert};
 
 pub fn edist((x, y, z): Vert) -> Point {
     ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
@@ -9,7 +9,10 @@ pub fn edist_f32((x, y, z): Vert) -> f32 {
 }
 
 pub fn absumv((x, y, z): Vert) -> Point {
-    [x, y, z].iter().map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31)).sum()
+    [x, y, z]
+        .iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
 }
 
 pub fn get_max_xyz(order: i32) -> Point {

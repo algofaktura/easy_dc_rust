@@ -1,11 +1,9 @@
 use ndarray::{Axis, Slice};
 
 use super::spool;
-use crate::{
-    graph::types::{
-        Adjacency, Bobbins, Count, Loom, Point, Spool, Thread, Tour,
-        Warps, Woven, Yarn, Verts, Weights, VIMap, Varr, ZOrder
-    },
+use crate::graph::types::{
+    Adjacency, Bobbins, Count, Loom, Point, Spool, Thread, Tour, VIMap, Varr, Verts, Warps,
+    Weights, Woven, Yarn, ZOrder,
 };
 
 pub fn warp_loom(
@@ -14,7 +12,7 @@ pub fn warp_loom(
     var: &Varr,
     weights: &Weights,
     z_adj: &Adjacency,
-    z_length: &ZOrder
+    z_length: &ZOrder,
 ) -> Loom {
     let spool: Spool = spool::yarn(&z_adj, verts, var, weights);
     let mut bobbins: Bobbins = Vec::new();
@@ -105,7 +103,7 @@ pub fn reflect_solution(loom: &mut Loom, verts: &Verts, vert_idx: &VIMap) {
                 .rev()
                 .map(|&node| verts[node as usize])
                 .map(|(x, y, z)| vert_idx[&(x, y, -z)])
-                .collect::<Tour>()
+                .collect::<Tour>(),
         )
     }
 }

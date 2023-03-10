@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::super::types::{Node, Vectors3d, VertIdx,  Verts, VIMap};
+use super::super::types::{Node, VIMap, Vectors3d, VertIdx, Verts};
 
 pub fn make_vi_mapping_v3d(verts: &Vectors3d) -> VertIdx {
     verts
@@ -20,8 +20,8 @@ pub fn make_vi_mapping(verts: &Verts) -> VIMap {
 
 pub fn make_vi_mapping_general<'a, T, U>(verts: &U) -> HashMap<T, usize>
 where
-    T: Copy + std::hash::Hash  + std::cmp::Eq + 'a,
-    U: IntoIterator<Item = &'a T> + ?Sized  + 'static + Copy
+    T: Copy + std::hash::Hash + std::cmp::Eq + 'a,
+    U: IntoIterator<Item = &'a T> + ?Sized + 'static + Copy,
 {
     verts
         .into_iter()
