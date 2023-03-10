@@ -4,7 +4,7 @@ use ndarray::{Axis, Slice};
 use std::time::{Duration, Instant};
 
 use super::super::graph::types::{
-    Adjacency, Count, Idx, Node, Point, Tour, TourSlice, V3d, Varr, Vert, VIMap, Weights, Yarn
+    Adjacency, Count, Idx, Node, Point, Tour, TourSlice, V3d, VIMap, Varr, Vert, Weights, Yarn,
 };
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
@@ -46,7 +46,6 @@ pub fn absumv((x, y, z): Vert) -> Point {
 pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vert_idx: &VIMap) -> (u32, u32) {
     (vert_idx[&(x, y, z + 2)], vert_idx[&(x1, y1, z1 + 2)])
 }
-
 
 pub fn get_next(path: TourSlice, adj: &Adjacency, weights: &Weights) -> Node {
     adj.get(path.last().unwrap())
