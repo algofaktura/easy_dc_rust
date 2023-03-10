@@ -6,7 +6,7 @@ pub mod graph;
 
 use graph::check::{id_seq, SequenceID};
 use graph::make::{
-    make_adj, make_edges_adj, make_edges_from_adj, make_vertices, make_vi_mapping, make_weights,
+    make_adjacency, make_edges_adjacency, make_edges_from_adjacency, make_vertices, make_vert_idx, make_weights,
 };
 
 use graph::shrink::shrink_adjacency;
@@ -37,10 +37,10 @@ pub fn solve_node_version(order: u32, repeats: u32) {
     );
     let max_xyz = get_max_xyz(order as i32);
     let verts: Verts = make_vertices(max_xyz);
-    let vert_idx: HashMap<(i32, i32, i32), u32> = make_vi_mapping(&verts);
-    let adj: Adjacency = make_adj(&verts, max_xyz, &vert_idx);
-    let edges: Edges = make_edges_from_adj(&adj);
-    let edge_adj = make_edges_adj(&adj, &edges, &verts);
+    let vert_idx: HashMap<(i32, i32, i32), u32> = make_vert_idx(&verts);
+    let adj: Adjacency = make_adjacency(&verts, max_xyz, &vert_idx);
+    let edges: Edges = make_edges_from_adjacency(&adj);
+    let edge_adj = make_edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink_adjacency(&verts, &adj);
     let weights = make_weights(&z_adj, &verts);
     println!(

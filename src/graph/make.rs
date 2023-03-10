@@ -28,7 +28,7 @@ pub fn make_vertices(max_xyz: Point) -> Verts {
         .collect()
 }
 
-pub fn make_vi_mapping(verts: &Verts) -> VIMap {
+pub fn make_vert_idx(verts: &Verts) -> VIMap {
     verts
         .iter()
         .enumerate()
@@ -36,7 +36,7 @@ pub fn make_vi_mapping(verts: &Verts) -> VIMap {
         .collect()
 }
 
-pub fn make_adj(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
+pub fn make_adjacency(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .iter()
         .enumerate()
@@ -56,21 +56,21 @@ pub fn make_adj(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
         .collect()
 }
 
-pub fn make_edges_from_adj(adj: &Adjacency) -> Edges {
+pub fn make_edges_from_adjacency(adj: &Adjacency) -> Edges {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .collect()
 }
 
-pub fn make_edges_adj(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
+pub fn make_edges_adjacency(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
-        .map(|&(m, n)| ((m, n), get_adj_edges(adj, m, n, verts)))
+        .map(|&(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
         .collect()
 }
 
-pub fn get_adj_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
+pub fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
     adj.get(&m_node)
         .unwrap()
         .iter()
