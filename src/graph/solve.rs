@@ -198,7 +198,7 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
     {
         if e == last_idx && idx != last_ix {
             for subtour in vec![
-                tour[(prev + 1) as usize..idx].to_vec(),
+                tour[prev as usize + 1..idx].to_vec(),
                 tour[idx..].to_vec(),
             ] {
                 if !subtour.is_empty() {
@@ -210,7 +210,7 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
                 }
             }
         } else {
-            let subtour = tour[(prev + 1) as usize..=idx].to_vec();
+            let subtour = tour[prev as usize + 1..=idx].to_vec();
             if !subtour.is_empty() {
                 subtours.push(if subset.contains(&subtour[0]) {
                     subtour
@@ -256,23 +256,6 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     {
         loom.extend(vec![Thread::from(seq.iter().cloned().collect::<Thread>())])
     }
-}
-
-pub fn affix_loose_threads3(loom: &mut Loom, warps: Warps, woven: Woven) {
-    loom.extend(warps
-        .iter()
-        .enumerate()
-        .filter_map(
-            |(idx, seq)| 
-            {
-                if !woven.contains(&idx) {
-                    Some(Thread::from(seq.iter().cloned().collect::<Thread>()))
-                } else {
-                    None
-                }
-            }
-        )
-    )
 }
 
 pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
