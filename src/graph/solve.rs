@@ -1,4 +1,8 @@
 extern crate itertools;
+extern crate rayon;
+
+use std::collections::VecDeque;
+
 use itertools::Itertools;
 use ndarray;
 
@@ -7,7 +11,7 @@ use crate::graph::structs;
 use crate::graph::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
     Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom, Warps,
-    Wefts, Weights, Woven, Yarn, ZOrder,
+    Weights, Woven, Yarn, ZOrder,
 };
 
 use super::make::make_weights;
@@ -21,10 +25,11 @@ pub fn weave(
     z_length: &ZOrder,
 ) -> Solution {
     let mut warp_wefts: Loom = warp_loom(vi_map, verts, z_adj, z_length);
-    let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
-    let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
-    join_loops(warp, wefts, adj, verts, edge_adj);
-    warp.retrieve()
+    join_loops(
+        warp_wefts.split_first_mut().unwrap(),
+        adj, 
+        verts, edge_adj
+    )
 }
 
 pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_length: &ZOrder) -> Loom {
@@ -128,8 +133,15 @@ pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
-    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
+pub fn get_upper_nodes(
+    (x, y, z): Vert, 
+    (x1, y1, z1): Vert, 
+    vi_map: &VIMap
+) -> (u32, u32) {
+    (
+        vi_map[&(x, y, z + 2)], 
+        vi_map[&(x1, y1, z1 + 2)]
+    )
 }
 
 pub fn get_warps(
@@ -246,26 +258,46 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    for thread in loom {
-        thread.extend(
-            thread
-                .iter()
-                .rev()
-                .map(|&node| verts[node as usize])
-                .map(|(x, y, z)| vi_map[&(x, y, -z)])
-                .collect::<Tour>(),
+pub fn affix_loose_threads3(loom: &mut Loom, warps: Warps, woven: Woven) {
+    loom.extend(warps
+        .iter()
+        .enumerate()
+        .filter_map(
+            |(idx, seq)| 
+            {
+                if !woven.contains(&idx) {
+                    Some(Thread::from(seq.iter().cloned().collect::<Thread>()))
+                } else {
+                    None
+                }
+            }
         )
-    }
+    )
+}
+
+pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
+    loom
+        .iter_mut()
+        .for_each(
+            |thread| 
+            thread.extend(
+                thread
+                    .iter()
+                    .rev()
+                    .map(|&node| verts[node as usize])
+                    .map(|(x, y, z)| vi_map[&(x, y, -z)])
+                    .collect::<Tour>()
+            )
+        );
 }
 
 pub fn join_loops(
-    warp: &mut structs::Cycle,
-    wefts: &mut Wefts,
+    (warp, wefts): (&mut VecDeque<u32>, &mut [VecDeque<u32>]),
     adj: &Adjacency,
     verts: &VertsC3,
     edge_adj: &EdgeAdjacency,
-) {
+) -> Solution {
+    let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
     let loom: WarpedLoom = wefts
         .iter()
         .enumerate()
@@ -273,28 +305,24 @@ pub fn join_loops(
         .collect();
     let mut done: Done = Done::new();
     let loom_order = loom.keys().len();
-    if loom_order > 0 {
-        loop {
-            for idx in loom.keys() {
-                if done.len() != loom_order {
-                    if !done.contains(idx) {
-                        let mut other: structs::Cycle = loom[&*idx].clone();
-                        if let Some(warp_e) = warp.edges().intersection(&other.eadjs()).next() {
-                            if let Some(weft_e) = edge_adj
-                                .get(&warp_e)
-                                .unwrap()
-                                .intersection(&other.edges())
-                                .next()
-                            {
-                                warp.join(*warp_e, *weft_e, &mut other);
-                                done.extend([idx])
-                            }
-                        }
+    while done.len() != loom_order && loom_order > 0 {
+        for idx in loom.keys() {
+            if !done.contains(idx) {
+                let mut other: structs::Cycle = loom[&*idx].clone();
+                if let Some(warp_e) = warp.edges().intersection(&other.eadjs()).next() {
+                    if let Some(weft_e) = edge_adj
+                        .get(&warp_e)
+                        .unwrap()
+                        .intersection(&other.edges())
+                        .next()
+                    {
+                        warp.join(*warp_e, *weft_e, &mut other);
+                        done.extend([idx])
                     }
-                } else {
-                    return;
                 }
             }
         }
     }
+    warp.retrieve()
 }
+    
