@@ -55,14 +55,12 @@ New running times cut down by the introduction of the colored yarns:
 ***after after: 2x faster***
 ![Runtimes of each order](imgs/8-2million2x2.png?raw=true "Runtimes of each order 2x faster")
 
-### solve profile 2,997,280 vertices:
-![Profile of solve_np](imgs/profile_2997280.png?raw=true "Profile of solve_np")
-***I've managed to speed it up even more: Twice the speed!***
-![Profile of solve_np](imgs/profile_2997280faster.png?raw=true "Profile of solve_np")
-### solve profile 5,061,680 vertices:
+### PYTHON VS. RUST:
+
+### solve python profile 5,061,680 vertices:
 ![Profile of solve_np](imgs/profile_solve_np5.png?raw=true "Profile of solve_np")
-### solve profile 10,039,120 vertices:
-![Profile of solve_np](imgs/profile_10.png?raw=true "Profile of solve_np")
+### solve rust speed 5,061,680 vertices:
+![Profile of solve_np](imgs/rust_speed_graph_5061680_verts.png?raw=true "Profile of solve_np")
 
 
 ### digital discocubes
