@@ -26,9 +26,9 @@ pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
     }
     match seq
         .windows(2)
-        .all(|window| adj.get(&window[0]).unwrap().contains(&window[1]))
+        .all(|window| adj[&window[0]].contains(&window[1]))
     {
-        true if adj.get(&seq[seq.len() - 1]).unwrap().contains(&seq[0]) => SequenceID::HamCycle,
+        true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
         true => SequenceID::HamChain,
         false => SequenceID::Broken,
     }

@@ -1,20 +1,17 @@
 extern crate itertools;
-extern crate rayon;
-
-use std::collections::VecDeque;
 
 use itertools::Itertools;
 use ndarray;
+use std::collections::VecDeque;
 
-use crate::graph::convert;
-use crate::graph::structs;
-use crate::graph::types::{
+use super::convert;
+use super::make;
+use super::structs;
+use super::types::{
     Adjacency, Bobbins, Count, Done, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
     Subtours, Thread, Tour, TourSlice, V3d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom, Warps,
     Weights, Woven, Yarn, ZOrder,
 };
-
-use super::make::make_weights;
 
 pub fn weave(
     adj: &Adjacency,
@@ -25,11 +22,7 @@ pub fn weave(
     z_length: &ZOrder,
 ) -> Solution {
     let mut warp_wefts: Loom = warp_loom(vi_map, verts, z_adj, z_length);
-    join_loops(
-        warp_wefts.split_first_mut().unwrap(),
-        adj, 
-        verts, edge_adj
-    )
+    join_loops(warp_wefts.split_first_mut().unwrap(), adj, verts, edge_adj)
 }
 
 pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_length: &ZOrder) -> Loom {
@@ -56,7 +49,7 @@ pub fn yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 }
 
 pub fn spin(adj: &Adjacency, verts: &Verts) -> Yarn {
-    let weights = make_weights(&adj, &verts);
+    let weights = make::make_weights(&adj, &verts);
     let var = convert::from_verts_to_vertsc(verts);
     let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
     let order: Count = adj.len();
@@ -75,8 +68,9 @@ pub fn get_next(
     order: usize,
 ) -> Node {
     if idx < order - 5 {
-        adj.get(path.last().unwrap())
-            .unwrap()
+        // adj.get(path.last().unwrap())
+        //     .unwrap()
+        adj[path.last().unwrap()]
             .iter()
             .filter(|n| !path.contains(*n))
             .copied()
@@ -85,8 +79,9 @@ pub fn get_next(
     } else {
         let curr: &Node = path.last().unwrap();
         let curr_vert: &V3d = &verts[*curr as usize];
-        adj.get(curr)
-            .unwrap()
+        // adj.get(curr)
+        //     .unwrap()
+        adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
             .map(|&n| (n, get_axis(curr_vert, &verts[n as usize])))
@@ -102,7 +97,7 @@ pub fn get_next(
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2)
         .find(|&i| m_vert[i] != n_vert[i])
-        .expect("VERTS ARE SIMILAR")
+        .expect("Something's wrong, the same verts are being compared.")
 }
 
 pub fn from_nodes_to_yarn(path: &mut Vec<u32>, verts: &Verts) -> Yarn {
@@ -133,15 +128,8 @@ pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-pub fn get_upper_nodes(
-    (x, y, z): Vert, 
-    (x1, y1, z1): Vert, 
-    vi_map: &VIMap
-) -> (u32, u32) {
-    (
-        vi_map[&(x, y, z + 2)], 
-        vi_map[&(x1, y1, z1 + 2)]
-    )
+pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
 pub fn get_warps(
@@ -197,10 +185,7 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
         .enumerate()
     {
         if e == last_idx && idx != last_ix {
-            for subtour in vec![
-                tour[prev as usize + 1..idx].to_vec(),
-                tour[idx..].to_vec(),
-            ] {
+            for subtour in vec![tour[prev as usize + 1..idx].to_vec(), tour[idx..].to_vec()] {
                 if !subtour.is_empty() {
                     subtours.push(if subset.contains(&subtour[0]) {
                         subtour
@@ -259,19 +244,16 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
 }
 
 pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    loom
-        .iter_mut()
-        .for_each(
-            |thread| 
-            thread.extend(
-                thread
-                    .iter()
-                    .rev()
-                    .map(|&node| verts[node as usize])
-                    .map(|(x, y, z)| vi_map[&(x, y, -z)])
-                    .collect::<Tour>()
-            )
-        );
+    loom.iter_mut().for_each(|thread| {
+        thread.extend(
+            thread
+                .iter()
+                .rev()
+                .map(|&node| verts[node as usize])
+                .map(|(x, y, z)| vi_map[&(x, y, -z)])
+                .collect::<Tour>(),
+        )
+    });
 }
 
 pub fn join_loops(
@@ -308,4 +290,3 @@ pub fn join_loops(
     }
     warp.retrieve()
 }
-    

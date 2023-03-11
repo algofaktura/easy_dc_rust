@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use super::super::graph::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
+use super::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
 fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
     verts

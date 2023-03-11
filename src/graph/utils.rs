@@ -2,7 +2,7 @@ use ndarray::{arr2, Array2};
 
 use std::time::{Duration, Instant};
 
-use crate::graph::types::{Idx, Point, V3d, Vert, Yarn};
+use super::types::{Idx, Point, V3d, Vert, Yarn};
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2)

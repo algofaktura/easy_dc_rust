@@ -1,13 +1,13 @@
 use std::iter::zip;
 
-use crate::{
-    graph::check::is_valid_edge,
-    graph::types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
+use super::{
+    check::is_valid_edge,
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
 };
 
 #[derive(Clone, Debug)]
 pub struct Cycle<'a> {
-    data: Tour,
+    pub data: Tour,
     prev: Tour,
     _eadjs: Edges,
     _edges: Edges,
@@ -76,12 +76,13 @@ impl<'a> Cycle<'a> {
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
-        let reversed = !self.adj.get(&edge.1).unwrap().contains(&oedge.0);
+        let reversed = !self.adj[&edge.1].contains(&oedge.0);
         other.rotate_to_edge(
             if reversed { oedge.1 } else { oedge.0 },
             if reversed { oedge.0 } else { oedge.1 },
         );
         self.data.extend(&other.data);
+        other.data.clear()
     }
 
     pub fn make_edges(&self) -> Edges {
