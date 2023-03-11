@@ -47,7 +47,7 @@ pub fn adjacency_map(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
                     .filter(|new_vert| {
                         absumv((new_vert[0], new_vert[1], new_vert[2])) <= max_xyz + 2
                     })
-                    .map(|new_vert| *vi.get(&(new_vert[0], new_vert[1], new_vert[2])).unwrap())
+                    .map(|new_vert| vi[&(new_vert[0], new_vert[1], new_vert[2])])
                     .filter(|&m| m != (idx as Node))
                     .collect::<Nodes>(),
             )
@@ -70,12 +70,11 @@ pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> Edg
 }
 
 pub fn adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
-    adj.get(&m_node)
-        .unwrap()
+    adj[&m_node]
         .iter()
-        .flat_map(|m| adj.get(&n_node).unwrap().iter().map(move |n| (*m, *n)))
+        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
         .filter(|(m, n)| {
-            adj.get(m).unwrap().contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx])
+            adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx])
         })
         .map(|(m, n)| if m < n { (m, n) } else { (n, m) })
         .collect()
