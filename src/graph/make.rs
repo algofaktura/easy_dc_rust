@@ -7,7 +7,7 @@ use super::types::{
 };
 use super::utils::{absumv, edist, shift_xyz};
 
-pub fn make_vertices(max_xyz: Point) -> Verts {
+pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
         .step_by(2)
         .flat_map(|x| {
@@ -27,7 +27,7 @@ pub fn make_vertices(max_xyz: Point) -> Verts {
         .collect()
 }
 
-pub fn make_vi_map(verts: &Verts) -> VIMap {
+pub fn vi_map(verts: &Verts) -> VIMap {
     verts
         .iter()
         .enumerate()
@@ -35,7 +35,7 @@ pub fn make_vi_map(verts: &Verts) -> VIMap {
         .collect()
 }
 
-pub fn make_adjacency(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
+pub fn adjacency(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .iter()
         .enumerate()
@@ -55,21 +55,21 @@ pub fn make_adjacency(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency 
         .collect()
 }
 
-pub fn make_edges_from_adjacency(adj: &Adjacency) -> Edges {
+pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .collect()
 }
 
-pub fn make_edges_adjacency(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
+pub fn edges_adjacency(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
-        .map(|&(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
+        .map(|&(m, n)| ((m, n), adjacent_edges(adj, m, n, verts)))
         .collect()
 }
 
-pub fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
+pub fn adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
     adj.get(&m_node)
         .unwrap()
         .iter()
@@ -81,7 +81,7 @@ pub fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &V
         .collect()
 }
 
-pub fn make_weights(adj: &Adjacency, verts: &Verts) -> Weights {
+pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.iter()
         .map(|(&n, _)| (n, absumv(verts[n as usize])))
         .collect()
