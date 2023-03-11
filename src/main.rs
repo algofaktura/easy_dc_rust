@@ -40,27 +40,21 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     let edge_adj = make::edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink::adjacency(&verts, &adj);
     println!(
-        "MAX XYZ i32 {:?} | len VERTS{:?} VI{:?} ADJ{:?}, EA{:?}",
-        max_xyz,
-        verts.len(),
-        vi_map.len(),
-        adj.len(),
-        edge_adj.len(),
+        "SOLVING::GRAPH:::⭕️ {:?} * {}", 
+        order, repeats
     );
-    println!("SOLVING::GRAPH:::⭕️ {:?} * {}", order, repeats);
     let mut solution: types::Solution = types::Solution::new();
+
     let start: Instant = Instant::now();
     for _ in 0..repeats {
         solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
     }
     let dur = utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE");
+    
     let id: check::SequenceID = check::id_seq(&solution, &adj);
     assert_eq!(check::SequenceID::HamCycle, id);
     println!(
         "i32 ⭕️ ORDER: {:?} | ID: {} | LEN: {:?} | DUR: {:?}",
-        order,
-        id,
-        solution.len(),
-        dur
+        order, id, solution.len(), dur
     );
 }
