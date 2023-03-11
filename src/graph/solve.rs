@@ -68,8 +68,6 @@ pub fn get_next(
     order: usize,
 ) -> Node {
     if idx < order - 5 {
-        // adj.get(path.last().unwrap())
-        //     .unwrap()
         adj[path.last().unwrap()]
             .iter()
             .filter(|n| !path.contains(*n))
@@ -79,8 +77,6 @@ pub fn get_next(
     } else {
         let curr: &Node = path.last().unwrap();
         let curr_vert: &V3d = &verts[*curr as usize];
-        // adj.get(curr)
-        //     .unwrap()
         adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
