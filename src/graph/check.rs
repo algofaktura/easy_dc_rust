@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use std::fmt;
 
-use super::types::{Adjacency, Solution, Vert};
+use super::types::{Adjacency, Solution, Vert, V3d};
 
 #[derive(Debug, PartialEq)]
 pub enum SequenceID {
@@ -35,6 +35,13 @@ pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
 }
 
 pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    match (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF) {
+        4..=10 => true,
+        _ => false,
+    }
+}
+
+pub fn is_valid_edge_var([x1, y1, _]: V3d, [x2, y2, _]: V3d) -> bool {
     match (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF) {
         4..=10 => true,
         _ => false,

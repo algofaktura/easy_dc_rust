@@ -1,6 +1,5 @@
 use crate::graph::structs::Cycle;
 use ndarray::{Array2, Array3};
-use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 
 pub type Adjacency = HashMap<Node, Nodes>;
@@ -31,6 +30,7 @@ pub type V2Slice<'a> = &'a [V2d];
 pub type V3d = [Point; 3];
 pub type V3Slice<'a> = &'a [V3d];
 pub type Varr = Vec<V3d>;
+pub type Varrr = [V3d];
 pub type Vert = (i32, i32, i32);
 pub type Verts = Vec<Vert>;
 pub type Vert2d = (Point, Point);
@@ -40,7 +40,8 @@ pub type Vert3dd = Vec<Vert3d>;
 pub type VertsC2 = [Vert2d];
 pub type VertsC3 = [Vert3d];
 pub type VIMap = HashMap<Vert, Node>;
-// pub type WarpedLoom<'a> = HashMap<usize, RefCell<&'a mut Cycle<'a>>>;
+pub type VIMapVar = HashMap<V3d, Node>;
+pub type VIMapVars = HashMap<[i32; 3], u32>;
 pub type WarpedLoom<'a> = HashMap<usize, &'a mut Cycle<'a>>;
 pub type Warps = Subtours;
 pub type WarpWefts = [Loom];
@@ -51,33 +52,3 @@ pub type Yarn = Array2<Point>;
 pub type Yarn3 = Array3<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;
 pub type ZOrder = Vec<(Point, usize)>;
-
-// #[derive(Serialize, Deserialize, Debug)]
-// pub struct Graph{
-//     // pub phantom: PhantomData<&'a ()>,
-//     pub verts: String, // Verts
-//     pub vi_map: String, // VIMap
-//     pub adj: String, // Adjacency
-//     pub edge_adj: String, // EdgeAdjacency
-//     pub z_adj: String, // Adjacency
-//     pub z_order: String, // ZOrder
-// }
-
-#[derive(Serialize, Deserialize)]
-pub struct Graph {
-    data: HashMap<String, String>,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub struct NodeStruct(pub Node);
-
-// #[derive(Serialize, Deserialize)]
-// pub struct Graph<'a>{
-//     pub phantom: PhantomData<&'a ()>,
-//     pub verts: Verts,
-//     pub vi_map: VIMap<'a>,
-//     pub adj: Adjacency,
-//     pub edge_adj: EdgeAdjacency,
-//     pub z_adj: Adjacency,
-//     pub z_order: ZOrder,
-// }

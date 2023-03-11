@@ -1,9 +1,17 @@
 use itertools::Itertools;
 
-use super::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
+use super::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap, Varr};
 
 pub fn adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
     let stratified: ZlevelNodesMap = stratify_nodes(verts);
+    (
+        filter_adjacency(&adj, stratified[&(-1 as Point)].clone()),
+        get_zlevel_order(&stratified),
+    )
+}
+
+pub fn adjacency_var(verts: &Varr, adj: &Adjacency) -> (Adjacency, ZOrder) {
+    let stratified: ZlevelNodesMap = stratify_nodes_var(verts);
     (
         filter_adjacency(&adj, stratified[&(-1 as Point)].clone()),
         get_zlevel_order(&stratified),
@@ -22,6 +30,25 @@ fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
                 .iter()
                 .enumerate()
                 .filter(|&(_, v)| v.2 as Point == z)
+                .map(|(i, _)| i as u32)
+                .collect::<Nodes>();
+            (z, nodes)
+        })
+        .collect()
+}
+
+fn stratify_nodes_var(verts: &Varr) -> ZlevelNodesMap {
+    verts
+        .iter()
+        .map(|v| v[2])
+        .filter(|&z| z < 0)
+        .collect::<Points>()
+        .into_iter()
+        .map(|z| {
+            let nodes = verts
+                .iter()
+                .enumerate()
+                .filter(|&(_, v)| v[2] as Point == z)
                 .map(|(i, _)| i as u32)
                 .collect::<Nodes>();
             (z, nodes)
