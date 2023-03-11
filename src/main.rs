@@ -41,7 +41,7 @@ pub fn weave_nodes(order: u32, repeats: u32) {
         solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
     }
     println!(
-        "i32 ⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
+        "⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
         order, 
         repeats,
         utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE"), 
