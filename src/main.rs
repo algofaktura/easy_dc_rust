@@ -7,7 +7,7 @@ use graph::check;
 use graph::make;
 use graph::shrink;
 use graph::solve;
-use graph::types;
+use graph::types::*;
 use graph::utils;
 
 fn main() {
@@ -29,13 +29,13 @@ fn main() {
 
 pub fn weave_nodes(order: u32, repeats: u32) {
     let max_xyz = utils::get_max_xyz(order as i32);
-    let verts: types::Verts = make::vertices(max_xyz);
-    let vi_map: types::VIMap = make::vi_map(&verts);
-    let adj: types::Adjacency = make::adjacency(&verts, max_xyz, &vi_map);
-    let edges: types::Edges = make::edges_from_adjacency(&adj);
+    let verts: Verts = make::vertices(max_xyz);
+    let vi_map: VIMap = make::vi_map(&verts);
+    let adj: Adjacency = make::adjacency(&verts, max_xyz, &vi_map);
+    let edges: Edges = make::edges_from_adjacency(&adj);
     let edge_adj = make::edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink::adjacency(&verts, &adj);
-    let mut solution: types::Solution = types::Solution::new();
+    let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats {
         solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
