@@ -1,5 +1,6 @@
 pub mod check;
 pub mod convert;
+pub mod cycle_var;
 pub mod io;
 pub mod make;
 pub mod shrink;
