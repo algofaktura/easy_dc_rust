@@ -35,7 +35,7 @@ pub fn vi_map(verts: &Verts) -> VIMap {
         .collect()
 }
 
-pub fn adjacency(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
+pub fn adjacency_map(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .iter()
         .enumerate()
@@ -61,7 +61,7 @@ pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
         .collect()
 }
 
-pub fn edges_adjacency(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
+pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
