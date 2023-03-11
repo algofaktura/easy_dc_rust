@@ -1,8 +1,9 @@
 pub mod check;
 pub mod convert;
+pub mod io;
 pub mod make;
 pub mod shrink;
-pub mod solve;
 pub mod structs;
 pub mod types;
 pub mod utils;
+pub mod weave;

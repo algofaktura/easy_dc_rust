@@ -65,19 +65,69 @@ pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> Edg
     edges
         .iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
-        .map(|&(m, n)| ((m, n), adjacent_edges(adj, m, n, verts)))
+        .map(|&(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
         .collect()
 }
 
-pub fn adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
+pub fn edges_adjacency_mapping2(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
+    adj.iter()
+        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
+        .into_iter()
+        .filter(|&(a, b)| is_valid_edge(verts[a as Idx], verts[b as Idx]))
+        .map(|(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
+        .collect()
+}
+
+pub fn edges_adjacency_mappingverts(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
+    adj.iter()
+        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
+        .filter_map(|(m, n)| {
+            if is_valid_edge(verts[m as usize], verts[n as usize]) {
+                Some((orient(m, n), get_adjacent_edges(adj, m, n, verts)))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &VertsC3) -> EdgeAdjacency {
+    adj.iter()
+        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
+        .filter_map(|(m, n)| {
+            if is_valid_edge(verts[m as usize], verts[n as usize]) {
+                Some((orient(m, n), get_adjacent_edges(adj, m, n, verts)))
+            } else {
+                None
+            }
+        })
+        .collect()
+}
+
+fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &VertsC3) -> Edges {
     adj[&m_node]
         .iter()
         .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| {
-            adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx])
-        })
-        .map(|(m, n)| if m < n { (m, n) } else { (n, m) })
+        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
+        .map(|(m, n)| orient(m, n))
         .collect()
+}
+
+pub fn get_adjacent_edgesvec(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
+    adj[&m_node]
+        .iter()
+        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
+        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
+        .map(|(m, n)| orient(m, n))
+        .collect()
+}
+
+fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
+    if m < n {
+        (m, n)
+    } else {
+        (n, m)
+    }
 }
 
 pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {

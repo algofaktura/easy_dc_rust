@@ -1,50 +1,103 @@
+extern crate serde_json;
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::env;
 use std::time::Instant;
 
 pub mod graph;
 
 use graph::check;
+use graph::io::deserialize_data;
 use graph::make;
 use graph::shrink;
-use graph::solve;
 use graph::types::*;
 use graph::utils;
+use graph::weave;
+
+use crate::graph::io::serialize_data;
 
 fn main() {
     // cargo run --release 1373600 10
     let args: Vec<String> = env::args().collect();
-    weave_nodes(
-        args
-            .get(1)
+    find_solution(make_graph(
+        args.get(1)
             .unwrap_or(&"79040".to_string())
             .parse()
-            .unwrap_or(79040), 
-        args
-            .get(2)
+            .unwrap_or(79040),
+        args.get(2)
             .unwrap_or(&"100".to_string())
             .parse()
-            .unwrap_or(10)
-    )
+            .unwrap_or(10),
+    ))
 }
 
-pub fn weave_nodes(order: u32, repeats: u32) {
+pub fn make_graph(
+    order: u32,
+    repeats: u32,
+) -> (
+    u32,
+    u32,
+    Verts,
+    VIMap,
+    Adjacency,
+    EdgeAdjacency,
+    Adjacency,
+    ZOrder,
+) {
     let max_xyz = utils::get_max_xyz(order as i32);
-    let verts: Verts = make::vertices(max_xyz);
-    let vi_map: VIMap = make::vi_map(&verts);
-    let adj: Adjacency = make::adjacency_map(&verts, max_xyz, &vi_map);
-    let edges: Edges = make::edges_from_adjacency(&adj);
-    let edge_adj = make::edges_adjacency_map(&adj, &edges, &verts);
-    let (z_adj, z_length) = shrink::adjacency(&verts, &adj);
+    let verts: Vec<(i32, i32, i32)> = make::vertices(max_xyz);
+    let vi_map: HashMap<(i32, i32, i32), u32> = make::vi_map(&verts);
+    let adj: HashMap<u32, HashSet<u32>> = make::adjacency_map(&verts, max_xyz, &vi_map);
+    let edge_adj: HashMap<(u32, u32), HashSet<(u32, u32)>> =
+        make::edges_adjacency_mapping(&adj, &verts);
+    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
+    (order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order)
+}
+
+pub fn find_solution(
+    (order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order): (
+        u32,
+        u32,
+        Verts,
+        VIMap,
+        Adjacency,
+        EdgeAdjacency,
+        Adjacency,
+        ZOrder,
+    ),
+) {
     let mut solution: Solution = Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats {
-        solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
+        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
     }
     println!(
         "⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
-        order, 
+        order,
         repeats,
-        utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE"), 
-        check::id_seq(&solution, &adj), 
+        utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE"),
+        check::id_seq(&solution, &adj),
     );
+}
+
+pub fn serialize_graph(order: u32) {
+    let fpath = "/home/rommelo/Repos/RustRepos/hamcycle/src";
+    let max_xyz = utils::get_max_xyz(order as i32);
+    let verts: Vec<(i32, i32, i32)> = make::vertices(max_xyz);
+    let vi_map: HashMap<(i32, i32, i32), u32> = make::vi_map(&verts);
+    let adj: HashMap<u32, HashSet<u32>> = make::adjacency_map(&verts, max_xyz, &vi_map);
+    let edge_adj: HashMap<(u32, u32), HashSet<(u32, u32)>> =
+        make::edges_adjacency_mapping(&adj, &verts);
+    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
+
+    let _serialized = match serialize_data(fpath, verts, vi_map, adj, edge_adj, z_adj, z_order) {
+        Ok(file) => file,
+        Err(error) => panic!("couldn't serialize file {:?}", error),
+    };
+
+    let _deserialized = match deserialize_data(order, fpath) {
+        Ok(file) => file,
+        Err(error) => panic!("couldn't deserialize file {:?}", error),
+    };
+    println!("{:?}", _deserialized);
 }

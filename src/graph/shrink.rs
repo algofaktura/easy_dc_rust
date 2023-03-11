@@ -43,4 +43,3 @@ pub fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
         .sorted_by_key(|&(level, _)| level)
         .collect()
 }
-
