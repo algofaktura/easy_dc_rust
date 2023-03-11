@@ -96,7 +96,7 @@ impl<'a> Cycle<'a> {
     pub fn eadjs(&mut self) -> Edges {
         self.edges()
             .iter()
-            .flat_map(|edge| self.edge_adj.get(edge).unwrap().iter())
+            .flat_map(|edge| self.edge_adj[edge].iter())
             .map(|&ea| ea)
             .collect()
     }
