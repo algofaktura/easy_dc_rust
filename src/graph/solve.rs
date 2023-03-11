@@ -49,7 +49,7 @@ pub fn yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 }
 
 pub fn spin(adj: &Adjacency, verts: &Verts) -> Yarn {
-    let weights = make::make_weights(&adj, &verts);
+    let weights = make::weights_map(&adj, &verts);
     let var = convert::from_verts_to_vertsc(verts);
     let path: &mut Tour = &mut vec![*adj.keys().max().unwrap() as Node];
     let order: Count = adj.len();
