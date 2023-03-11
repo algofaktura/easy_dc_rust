@@ -28,10 +28,6 @@ fn main() {
 }
 
 pub fn weave_nodes(order: u32, repeats: u32) {
-    println!(
-        "MAKING GRAPH::: | ⭕️ ORDER: {:?} | REPEATS: {}",
-        order, repeats
-    );
     let max_xyz = utils::get_max_xyz(order as i32);
     let verts: types::Verts = make::vertices(max_xyz);
     let vi_map: types::VIMap = make::vi_map(&verts);
@@ -39,19 +35,15 @@ pub fn weave_nodes(order: u32, repeats: u32) {
     let edges: types::Edges = make::edges_from_adjacency(&adj);
     let edge_adj = make::edges_adjacency(&adj, &edges, &verts);
     let (z_adj, z_length) = shrink::adjacency(&verts, &adj);
-    println!(
-        "SOLVING::GRAPH:::⭕️ {:?} * {}", 
-        order, 
-        repeats
-    );
     let mut solution: types::Solution = types::Solution::new();
     let start: Instant = Instant::now();
     for _ in 0..repeats {
         solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_length);
     }
     println!(
-        "i32 ⭕️ ORDER: {:?} | DUR: {} | ID: {:?}",
+        "i32 ⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
         order, 
+        repeats,
         utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE"), 
         check::id_seq(&solution, &adj), 
     );
