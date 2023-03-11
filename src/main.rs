@@ -15,7 +15,8 @@ use graph::utils::{elapsed_ms, get_max_xyz};
 use crate::graph::types::VIMap;
 
 fn main() {
-    // cargo run --release 32 100
+    // cargo run --release 1373600 10
+    // run ⭕️rder: 1373600 ten times.
     let args: Vec<String> = env::args().collect();
     let order = args
         .get(1)
