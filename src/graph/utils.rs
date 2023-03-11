@@ -36,6 +36,12 @@ pub fn absumv((x, y, z): Vert) -> Point {
         .sum()
 }
 
+pub fn absumv_v3d(vert: V3d) -> Point {
+    vert.iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
+}
+
 pub fn edist((x, y, z): Vert) -> Point {
     ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
 }

@@ -14,6 +14,7 @@ pub struct Cycle<'a> {
     verts: &'a VertsC3,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
+    pub is_empty: bool,
 }
 
 impl<'a> Cycle<'a> {
@@ -31,6 +32,7 @@ impl<'a> Cycle<'a> {
             verts,
             adj,
             edge_adj,
+            is_empty: false,
         };
         Box::leak(Box::new(cycle))
     }
@@ -49,12 +51,23 @@ impl<'a> Cycle<'a> {
             verts,
             adj,
             edge_adj,
+            is_empty: false,
         };
         Box::leak(Box::new(cycle))
     }
 
     pub fn retrieve(&self) -> Solution {
-        self.data.iter().cloned().collect::<Vec<u32>>()
+        self.data.iter().cloned().collect()
+    }
+
+    pub fn clear(&mut self) {
+        self.data.clear()
+    }
+
+    pub fn clone_del(&mut self) -> Self {
+        let cycle_clone: Cycle = self.clone();
+        self.data = Vec::new();
+        cycle_clone
     }
 
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
@@ -82,7 +95,8 @@ impl<'a> Cycle<'a> {
             if reversed { oedge.0 } else { oedge.1 },
         );
         self.data.extend(&other.data);
-        other.data.clear()
+        other.data.clear();
+        other.is_empty = true;
     }
 
     pub fn make_edges(&self) -> Edges {
@@ -131,6 +145,7 @@ impl<'a> Cycle<'a> {
             verts,
             adj,
             edge_adj,
+            is_empty: false,
         }
     }
 }
