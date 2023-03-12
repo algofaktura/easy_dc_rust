@@ -5,6 +5,7 @@ pub mod io;
 pub mod make;
 pub mod shrink;
 pub mod structs;
+pub mod try_versions;
 pub mod types;
 pub mod utils;
 pub mod weave;

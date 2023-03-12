@@ -1,7 +1,7 @@
 use ndarray::{arr2, Array2};
 
 use std::time::{Duration, Instant};
-
+use num_traits;
 use super::types::{Idx, Point, V3d, Vert, Yarn};
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
@@ -27,6 +27,36 @@ pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
         [0, 0, 2],
         [0, 0, -2],
     ])
+}
+
+pub fn shift_xyz16(vert: Array2<i16>) -> Array2<i16> {
+    vert + arr2(&[
+        [2, 0, 0],
+        [-2, 0, 0],
+        [0, 2, 0],
+        [0, -2, 0],
+        [0, 0, 2],
+        [0, 0, -2],
+    ])
+}
+
+pub fn absumv_i<I: num_traits::sign::Signed>([x, y, z]: [I;3]) -> I {    
+    x.abs() + y.abs() + z.abs()
+}
+
+pub fn absumv_all<T, F>(vertices: &[T], map_fn: F) -> T
+where
+    T: num_traits::sign::Signed + num_traits::identities::Zero + std::iter::Sum + Copy,
+    F: Fn(T) -> T,
+{
+    vertices.iter().map(|&vert| map_fn(vert)).sum()
+}
+
+pub fn absumvi16a(vert: [i16;3]) -> i16 {
+    vert
+        .iter()
+        .map(|&n| ((n ^ (n >> 15)) - (n >> 15)))
+        .sum()
 }
 
 pub fn absumv((x, y, z): Vert) -> Point {
