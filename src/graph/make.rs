@@ -64,7 +64,6 @@ fn vertices(max_xyz: Point) -> Verts {
                 })
                 .collect::<Verts>()
         })
-        .into_iter()
         .sorted_by_key(|v| (edist(*v), v.0, v.1, v.2))
         .collect()
 }
