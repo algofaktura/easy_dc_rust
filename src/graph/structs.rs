@@ -37,25 +37,6 @@ impl<'a> Cycle<'a> {
         Box::leak(Box::new(cycle))
     }
 
-    pub fn new_from_vec(
-        data: &Tour,
-        adj: &'a Adjacency,
-        edge_adj: &'a EdgeAdjacency,
-        verts: &'a Verts,
-    ) -> &'a mut Cycle<'a> {
-        let cycle = Cycle {
-            data: data.iter().cloned().collect::<Tour>(),
-            prev: Tour::new(),
-            _eadjs: Edges::new(),
-            _edges: Edges::new(),
-            verts,
-            adj,
-            edge_adj,
-            is_empty: false,
-        };
-        Box::leak(Box::new(cycle))
-    }
-
     pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect()
     }
