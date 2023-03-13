@@ -6,7 +6,7 @@ use super::{
     check::is_valid_edge,
     shrink,
     types::{
-        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts, VertsC3,
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts,
         Weights, ZOrder,
     },
 };
@@ -156,7 +156,7 @@ pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency 
         .collect()
 }
 
-fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &VertsC3) -> Edges {
+fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
     adj[&m_node]
         .iter()
         .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
