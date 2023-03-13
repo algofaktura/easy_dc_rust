@@ -1,12 +1,12 @@
 use itertools::Itertools;
-use ndarray::arr2;
+use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::check::is_valid_edge;
 use super::types::{
-    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights,
+    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Verts, VertsC3, VIMap, Weights,
 };
-use super::utils::{absumv, edist, shift_xyz, absumv_v3d};
+use super::utils::{absumv, edist, absumv_v3d};
 
 pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
@@ -54,6 +54,17 @@ pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
             )
         })
         .collect()
+}
+
+pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
+    vert + arr2(&[
+        [2, 0, 0],
+        [-2, 0, 0],
+        [0, 2, 0],
+        [0, -2, 0],
+        [0, 0, 2],
+        [0, 0, -2],
+    ])
 }
 
 pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
