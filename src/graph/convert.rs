@@ -1,5 +1,5 @@
 use super::types::{
-    AdjC, Adjacency, Neighbors, Point, Tour, TourSlice, Vert2dd, Verts, VertsC2, VertsC3, Yarn, Varr16,
+    AdjC, Adjacency, Neighbors, Point, Tour, TourSlice, Vert2dd, Verts, VertsC2, VertsC3, Yarn,
 };
 
 pub fn from_const_adj_to_adj(graph: &AdjC) -> Adjacency {
@@ -9,12 +9,8 @@ pub fn from_const_adj_to_adj(graph: &AdjC) -> Adjacency {
         .collect()
 }
 
-pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 2]> {
-    verts.iter().map(|(_x, _y, _)| [*_x, *_y]).collect()
-}
-
-pub fn from_verts_to_vertsc16(verts: &Varr16) -> Vec<[i16; 3]> {
-    verts.iter().map(|[_x, _y, _z]| [*_x, *_y, *_z]).collect()
+pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 3]> {
+    verts.iter().map(|(_x, _y, _z)| [*_x, *_y, *_z]).collect()
 }
 
 pub fn from_nodes_to_yarn(path: Tour, verts: &Vert2dd) -> Yarn {
@@ -58,8 +54,4 @@ where
             })
             .collect::<Vec<[Point; 2]>>(),
     )
-}
-
-pub fn convert_to_varr16(verts: &Verts) -> Varr16 {
-    verts.iter().map(|(x, y, z)| [*x as i16, *y as i16, *z as i16]).collect()
 }

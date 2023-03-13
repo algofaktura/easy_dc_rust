@@ -5,24 +5,17 @@ use itertools::Itertools;
 
 use ndarray;
 
-// use rayon::prelude::*;
+use rayon::prelude::*;
 
 use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::VecDeque;
 
-use crate::graph::types::V2d;
-use crate::graph::utils::sum_xxy;
-
-use super::convert;
 use super::structs;
-use super::types::ZOrder;
+use super::types::WarpedLoom;
 use super::types::{
     Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, VertsC3, Warps,
-    Woven, Yarn,
+    Subtours, Thread, Tour, TourSlice, V2d, Varr, VIMap, Vert, Verts, VertsC3, Warps,
+    Woven, Yarn, ZOrder
 };
-use super::utils::absumv_xy;
 
 pub fn weave(
     adj: &Adjacency,
@@ -37,7 +30,7 @@ pub fn weave(
 }
 
 pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
-    let spool: Spool = yarn(&z_adj, verts, z_order);
+    let spool: Spool = spin_and_color_yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
@@ -53,45 +46,43 @@ pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOr
     loom
 }
 
-pub fn yarn(z_adj: &Adjacency, verts: &Verts, z_order: &ZOrder) -> Spool {
+pub fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
     let natural: Yarn = spin(&z_adj, verts);
-    let colored: Yarn = color(&natural, z_order[z_order.len() - 2].1);
+    let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
 pub fn spin(z_adj: &Adjacency, verts: &Verts) -> Yarn {
-    let var = convert::from_verts_to_vertsc(verts);
-    let path: &mut Tour = &mut vec![
-        *z_adj.keys().max_by_key(|node| {
-            sum_xxy(var[**node as usize])
-        }).unwrap()
-        ];
+    let var: Varr = from_verts_to_vertsc2d(verts);
+    let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
-    (1..order).for_each(|idx| {
-        path.push(get_next(&path, z_adj, &var, idx, order))
-    });
+    (1..order).for_each(|idx| path.push(get_next(&path, z_adj, &var, idx, order)));
     from_nodes_to_yarn(path, verts)
 }
 
-pub fn get_next(path: TourSlice, z_adj: &Adjacency, verts: &Vec<[i16;2]>, idx: usize, order: usize) -> Node {
+pub fn from_verts_to_vertsc2d(verts: &Verts) -> Varr {
+    verts.par_iter().map(|(_x, _y, _)| [*_x, *_y]).collect()
+}
+
+pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &Varr, idx: usize, order: usize) -> Node {
     if idx < order - 5 {
-        z_adj[path.last().unwrap()]
+        adj[path.last().unwrap()]
             .iter()
             .filter(|n| !path.contains(*n))
             .copied()
-            .max_by_key(|&n| absumv_xy(verts[n as usize]))
-            .expect(&format!("CHOSEN VERTS HAVE SAME VALUES AND CAN'T BE SORTED {:?} {} PATH: {:?}", path.last().unwrap(), path.len(), if path.len() > 801 {&path[800..]} else {&path[..1]}))
+            .max_by_key(|&n| absumv(verts[n as usize]))
+            .unwrap()
     } else {
         let curr: &Node = &path[path.len() - 1];
         let curr_vert: &V2d = &verts[*curr as usize];
-        z_adj[curr]
+        adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
             .map(|&n| (n, get_axis(curr_vert, &verts[n as usize])))
             .filter(|(_, next_axis)| {
                 *next_axis != get_axis(&verts[path[path.len() - 2] as usize], curr_vert)
             })
-            .max_by_key(|&(n, _)| absumv_xy(verts[n as usize]) as u32)
+            .max_by_key(|&(n, _)| absumv(verts[n as usize]))
             .unwrap()
             .0
     }
@@ -103,31 +94,22 @@ pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
         .expect("Something's wrong, the same verts are being compared.")
 }
 
-pub fn color(a: &Yarn, _zlen: usize) -> Yarn {
-    a.dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
+pub fn absumv(vert: V2d) -> Point {
+    vert.iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
 }
 
-pub fn color_slice(a: &Yarn, zlen: usize) -> Yarn {
-    let mut colored_yarn = a
-        .to_owned()
-        .dot(&ndarray::arr2(&[[-1, 0], [0, -1]]));
-    colored_yarn.slice_axis_inplace(
-        ndarray::Axis(0),
-        ndarray::Slice::new(
-            (colored_yarn.len_of(ndarray::Axis(0)) - zlen).try_into().unwrap(),
-            None,
-            1,
-        )
-    );
-    colored_yarn + ndarray::arr2(&[[0, 2]])
-}
-
-pub fn from_nodes_to_yarn(path: &mut Vec<u32>, verts: &Verts) -> Yarn {
+pub fn from_nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
             .collect::<Vec<[Point; 2]>>(),
     )
+}
+
+pub fn color_yarn(a: &Yarn) -> Yarn {
+    a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
 pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
@@ -180,7 +162,7 @@ pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap
         ),
     );
     yarn.outer_iter()
-        .map(|vert| vi_map[&(vert[0], vert[1], zlevel)])
+        .map(|row| vi_map[&(row[0], row[1], zlevel)])
         .collect()
 }
 
@@ -262,7 +244,7 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
 }
 
 pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    loom.iter_mut().for_each(|thread| {
+    loom.par_iter_mut().for_each(|thread| {
         thread.extend(
             thread
                 .iter()
@@ -275,13 +257,13 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
 }
 
 pub fn join_loops(
-    (warp, wefts): (&mut VecDeque<u32>, &mut [VecDeque<u32>]),
+    (warp, wefts): (&mut Thread, &mut [Thread]),
     adj: &Adjacency,
     verts: &VertsC3,
     edge_adj: &EdgeAdjacency,
 ) -> Solution {
     let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
-    let loom: HashMap<_, _> = wefts
+    let loom: WarpedLoom = wefts
         .iter()
         .enumerate()
         .map(|(idx, seq)| {

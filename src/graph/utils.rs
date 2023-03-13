@@ -1,9 +1,7 @@
-use itertools::Itertools;
 use ndarray::{arr2, Array2};
 
 use std::time::{Duration, Instant};
-use num_traits;
-use super::types::{Idx, Point, V3d, Vert, Yarn, Verts};
+use super::types::{Idx, Point, V3d, Vert, Yarn, Adjacency};
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {
     (0..2)
@@ -30,78 +28,31 @@ pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
     ])
 }
 
-pub fn absumv_gen<I: num_traits::sign::Signed>([x, y, z]: [I;3]) -> I {    
-    x.abs() + y.abs() + z.abs()
-}
-
-
-pub fn absumv_all<T, F>(vertices: &[T], map_fn: F) -> T
-where
-    T: num_traits::sign::Signed + num_traits::identities::Zero + std::iter::Sum + Copy,
-    F: Fn(T) -> T,
-{
-    vertices.iter().map(|&vert| map_fn(vert)).sum()
-}
-
-pub fn absumvi16a(vert: [i16;3]) -> i16 {
-    vert
+pub fn absumv((x, y, z): Vert) -> Point {
+    [x, y, z]
         .iter()
-        .map(|&n| ((n ^ (n >> 15)) - (n >> 15)))
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
 }
 
-pub fn absumv([x, y, z]: [i16;3]) -> Point {
-    x.abs() + y.abs() + z.abs()
-}
-
-
-pub fn absumv_xy2([x, y]: [i16;2]) -> Point {
-    x.abs() + y.abs()
-}
-
-pub fn absumv_xy(vert: [i16;2]) -> i16 {
-    vert
-        .iter()
-        .map(|&n| ((n ^ (n >> 15)) - (n >> 15)))
+pub fn absumv_v3d(vert: V3d) -> Point {
+    vert.iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
-}
-
-pub fn path_as_absumv(path: &Vec<u32>, verts: &Verts) -> Vec<i16> {
-    path.iter()
-        .map(
-            |node|
-            absumv_tuple(verts[*node as usize])
-        )
-        .collect_vec()
-}
-
-pub fn pathvec_as_absumv(path: &Vec<(Point, Point, Point)>) -> Vec<i16> {
-    path.iter()
-        .map(
-            |vec|
-            absumv_tuple(*vec)
-        )
-        .collect_vec()
-}
-
-pub fn absumv_tuple((x, y, z): Vert) -> Point {
-    x.abs() + y.abs() + z.abs()
-}
-
-pub fn sum_xxy([x, y]: [Point; 2]) -> Point {
-    x + x + y
 }
 
 pub fn edist((x, y, z): Vert) -> Point {
-    ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i16
+    ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
 }
 
-pub fn get_max_xyz(order: i32) -> i32 {
+pub fn get_max_xyz(order: i32) -> Point {
     (0..order)
-        .map(|n| (
-            n,
-            ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32,
-        ))
+        .map(|n| {
+            (
+                n,
+                ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32,
+            )
+        })
         .filter(|(_, sum)| *sum == order as u32)
         .map(|(n, _)| n)
         .next()
@@ -110,14 +61,24 @@ pub fn get_max_xyz(order: i32) -> i32 {
         - 1
 }
 
-pub fn get_order_from_n(n: i32) -> u32 {
+pub fn get_order_from_n(n: u32) -> u32{
     ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
 }
 
-pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
+pub fn elapsed_ms(start: Instant, end: Instant, _repeats: u32, _name: &str) -> f64 {
     let dur: Duration = end - start;
-    println!("x{repeats}: {name}() took {} secs", dur.as_secs_f64());
+    // println!("x{repeats}: {name}() took {} secs", dur.as_secs_f64());
     dur.as_secs_f64()
+}
+
+pub fn sum_neighbors(adj: &Adjacency) -> usize {
+    adj 
+        .values()
+        .map(
+            |value|
+            value.len()
+        )
+        .sum()
 }
 
 pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize> {
@@ -136,12 +97,3 @@ pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize
         })
         .flatten()
 }
-
-/*
-verts [(-1, -1, -1), (-1, -1, 1), (-1, 1, -1), (-1, 1, 1), (1, -1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1), (-3, -1, -1), (-3, -1, 1), (-3, 1, -1), (-3, 1, 1), (-1, -3, -1), (-1, -3, 1), (-1, -1, -3), (-1, -1, 3), (-1, 1, -3), (-1, 1, 3), (-1, 3, -1), (-1, 3, 1), (1, -3, -1), (1, -3, 1), (1, -1, -3), (1, -1, 3), (1, 1, -3), (1, 1, 3), (1, 3, -1), (1, 3, 1), (3, -1, -1), (3, -1, 1), (3, 1, -1), (3, 1, 1)]
-verts [(-1, -1, -1), (-1, -1, 1), (-1, 1, -1), (-1, 1, 1), (1, -1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1), (-3, -1, -1), (-3, -1, 1), (-3, 1, -1), (-3, 1, 1), (-1, -3, -1), (-1, -3, 1), (-1, -1, -3), (-1, -1, 3), (-1, 1, -3), (-1, 1, 3), (-1, 3, -1), (-1, 3, 1), (1, -3, -1), (1, -3, 1), (1, -1, -3), (1, -1, 3), (1, 1, -3), (1, 1, 3), (1, 3, -1), (1, 3, 1), (3, -1, -1), (3, -1, 1), (3, 1, -1), (3, 1, 1)]
-
-
-
-
- */
