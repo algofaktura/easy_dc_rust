@@ -21,7 +21,9 @@ impl fmt::Display for SequenceID {
 }
 
 pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
-    if seq.iter().duplicates().count() > 0 {
+    if seq.iter().duplicates().count() > 0 
+    || seq.len() != adj.len()
+    {
         return SequenceID::Broken;
     }
     match seq
@@ -35,8 +37,8 @@ pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
 }
 
 pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-    match (x1 as i32 & 0x7FFF) + (y1 as i32 & 0x7FFF) + (x2 as i32 & 0x7FFF) + (y2 as i32 & 0x7FFF) {
+    match (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF) {
         4..=10 => true,
-        _ => false
+        _ => false,
     }
 }

@@ -1,8 +1,6 @@
 extern crate rayon;
 extern crate serde_json;
 
-use std::collections::HashMap;
-use std::collections::HashSet;
 use std::env;
 use std::time::Instant;
 
@@ -16,10 +14,15 @@ use graph::utils;
 use graph::utils::get_order_from_n;
 use graph::weave;
 
-// use crate::graph::utils::path_as_absumv;
-
 fn main() {
-    // cargo run --release 1373600 10
+    for n in 100..111 {
+        find_solution(make_graph(n, 1))
+    }
+}
+
+pub fn solve_from_args() {
+    // (n, order): (1, 8), (2, 32)...(100, 1,373,600), (200, 10,827,200), (300, )
+    // cargo run --release 100 10
     let args: Vec<String> = env::args().collect();
     find_solution(make_graph(
             args.get(1)
@@ -30,11 +33,37 @@ fn main() {
                 .unwrap_or(&"1".to_string())
                 .parse()
                 .unwrap_or(1)
-    ))
+        ))
+}
+
+pub fn make_graph(
+    n: u32,
+    repeats: u32,
+) -> (
+    u32,
+    u32,
+    u32,
+    Verts,
+    VIMap,
+    Adjacency,
+    EdgeAdjacency,
+    Adjacency,
+    ZOrder,
+) {
+    let order = get_order_from_n(n);
+    let max_xyz = utils::get_max_xyz(order as i32);
+    let verts: Verts = make::vertices(max_xyz);
+    let vi_map: VIMap = make::vi_map(&verts);
+    let adj: Adjacency = make::adjacency_map(&verts, max_xyz, &vi_map);
+    let edge_adj: EdgeAdjacency =
+        make::edges_adjacency_mapping(&adj, &verts);
+    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
+    (n, order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
 
 pub fn find_solution(
-    (order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order): (
+    (n, order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order): (
+        u32,
         u32,
         u32,
         Verts,
@@ -50,38 +79,14 @@ pub fn find_solution(
     for _ in 0..repeats {
         solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
     }
-    // println!("{:?}", path_as_absumv(&solution, &verts));
+    let dur = Instant::now() - start;
+    let seq_id = check::id_seq(&solution, &adj);
     println!(
-        "⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
+        "N: {:?} | ⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
+        n,
         order,
         repeats,
-        utils::elapsed_ms(start, Instant::now(), repeats, "WEAVE"),
-        check::id_seq(&solution, &adj),
+        dur.as_secs_f64(),
+        seq_id,
     );
-}
-
-pub fn make_graph(
-    n: u32,
-    repeats: u32,
-) -> (
-    u32,
-    u32,
-    Verts,
-    VIMap,
-    Adjacency,
-    EdgeAdjacency,
-    Adjacency,
-    ZOrder,
-) {
-
-    let order = get_order_from_n(n as i32);
-    let max_xyz = utils::get_max_xyz(order as i32) as i16;
-    let verts: Verts = make::vertices(max_xyz);
-    println!("MAX XYZ {max_xyz} | VERTS LEN: {:?} | REPEATS: {repeats} | N: {n}", verts.len());
-    let vi_map: VIMap = make::vi_map(&verts);
-    let adj: Adjacency = make::adjacency_map(&verts, max_xyz, &vi_map);
-    let edge_adj: HashMap<(u32, u32), HashSet<(u32, u32)>> =
-        make::edges_adjacency_mapping(&adj, &verts);
-    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
-    (order, repeats, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }

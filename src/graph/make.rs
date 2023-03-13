@@ -6,7 +6,7 @@ use super::check::is_valid_edge;
 use super::types::{
     Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights,
 };
-use super::utils::{absumv, absumv_tuple, edist, shift_xyz};
+use super::utils::{absumv, edist, shift_xyz, absumv_v3d};
 
 pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
@@ -18,7 +18,7 @@ pub fn vertices(max_xyz: Point) -> Verts {
                     (-max_xyz..=max_xyz)
                         .step_by(2)
                         .map(move |z| (x, y, z))
-                        .filter(|&v| absumv_tuple(v) < (max_xyz + 4))
+                        .filter(|&v| absumv(v) < (max_xyz + 4))
                         .collect::<Verts>()
                 })
                 .collect::<Verts>()
@@ -46,7 +46,7 @@ pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
                 shift_xyz(arr2(&[[vert.0, vert.1, vert.2]]))
                     .outer_iter()
                     .filter(|new_vert| {
-                        absumv([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
+                        absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
                     })
                     .map(|new_vert| vi[&(new_vert[0], new_vert[1], new_vert[2])])
                     .filter(|&m| m != (idx as Node))
@@ -66,33 +66,11 @@ pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> Edg
     edges
         .par_iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
-        .map(|&(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
+        .map(|&(m, n)| (orient(m, n), get_adjacent_edges(adj, m, n, verts)))
         .collect()
 }
 
-pub fn edges_adjacency_mapping2(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
-    adj.iter()
-        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
-        .into_iter()
-        .filter(|&(a, b)| is_valid_edge(verts[a as Idx], verts[b as Idx]))
-        .map(|(m, n)| ((m, n), get_adjacent_edges(adj, m, n, verts)))
-        .collect()
-}
-
-pub fn edges_adjacency_mappingverts(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
-    adj.iter()
-        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
-        .filter_map(|(m, n)| {
-            if is_valid_edge(verts[m as usize], verts[n as usize]) {
-                Some((orient(m, n), get_adjacent_edges(adj, m, n, verts)))
-            } else {
-                None
-            }
-        })
-        .collect()
-}
-
-pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &VertsC3) -> EdgeAdjacency {
+pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .filter_map(|(m, n)| {
@@ -131,14 +109,8 @@ fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
     }
 }
 
-pub fn weights_map2(adj: &Adjacency, verts: &Verts) -> Weights {
-    adj.iter()
-        .map(|(&n, _)| (n, absumv_tuple(verts[n as usize])))
-        .collect()
-}
-
 pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.par_iter()
-        .map(|(&n, _)| (n, absumv_tuple(verts[n as usize])))
+        .map(|(&n, _)| (n, absumv(verts[n as usize])))
         .collect()
 }
