@@ -34,24 +34,19 @@ pub fn make_graph(
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
 
-pub fn get_order_from_n(n: u32) -> u32 {
-    ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
-}
-
 pub fn get_max_xyz(order: i32) -> Point {
     (0..order)
-        .map(|n| {
-            (
-                n,
-                ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32,
-            )
-        })
+        .map(|n| (n, get_order_from_n(n as u32)))
         .filter(|(_, sum)| *sum == order as u32)
         .map(|(n, _)| n)
         .next()
         .unwrap()
         * 2
         - 1
+}
+
+pub fn get_order_from_n(n: u32) -> u32 {
+    ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
 }
 
 pub fn vertices(max_xyz: Point) -> Verts {

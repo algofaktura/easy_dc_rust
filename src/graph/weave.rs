@@ -1,5 +1,4 @@
-use itertools::any;
-use itertools::Itertools;
+use itertools::{any, Itertools};
 use ndarray;
 use rayon::prelude::*;
 use std::cell::RefCell;
