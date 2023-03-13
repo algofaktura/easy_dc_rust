@@ -165,15 +165,6 @@ fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts
         .collect()
 }
 
-pub fn get_adjacent_edgesvec(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
-    adj[&m_node]
-        .iter()
-        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
-        .map(|(m, n)| orient(m, n))
-        .collect()
-}
-
 fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
     if m < n {
         (m, n)
