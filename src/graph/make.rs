@@ -7,8 +7,6 @@ use super::shrink;
 use super::types::{
     Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Vert, Verts, VertsC3, VIMap, Weights, V3d, ZOrder
 };
-use super::utils::absumv;
-
 
 pub fn make_graph(
     n: u32,
@@ -71,6 +69,13 @@ pub fn vertices(max_xyz: Point) -> Verts {
         .into_iter()
         .sorted_by_key(|v| (edist(*v), v.0, v.1, v.2))
         .collect()
+}
+
+pub fn absumv((x, y, z): Vert) -> Point {
+    [x, y, z]
+        .iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
 }
 
 pub fn edist((x, y, z): Vert) -> Point {

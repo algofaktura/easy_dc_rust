@@ -1,13 +1,6 @@
 use std::time::{Duration, Instant};
 
-use super::types::{Point, Vert, Adjacency};
-
-pub fn absumv((x, y, z): Vert) -> Point {
-    [x, y, z]
-        .iter()
-        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
-        .sum()
-}
+use super::types::Adjacency;
 
 pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
     let dur: Duration = end - start;
