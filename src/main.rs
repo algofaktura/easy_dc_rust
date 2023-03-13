@@ -6,11 +6,7 @@ use std::time::Instant;
 pub mod graph;
 
 use graph::check;
-use graph::make;
-use graph::shrink;
 use graph::types::*;
-use graph::utils;
-use graph::utils::get_order_from_n;
 use graph::weave;
 
 // pub fn solve_range() {
@@ -31,31 +27,8 @@ pub fn main() {
         .unwrap_or(&"1".to_string())
         .parse()
         .unwrap_or(1);
-    let graph = make_graph(n);
+    let graph = graph::make::make_graph(n);
     find_solution(graph, repeats)
-}
-
-pub fn make_graph(
-    n: u32,
-) -> (
-    u32,
-    u32,
-    Verts,
-    VIMap,
-    Adjacency,
-    EdgeAdjacency,
-    Adjacency,
-    ZOrder,
-) {
-    let order = get_order_from_n(n);
-    let max_xyz = utils::get_max_xyz(order as i32);
-    let verts: Verts = make::vertices(max_xyz);
-    let vi_map: VIMap = make::vi_map(&verts);
-    let adj: Adjacency = make::adjacency_map(&verts, max_xyz, &vi_map);
-    let edge_adj: EdgeAdjacency =
-        make::edges_adjacency_mapping(&adj, &verts);
-    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
-    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
 
 pub fn find_solution(
