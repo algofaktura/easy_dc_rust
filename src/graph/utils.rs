@@ -1,6 +1,6 @@
 use ndarray::{arr2, Array2};
-
 use std::time::{Duration, Instant};
+
 use super::types::{Idx, Point, V3d, Vert, Yarn, Adjacency};
 
 pub fn get_axis(m_vert: &V3d, n_vert: &V3d) -> Idx {

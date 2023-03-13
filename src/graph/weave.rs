@@ -1,10 +1,7 @@
 use itertools::any;
 use itertools::Itertools;
-
 use ndarray;
-
 use rayon::prelude::*;
-
 use std::cell::RefCell;
 
 use super::structs;
