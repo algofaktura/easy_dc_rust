@@ -34,7 +34,7 @@ pub fn make_graph(
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
 
-pub fn get_max_xyz(order: i32) -> Point {
+fn get_max_xyz(order: i32) -> Point {
     (0..order)
         .map(|n| (n, get_order_from_n(n as u32)))
         .filter(|(_, sum)| *sum == order as u32)
@@ -45,11 +45,11 @@ pub fn get_max_xyz(order: i32) -> Point {
         - 1
 }
 
-pub fn get_order_from_n(n: u32) -> u32 {
+fn get_order_from_n(n: u32) -> u32 {
     ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
 }
 
-pub fn vertices(max_xyz: Point) -> Verts {
+fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
         .step_by(2)
         .flat_map(|x| {
@@ -69,18 +69,18 @@ pub fn vertices(max_xyz: Point) -> Verts {
         .collect()
 }
 
-pub fn absumv((x, y, z): Vert) -> Point {
+fn absumv((x, y, z): Vert) -> Point {
     [x, y, z]
         .iter()
         .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
 }
 
-pub fn edist((x, y, z): Vert) -> Point {
+fn edist((x, y, z): Vert) -> Point {
     ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
 }
 
-pub fn vi_map(verts: &Verts) -> VIMap {
+fn vi_map(verts: &Verts) -> VIMap {
     verts
         .par_iter()
         .enumerate()
@@ -88,7 +88,7 @@ pub fn vi_map(verts: &Verts) -> VIMap {
         .collect()
 }
 
-pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
+fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .par_iter()
         .enumerate()
@@ -108,7 +108,7 @@ pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
         .collect()
 }
 
-pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
+fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
     vert + arr2(&[
         [2, 0, 0],
         [-2, 0, 0],
@@ -119,19 +119,28 @@ pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
     ])
 }
 
-pub fn absumv_v3d(vert: V3d) -> Point {
+fn absumv_v3d(vert: V3d) -> Point {
     vert.iter()
         .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
 }
 
-pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
+fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
+    adj[&m_node]
+        .iter()
+        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
+        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
+        .map(|(m, n)| orient(m, n))
+        .collect()
+}
+
+fn _edges_from_adjacency(adj: &Adjacency) -> Edges {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .collect()
 }
 
-pub fn edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
+fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .par_iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
@@ -139,7 +148,7 @@ pub fn edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Ve
         .collect()
 }
 
-pub fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
+fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .filter_map(|(m, n)| {
@@ -152,16 +161,7 @@ pub fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> Edg
         .collect()
 }
 
-fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
-    adj[&m_node]
-        .iter()
-        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
-        .map(|(m, n)| orient(m, n))
-        .collect()
-}
-
-pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
+fn _weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.par_iter()
         .map(|(&n, _)| (n, absumv(verts[n as usize])))
         .collect()

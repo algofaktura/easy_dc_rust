@@ -24,7 +24,7 @@ pub fn weave(
     join_loops(warp_wefts.split_first_mut().unwrap(), adj, verts, edge_adj)
 }
 
-pub fn warp_loom(vi_map: &VIMap, verts: &[Vert], z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
+fn warp_loom(vi_map: &VIMap, verts: &[Vert], z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
@@ -41,20 +41,20 @@ pub fn warp_loom(vi_map: &VIMap, verts: &[Vert], z_adj: &Adjacency, z_order: &ZO
     loom
 }
 
-pub fn spin_and_color_yarn(z_adj: &Adjacency, verts: &[Vert]) -> Spool {
+fn spin_and_color_yarn(z_adj: &Adjacency, verts: &[Vert]) -> Spool {
     let natural: Yarn = spin(&z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-pub fn spin(z_adj: &Adjacency, verts: &[Vert]) -> Yarn {
+fn spin(z_adj: &Adjacency, verts: &[Vert]) -> Yarn {
     let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
     (1..order).for_each(|idx| path.push(get_next(&path, z_adj, &verts, idx, order)));
     from_nodes_to_yarn(path, verts)
 }
 
-pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &[Vert], idx: usize, order: usize) -> Node {
+fn get_next(path: TourSlice, adj: &Adjacency, verts: &[Vert], idx: usize, order: usize) -> Node {
     if idx < order - 5 {
         adj[path.last().unwrap()]
             .iter()
@@ -78,20 +78,20 @@ pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &[Vert], idx: usize, or
     }
 }
 
-pub fn get_axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
+fn get_axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
     (0..2)
         .find(|&i| [x, y][i] != [x1, y1][i])
         .expect("Something's wrong, the same verts are being compared.")
 }
 
-pub fn absumv((x, y, _): Vert) -> Point {
+fn absumv((x, y, _): Vert) -> Point {
     [x, y]
         .iter()
         .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
 }
 
-pub fn from_nodes_to_yarn(path: &mut Tour, verts: &[Vert]) -> Yarn {
+fn from_nodes_to_yarn(path: &mut Tour, verts: &[Vert]) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
@@ -99,11 +99,11 @@ pub fn from_nodes_to_yarn(path: &mut Tour, verts: &[Vert]) -> Yarn {
     )
 }
 
-pub fn color_yarn(a: &Yarn) -> Yarn {
+fn color_yarn(a: &Yarn) -> Yarn {
     a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
-pub fn wind(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) -> Bobbins {
+fn wind(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
             let (left, right) = get_upper_nodes(
@@ -119,11 +119,11 @@ pub fn wind(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-pub fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
-pub fn get_warps(
+fn get_warps(
     zlevel: Point,
     order: Count,
     bobbins: &Bobbins,
@@ -143,7 +143,7 @@ pub fn get_warps(
     }
 }
 
-pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
@@ -157,7 +157,7 @@ pub fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap
         .collect()
 }
 
-pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
+fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
     let mut subtours: Subtours = Vec::new();
     let last_ix: Idx = tour.len() - 1;
     let last_idx: Idx = subset.len() - 1;
@@ -200,7 +200,7 @@ pub fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
     subtours
 }
 
-pub fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
+fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
     let mut woven: Woven = Woven::new();
     for thread in loom {
         for (idx, warp) in warps.iter().enumerate() {
@@ -224,7 +224,7 @@ pub fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
     woven
 }
 
-pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
+fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     for (_, seq) in warps
         .iter()
         .enumerate()
@@ -234,7 +234,7 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_loom(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) {
+fn reflect_loom(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) {
     loom.par_iter_mut().for_each(|thread| {
         thread.extend(
             thread
@@ -247,7 +247,7 @@ pub fn reflect_loom(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) {
     });
 }
 
-pub fn join_loops(
+fn join_loops(
     (warp, wefts): (&mut Thread, &mut [Thread]),
     adj: &Adjacency,
     verts: &[Vert],
