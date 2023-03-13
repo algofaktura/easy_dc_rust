@@ -9,8 +9,8 @@ pub fn from_const_adj_to_adj(graph: &AdjC) -> Adjacency {
         .collect()
 }
 
-pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 3]> {
-    verts.iter().map(|(_x, _y, _z)| [*_x, *_y, *_z]).collect()
+pub fn from_verts_to_vertsc(verts: &Verts) -> Vec<[Point; 2]> {
+    verts.iter().map(|(_x, _y, _)| [*_x, *_y]).collect()
 }
 
 pub fn from_verts_to_vertsc16(verts: &Varr16) -> Vec<[i16; 3]> {
