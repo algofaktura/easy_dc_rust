@@ -4,11 +4,13 @@ use ndarray;
 use rayon::prelude::*;
 use std::cell::RefCell;
 
-use super::structs;
-use super::types::{
-    Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, V2d, Varr, VIMap, Vert, Verts, VertsC3, WarpedLoom,
-    Warps, Woven, Yarn, ZOrder
+use super::{
+    structs,
+    types::{
+        Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
+        Subtours, Thread, Tour, TourSlice, V2d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom,
+        Warps, Woven, Yarn, ZOrder,
+    },
 };
 
 pub fn weave(
