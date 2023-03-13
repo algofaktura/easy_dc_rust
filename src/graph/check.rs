@@ -35,14 +35,8 @@ pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
 }
 
 pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-    match (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF) {
+    match (x1 as i32 & 0x7FFF) + (y1 as i32 & 0x7FFF) + (x2 as i32 & 0x7FFF) + (y2 as i32 & 0x7FFF) {
         4..=10 => true,
-        _ => false,
+        _ => false
     }
-}
-
-pub fn is_valid_edge_var([x1, y1, _]: [i16; 3], [x2, y2, _]: [i16; 3]) -> bool {
-    let total =
-        (x1 as i32 & 0x7FFF) + (y1 as i32 & 0x7FFF) + (x2 as i32 & 0x7FFF) + (y2 as i32 & 0x7FFF);
-    (4 <= total) && (total <= 10)
 }

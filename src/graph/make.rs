@@ -1,14 +1,12 @@
-use std::collections::HashMap;
-
 use itertools::Itertools;
 use ndarray::arr2;
 use rayon::prelude::*;
 
-use super::check::{is_valid_edge, is_valid_edge_var};
+use super::check::is_valid_edge;
 use super::types::{
-    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights, Varr, VIMapVar16,
+    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsC3, Weights,
 };
-use super::utils::{absumv, edist, shift_xyz, absumv_v3d, shift_xyz16};
+use super::utils::{absumv, absumv_tuple, edist, shift_xyz};
 
 pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
@@ -20,7 +18,7 @@ pub fn vertices(max_xyz: Point) -> Verts {
                     (-max_xyz..=max_xyz)
                         .step_by(2)
                         .map(move |z| (x, y, z))
-                        .filter(|&v| absumv(v) < (max_xyz + 4))
+                        .filter(|&v| absumv_tuple(v) < (max_xyz + 4))
                         .collect::<Verts>()
                 })
                 .collect::<Verts>()
@@ -38,15 +36,7 @@ pub fn vi_map(verts: &Verts) -> VIMap {
         .collect()
 }
 
-pub fn vi_map_var(verts: &Varr) -> VIMapVar16 {
-    verts
-        .par_iter()
-        .enumerate()
-        .map(|(idx, vert)| (*vert, idx as Node))
-        .collect::<VIMapVar16>()
-}
-
-pub fn adjacency_map(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
+pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
     verts
         .par_iter()
         .enumerate()
@@ -56,33 +46,10 @@ pub fn adjacency_map(verts: &VertsC3, max_xyz: Point, vi: &VIMap) -> Adjacency {
                 shift_xyz(arr2(&[[vert.0, vert.1, vert.2]]))
                     .outer_iter()
                     .filter(|new_vert| {
-                        absumv((new_vert[0], new_vert[1], new_vert[2])) <= max_xyz + 2
+                        absumv([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
                     })
                     .map(|new_vert| vi[&(new_vert[0], new_vert[1], new_vert[2])])
                     .filter(|&m| m != (idx as Node))
-                    .collect::<Nodes>()
-            )
-        })
-        .collect()
-}
-
-pub fn adjacency_map_var(verts: &Varr, max_xyz: Point, vi: &VIMapVar16) -> HashMap<Node, Nodes> {
-    verts
-        .par_iter()
-        .enumerate()
-        .map(|(idx, vert)| {
-            (
-                idx as Node,
-                shift_xyz16(arr2(&[*vert]))
-                    .outer_iter()
-                    .filter_map(|new_vert| {
-                        let point = [new_vert[0], new_vert[1], new_vert[2]];
-                        if absumv_v3d([point[0] as i32, point[1] as i32, point[2] as i32]) <= max_xyz + 2 {
-                            vi.get(&point).map(|&m| m).filter(|&m| m != idx as Node)
-                        } else {
-                            None
-                        }
-                    })
                     .collect::<Nodes>()
             )
         })
@@ -138,33 +105,11 @@ pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &VertsC3) -> EdgeAdjacenc
         .collect()
 }
 
-pub fn edges_adjacency_mapping_var(adj: &Adjacency, verts: &Varr) -> EdgeAdjacency {
-    adj.iter()
-        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
-        .filter_map(|(m, n)| {
-            if is_valid_edge_var(verts[m as usize], verts[n as usize]) {
-                Some((orient(m, n), get_adjacent_edges_var(adj, m, n, verts)))
-            } else {
-                None
-            }
-        })
-        .collect()
-}
-
 fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &VertsC3) -> Edges {
     adj[&m_node]
         .iter()
         .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
         .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
-        .map(|(m, n)| orient(m, n))
-        .collect()
-}
-
-fn get_adjacent_edges_var(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Varr) -> Edges {
-    adj[&m_node]
-        .iter()
-        .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge_var(verts[*m as Idx], verts[*n as Idx]))
         .map(|(m, n)| orient(m, n))
         .collect()
 }
@@ -188,12 +133,12 @@ fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
 
 pub fn weights_map2(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.iter()
-        .map(|(&n, _)| (n, absumv(verts[n as usize])))
+        .map(|(&n, _)| (n, absumv_tuple(verts[n as usize])))
         .collect()
 }
 
 pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
     adj.par_iter()
-        .map(|(&n, _)| (n, absumv(verts[n as usize])))
+        .map(|(&n, _)| (n, absumv_tuple(verts[n as usize])))
         .collect()
 }
