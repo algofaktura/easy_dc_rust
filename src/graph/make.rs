@@ -6,9 +6,9 @@ use super::{
     check::is_valid_edge,
     shrink,
     types::{
-        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts,
-        Weights, ZOrder,
-    }, 
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts, Weights,
+        ZOrder,
+    },
     utils::orient,
 };
 

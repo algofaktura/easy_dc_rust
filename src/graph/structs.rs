@@ -2,7 +2,7 @@ use std::iter::zip;
 
 use super::{
     check::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3}, 
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
     utils::orient,
 };
 
@@ -37,7 +37,7 @@ impl<'a> Cycle<'a> {
         };
         Box::leak(Box::new(cycle))
     }
-    
+
     pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect()
     }

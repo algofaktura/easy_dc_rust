@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use super::types::{Adjacency, Point, V2d, Idx};
+use super::types::{Adjacency, Idx, Point, V2d};
 
 pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
     let dur: Duration = end - start;

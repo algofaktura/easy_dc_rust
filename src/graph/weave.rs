@@ -7,8 +7,7 @@ use super::{
     structs,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, VIMap, Vert, WarpedLoom, Warps, Woven, 
-        Yarn, ZOrder,
+        Subtours, Thread, Tour, TourSlice, VIMap, Vert, WarpedLoom, Warps, Woven, Yarn, ZOrder,
     },
 };
 

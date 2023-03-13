@@ -101,8 +101,6 @@
 /// 99: 1333200
 /// 100: 1373600
 /////////////////////////////////////////////////////////////////////////////
-
-
 extern crate rayon;
 
 use std::env;
@@ -110,11 +108,7 @@ use std::time::Instant;
 
 pub mod graph;
 
-use graph::{
-    check,
-    types::*,
-    weave
-};
+use graph::{check, types::*, weave};
 
 /// see n_order.txt for a list of n and the corresponding order:
 /// cargo run --release [N] [REPEATS]
