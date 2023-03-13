@@ -28,7 +28,7 @@ pub fn make_graph(
     let verts: Verts = vertices(max_xyz);
     let vi_map: VIMap = vi_map(&verts);
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
-    let edge_adj: EdgeAdjacency = edges_adjacency_mapping(&adj, &verts);
+    let edge_adj: EdgeAdjacency = edges_adjacency_map_from_adjacency(&adj, &verts);
     let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
@@ -135,7 +135,7 @@ pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
         .collect()
 }
 
-pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
+pub fn edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .par_iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
@@ -143,7 +143,7 @@ pub fn edges_adjacency_map(adj: &Adjacency, edges: &Edges, verts: &Verts) -> Edg
         .collect()
 }
 
-pub fn edges_adjacency_mapping(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
+pub fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdjacency {
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .filter_map(|(m, n)| {
