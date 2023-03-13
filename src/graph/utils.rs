@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use super::types::Adjacency;
+use super::types::{Adjacency, Point, V2d, Idx};
 
 pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
     let dur: Duration = end - start;
@@ -35,4 +35,16 @@ pub fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
     } else {
         (n, m)
     }
+}
+
+pub fn absumv(vert: V2d) -> Point {
+    vert.iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
+}
+
+pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
+    (0..2)
+        .find(|&i| m_vert[i] != n_vert[i])
+        .expect("Something's wrong, the same verts are being compared.")
 }

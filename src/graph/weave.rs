@@ -8,8 +8,8 @@ use super::{
     structs,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, V2d, VIMap, Varr, Vert, Verts, WarpedLoom,
-        Warps, Woven, Yarn, ZOrder,
+        Subtours, Thread, Tour, TourSlice, VIMap, Vert, WarpedLoom, Warps, Woven, 
+        Yarn, ZOrder,
     },
 };
 
@@ -17,7 +17,7 @@ pub fn weave(
     adj: &Adjacency,
     vi_map: &VIMap,
     edge_adj: &EdgeAdjacency,
-    verts: &Verts,
+    verts: &[Vert],
     z_adj: &Adjacency,
     z_order: &ZOrder,
 ) -> Solution {
@@ -25,7 +25,7 @@ pub fn weave(
     join_loops(warp_wefts.split_first_mut().unwrap(), adj, verts, edge_adj)
 }
 
-pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
+pub fn warp_loom(vi_map: &VIMap, verts: &[Vert], z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
@@ -42,25 +42,20 @@ pub fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOr
     loom
 }
 
-pub fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
+pub fn spin_and_color_yarn(z_adj: &Adjacency, verts: &[Vert]) -> Spool {
     let natural: Yarn = spin(&z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-pub fn spin(z_adj: &Adjacency, verts: &Verts) -> Yarn {
-    let var: Varr = from_verts_to_vertsc2d(verts);
+pub fn spin(z_adj: &Adjacency, verts: &[Vert]) -> Yarn {
     let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
-    (1..order).for_each(|idx| path.push(get_next(&path, z_adj, &var, idx, order)));
+    (1..order).for_each(|idx| path.push(get_next(&path, z_adj, &verts, idx, order)));
     from_nodes_to_yarn(path, verts)
 }
 
-pub fn from_verts_to_vertsc2d(verts: &Verts) -> Varr {
-    verts.par_iter().map(|(_x, _y, _)| [*_x, *_y]).collect()
-}
-
-pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &Varr, idx: usize, order: usize) -> Node {
+pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &[Vert], idx: usize, order: usize) -> Node {
     if idx < order - 5 {
         adj[path.last().unwrap()]
             .iter()
@@ -70,7 +65,7 @@ pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &Varr, idx: usize, orde
             .unwrap()
     } else {
         let curr: &Node = &path[path.len() - 1];
-        let curr_vert: &V2d = &verts[*curr as usize];
+        let curr_vert: &Vert = &verts[*curr as usize];
         adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
@@ -84,19 +79,20 @@ pub fn get_next(path: TourSlice, adj: &Adjacency, verts: &Varr, idx: usize, orde
     }
 }
 
-pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
+pub fn get_axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
     (0..2)
-        .find(|&i| m_vert[i] != n_vert[i])
+        .find(|&i| [x, y][i] != [x1, y1][i])
         .expect("Something's wrong, the same verts are being compared.")
 }
 
-pub fn absumv(vert: V2d) -> Point {
-    vert.iter()
+pub fn absumv((x, y, _): Vert) -> Point {
+    [x, y]
+        .iter()
         .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
         .sum()
 }
 
-pub fn from_nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
+pub fn from_nodes_to_yarn(path: &mut Tour, verts: &[Vert]) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
@@ -108,7 +104,7 @@ pub fn color_yarn(a: &Yarn) -> Yarn {
     a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
-pub fn wind(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
+pub fn wind(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .map(|thread| {
             let (left, right) = get_upper_nodes(
@@ -239,7 +235,7 @@ pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
     }
 }
 
-pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
+pub fn reflect_loom(loom: &mut Loom, verts: &[Vert], vi_map: &VIMap) {
     loom.par_iter_mut().for_each(|thread| {
         thread.extend(
             thread
@@ -255,7 +251,7 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
 pub fn join_loops(
     (warp, wefts): (&mut Thread, &mut [Thread]),
     adj: &Adjacency,
-    verts: &Verts,
+    verts: &[Vert],
     edge_adj: &EdgeAdjacency,
 ) -> Solution {
     let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
