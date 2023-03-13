@@ -2,7 +2,8 @@ use std::iter::zip;
 
 use super::{
     check::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, Verts},
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, Verts}, 
+    utils::orient,
 };
 
 #[derive(Clone, Debug)]
@@ -75,7 +76,7 @@ impl<'a> Cycle<'a> {
             self.data.clone(),
             [&self.data[1..], &self.data[..1]].concat(),
         )
-        .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
+        .map(|(a, b)| orient(a, b))
         .collect()
     }
 
@@ -94,7 +95,7 @@ impl<'a> Cycle<'a> {
                 [&self.data[1..], &self.data[..1]].concat(),
             )
             .into_iter()
-            .map(|(a, b)| if a < b { (a, b) } else { (b, a) })
+            .map(|(a, b)| orient(a, b))
             .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
             .collect();
             self.prev = self.data.clone()

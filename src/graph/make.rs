@@ -8,7 +8,8 @@ use super::{
     types::{
         Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts,
         Weights, ZOrder,
-    },
+    }, 
+    utils::orient,
 };
 
 pub fn make_graph(
@@ -163,14 +164,6 @@ fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts
         .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
         .map(|(m, n)| orient(m, n))
         .collect()
-}
-
-fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
-    if m < n {
-        (m, n)
-    } else {
-        (n, m)
-    }
 }
 
 pub fn weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
