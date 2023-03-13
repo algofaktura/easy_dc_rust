@@ -3,10 +3,55 @@ use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::check::is_valid_edge;
+use super::shrink;
 use super::types::{
-    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Verts, VertsC3, VIMap, Weights,
+    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Vert, Verts, VertsC3, VIMap, Weights, V3d, ZOrder
 };
-use super::utils::{absumv, edist, absumv_v3d};
+use super::utils::absumv;
+
+
+pub fn make_graph(
+    n: u32,
+) -> (
+    u32,
+    u32,
+    Verts,
+    VIMap,
+    Adjacency,
+    EdgeAdjacency,
+    Adjacency,
+    ZOrder,
+) {
+    let order = get_order_from_n(n);
+    let max_xyz = get_max_xyz(order as i32);
+    let verts: Verts = vertices(max_xyz);
+    let vi_map: VIMap = vi_map(&verts);
+    let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
+    let edge_adj: EdgeAdjacency =
+        edges_adjacency_mapping(&adj, &verts);
+    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
+    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
+}
+
+pub fn get_order_from_n(n: u32) -> u32{
+    ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
+}
+
+pub fn get_max_xyz(order: i32) -> Point {
+    (0..order)
+        .map(|n| {
+            (
+                n,
+                ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32,
+            )
+        })
+        .filter(|(_, sum)| *sum == order as u32)
+        .map(|(n, _)| n)
+        .next()
+        .unwrap()
+        * 2
+        - 1
+}
 
 pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
@@ -26,6 +71,10 @@ pub fn vertices(max_xyz: Point) -> Verts {
         .into_iter()
         .sorted_by_key(|v| (edist(*v), v.0, v.1, v.2))
         .collect()
+}
+
+pub fn edist((x, y, z): Vert) -> Point {
+    ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
 }
 
 pub fn vi_map(verts: &Verts) -> VIMap {
@@ -65,6 +114,12 @@ pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
         [0, 0, 2],
         [0, 0, -2],
     ])
+}
+
+pub fn absumv_v3d(vert: V3d) -> Point {
+    vert.iter()
+        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
+        .sum()
 }
 
 pub fn edges_from_adjacency(adj: &Adjacency) -> Edges {
