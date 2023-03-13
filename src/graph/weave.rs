@@ -1,5 +1,3 @@
-extern crate itertools;
-
 use itertools::any;
 use itertools::Itertools;
 
@@ -10,11 +8,10 @@ use rayon::prelude::*;
 use std::cell::RefCell;
 
 use super::structs;
-use super::types::WarpedLoom;
 use super::types::{
     Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-    Subtours, Thread, Tour, TourSlice, V2d, Varr, VIMap, Vert, Verts, VertsC3, Warps,
-    Woven, Yarn, ZOrder
+    Subtours, Thread, Tour, TourSlice, V2d, Varr, VIMap, Vert, Verts, VertsC3, WarpedLoom,
+    Warps, Woven, Yarn, ZOrder
 };
 
 pub fn weave(
