@@ -1,5 +1,8 @@
 use ndarray::Array2;
-use std::{collections::{HashMap, HashSet, VecDeque}, cell::RefCell};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet, VecDeque},
+};
 
 use super::structs::Cycle;
 

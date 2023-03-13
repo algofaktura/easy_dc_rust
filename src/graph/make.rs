@@ -2,10 +2,13 @@ use itertools::Itertools;
 use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
-use super::check::is_valid_edge;
-use super::shrink;
-use super::types::{
-    Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Vert, Verts, VertsC3, VIMap, Weights, V3d, ZOrder
+use super::{
+    check::is_valid_edge,
+    shrink,
+    types::{
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts, VertsC3,
+        Weights, ZOrder,
+    },
 };
 
 pub fn make_graph(
@@ -25,13 +28,12 @@ pub fn make_graph(
     let verts: Verts = vertices(max_xyz);
     let vi_map: VIMap = vi_map(&verts);
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
-    let edge_adj: EdgeAdjacency =
-        edges_adjacency_mapping(&adj, &verts);
+    let edge_adj: EdgeAdjacency = edges_adjacency_mapping(&adj, &verts);
     let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
 
-pub fn get_order_from_n(n: u32) -> u32{
+pub fn get_order_from_n(n: u32) -> u32 {
     ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
 }
 
@@ -104,7 +106,7 @@ pub fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
                     })
                     .map(|new_vert| vi[&(new_vert[0], new_vert[1], new_vert[2])])
                     .filter(|&m| m != (idx as Node))
-                    .collect::<Nodes>()
+                    .collect::<Nodes>(),
             )
         })
         .collect()

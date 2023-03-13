@@ -9,13 +9,7 @@ pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64
 }
 
 pub fn sum_neighbors(adj: &Adjacency) -> usize {
-    adj 
-        .values()
-        .map(
-            |value|
-            value.len()
-        )
-        .sum()
+    adj.values().map(|value| value.len()).sum()
 }
 
 pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize> {

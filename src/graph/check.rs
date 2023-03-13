@@ -21,9 +21,7 @@ impl fmt::Display for SequenceID {
 }
 
 pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
-    if seq.iter().duplicates().count() > 0 
-    || seq.len() != adj.len()
-    {
+    if seq.iter().duplicates().count() > 0 || seq.len() != adj.len() {
         return SequenceID::Broken;
     }
     match seq
