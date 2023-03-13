@@ -28,3 +28,11 @@ pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize
         })
         .flatten()
 }
+
+pub fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
+    if m < n {
+        (m, n)
+    } else {
+        (n, m)
+    }
+}
