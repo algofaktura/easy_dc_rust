@@ -36,7 +36,7 @@ fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
         .collect()
 }
 
-pub fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
+fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
     stratified
         .iter()
         .map(|(&level, nodes)| (level, nodes.len()))
