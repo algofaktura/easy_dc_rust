@@ -36,25 +36,7 @@ impl<'a> Cycle<'a> {
         };
         Box::leak(Box::new(cycle))
     }
-
-    pub fn from<'b>(
-        vecdata: Thread,
-        adj: &'a Adjacency,
-        edge_adj: &'a EdgeAdjacency,
-        verts: &'a Verts,
-    ) -> Cycle<'a> {
-        Cycle {
-            data: vecdata.into_iter().collect::<Tour>(),
-            prev: Tour::new(),
-            _eadjs: Edges::new(),
-            _edges: Edges::new(),
-            verts,
-            adj,
-            edge_adj,
-            is_empty: false,
-        }
-    }
-
+    
     pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect()
     }
