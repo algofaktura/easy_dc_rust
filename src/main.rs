@@ -11,13 +11,8 @@ use graph::{
     weave
 };
 
-// pub fn solve_range() {
-//     for n in 100..111 {
-//         find_solution(make_graph(n), 1)
-//     }
-// }
-
 pub fn main() {
+    // see n_order.txt for a list of n and the corresponding order:
     // (n, order): (1, 8), (2, 32)...(100, 1,373,600), (200, 10,827,200), (300, )
     // cargo run --release 100 10
     let args: Vec<String> = env::args().collect();
@@ -52,7 +47,7 @@ pub fn find_solution(
     let dur = Instant::now() - start;
     let seq_id = check::id_seq(&solution, &adj);
     println!(
-        "N: {:?} | ⭕️ ORDER: {:?} | REPS: {} | DUR: {} | ID: {:?}",
+        "🇳 {:?} | ⭕️ {:?} | 🔁 {} |  🕗 {} | 📌 {:?}",
         n,
         order,
         repeats,
