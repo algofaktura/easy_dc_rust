@@ -1,6 +1,7 @@
-use crate::graph::structs::Cycle;
 use ndarray::Array2;
 use std::{collections::{HashMap, HashSet, VecDeque}, cell::RefCell};
+
+use super::structs::Cycle;
 
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];

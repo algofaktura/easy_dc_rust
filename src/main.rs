@@ -1,5 +1,4 @@
 extern crate rayon;
-extern crate serde_json;
 
 use std::env;
 use std::time::Instant;
