@@ -8,7 +8,7 @@ use super::{
     structs,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, V2d, VIMap, Varr, Vert, Verts, VertsC3, WarpedLoom,
+        Subtours, Thread, Tour, TourSlice, V2d, VIMap, Varr, Vert, Verts, WarpedLoom,
         Warps, Woven, Yarn, ZOrder,
     },
 };
@@ -255,7 +255,7 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
 pub fn join_loops(
     (warp, wefts): (&mut Thread, &mut [Thread]),
     adj: &Adjacency,
-    verts: &VertsC3,
+    verts: &Verts,
     edge_adj: &EdgeAdjacency,
 ) -> Solution {
     let warp: &mut structs::Cycle = structs::Cycle::new(warp, &adj, &edge_adj, verts);
