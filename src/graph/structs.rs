@@ -37,18 +37,26 @@ impl<'a> Cycle<'a> {
         Box::leak(Box::new(cycle))
     }
 
+    pub fn from<'b>(
+        vecdata: Thread,
+        adj: &'a Adjacency,
+        edge_adj: &'a EdgeAdjacency,
+        verts: &'a Verts,
+    ) -> Cycle<'a> {
+        Cycle {
+            data: vecdata.into_iter().collect::<Tour>(),
+            prev: Tour::new(),
+            _eadjs: Edges::new(),
+            _edges: Edges::new(),
+            verts,
+            adj,
+            edge_adj,
+            is_empty: false,
+        }
+    }
+
     pub fn retrieve(&self) -> Solution {
         self.data.iter().cloned().collect()
-    }
-
-    pub fn clear(&mut self) {
-        self.data.clear()
-    }
-
-    pub fn clone_del(&mut self) -> Self {
-        let cycle_clone: Cycle = self.clone();
-        self.data = Vec::new();
-        cycle_clone
     }
 
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
@@ -110,23 +118,5 @@ impl<'a> Cycle<'a> {
             self.prev = self.data.clone()
         }
         self._edges.clone()
-    }
-
-    pub fn from<'b>(
-        vecdata: Thread,
-        adj: &'a Adjacency,
-        edge_adj: &'a EdgeAdjacency,
-        verts: &'a Verts,
-    ) -> Cycle<'a> {
-        Cycle {
-            data: vecdata.into_iter().collect::<Tour>(),
-            prev: Tour::new(),
-            _eadjs: Edges::new(),
-            _edges: Edges::new(),
-            verts,
-            adj,
-            edge_adj,
-            is_empty: false,
-        }
     }
 }
