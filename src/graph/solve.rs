@@ -131,7 +131,7 @@ fn get_warps(
     spool: &Spool,
     vi_map: &VIMap,
 ) -> Warps {
-    let node_yarn: Tour = get_node_yarn(
+    let node_yarn: Tour = convert_yarn_to_nodes(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
         order,
@@ -144,7 +144,7 @@ fn get_warps(
     }
 }
 
-fn get_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+fn convert_yarn_to_nodes(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
