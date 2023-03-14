@@ -135,7 +135,11 @@ pub fn main() {
         .unwrap_or(&"1".to_string())
         .parse()
         .unwrap_or(1);
+    println!("");
     for level in n..=n_upper {
+        if level % 100 == 0 {
+            println!("");
+        }
         find_solution(graph::make::make_graph(level), repeats)
     }
 }
@@ -166,7 +170,7 @@ pub fn find_solution(
     }
     let seq_id = check::id_seq(&solution, &adj);
     println!(
-        "🇳 {:>4}  ⭕️ {:>10}  🔁 {:>6}  🕗 {:>8.4}  📌 {:?}",
+        "🇳 {:>4}  ⭕️ {:>10}  🔁 {:>6}  🕗 {:>11.6}  📌 {:?}",
         n,  
         order,
         repeats, 
