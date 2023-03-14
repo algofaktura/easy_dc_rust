@@ -86,9 +86,13 @@ The other algorithms I spoke of earlier accomplish this task.
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
 ```
-cargo run --release [N]
+cargo run --release [N] [N_UPPER INCLUSIVE] [REPEATS]
 ```
 Where [N] is extrusion level for which the graph is made and solved. Note n=100 is already a graph with 1,373,600 vertices.
+```
+cargo run --release 1 100 10
+```
+Means order 32 to 1,373,600 where each order is run 10 times.
 
 ## Licensing:
 
