@@ -1,5 +1,3 @@
-use std::time::{Duration, Instant};
-
 use super::types::{Adjacency, Idx, Point, V2d, Vert};
 
 pub fn absumv((x, y, z): Vert) -> Point {
@@ -9,12 +7,6 @@ pub fn absumv((x, y, z): Vert) -> Point {
     });
     let sign_bit = abs_sum >> 31;
     (abs_sum ^ sign_bit) - sign_bit
-}
-
-pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
-    let dur: Duration = end - start;
-    println!("x{repeats}: {name}() took {} secs", dur.as_secs_f64());
-    dur.as_secs_f64()
 }
 
 pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
