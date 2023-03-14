@@ -37,7 +37,6 @@ pub type Vert = (i32, i32, i32);
 pub type Verts = Vec<Vert>;
 pub type Vert3d = (Point, Point, Point);
 pub type Vert3dd = Vec<Vert3d>;
-pub type VertsC3 = [Vert3d]; // is there a difference in this to the verts in speed? afterwards when it is created we can call it VertsC3
 pub type VIMap = HashMap<Vert, Node>;
 pub type WarpedLoom<'a> = HashMap<usize, RefCell<&'a mut Cycle<'a>>>;
 pub type Warps = Subtours;

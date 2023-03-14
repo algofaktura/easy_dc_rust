@@ -2,7 +2,7 @@ use std::iter::zip;
 
 use super::{
     make::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, Verts},
     utils::orient,
 };
 
@@ -12,7 +12,7 @@ pub struct Cycle<'a> {
     prev: Tour,
     _eadjs: Edges,
     _edges: Edges,
-    verts: &'a VertsC3,
+    verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
     pub is_empty: bool,
@@ -23,7 +23,7 @@ impl<'a> Cycle<'a> {
         data: &Thread,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
-        verts: &'a VertsC3,
+        verts: &'a Verts,
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
             data: data.iter().cloned().collect::<Tour>(),
