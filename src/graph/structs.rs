@@ -84,8 +84,6 @@ impl<'a> Cycle<'a> {
         self.edges()
             .iter()
             .flat_map(|edge| self.edge_adj[edge].iter()).copied()
-            // .flat_map(|edge| self.edge_adj[edge].iter())
-            // .map(|&ea| ea)
             .collect()
     }
 
