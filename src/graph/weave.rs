@@ -202,7 +202,6 @@ fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
 }
 
 fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
-    coz::scope!("foo");
     let mut woven: Woven = Woven::new();
     for thread in loom {
         for (idx, warp) in warps.iter().enumerate() {
