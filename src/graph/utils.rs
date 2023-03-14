@@ -37,14 +37,18 @@ pub fn orient<T: std::cmp::PartialOrd>(m: T, n: T) -> (T, T) {
     }
 }
 
-pub fn absumv(vert: V2d) -> Point {
-    vert.iter()
-        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
-        .sum()
-}
-
 pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
     (0..2)
         .find(|&i| m_vert[i] != n_vert[i])
         .expect("Something's wrong, the same verts are being compared.")
+}
+
+
+pub fn absumv(v: &[Point]) -> Point {
+    let abs_sum = v.iter().fold(0, |acc, x| {
+        let mask = x >> 31;
+        acc + (x ^ mask) - mask
+    });
+    let sign_bit = abs_sum >> 31;
+    (abs_sum ^ sign_bit) - sign_bit
 }

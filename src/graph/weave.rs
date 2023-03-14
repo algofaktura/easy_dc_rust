@@ -83,11 +83,15 @@ fn get_axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
         .expect("Something's wrong, the same verts are being compared.")
 }
 
-fn absumv((x, y, _): Vert) -> Point {
-    [x, y]
+fn absumv((x, y, _): Vert) -> i32 {
+    let abs_sum = [x, y]
         .iter()
-        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
-        .sum()
+        .fold(0, |acc, x| {
+            let mask = x >> 31;
+            acc + (x ^ mask) - mask
+        });
+    let sign_bit = abs_sum >> 31;
+    (abs_sum ^ sign_bit) - sign_bit
 }
 
 fn from_nodes_to_yarn(path: &mut Tour, verts: &[Vert]) -> Yarn {
