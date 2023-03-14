@@ -171,10 +171,9 @@ pub fn find_solution(
     }
     let seq_id = check::id_seq(&solution, &adj);
     println!(
-        "🇳 {:>4}  ⭕️ {:>10}  🔁 {:>6}  🕗 {:>14.7}  📌 {:?}",
+        "🇳 {:>4} | ⭕️ {:>10} | 🕗 {:>14.7} | 📌 {:?} |",
         n,  
         order,
-        repeats, 
         min_dur, 
         seq_id,
     );
