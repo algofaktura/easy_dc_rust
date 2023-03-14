@@ -103,26 +103,15 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{
-    env,
-    f32::INFINITY,
-    mem,
-    time::Instant, 
-};
+use std::{env, f32::INFINITY, mem, time::Instant};
 
 pub mod graph;
 
-use graph::{
-    certify, 
-    types::*, 
-    weave
-};
-
+use graph::{certify, types::*, weave};
 
 /// see n_order.txt for a list of n and the corresponding order:
 /// cargo run --release [N] [N_UPPER_INCLUSIVE][REPEATS]
-pub fn main() {    
-
+pub fn main() {
     let args: Vec<String> = env::args().collect();
     let n: u32 = args
         .get(1)
@@ -134,17 +123,12 @@ pub fn main() {
         .unwrap_or(&"100".to_string())
         .parse()
         .unwrap_or(100);
-    let repeats: u32 = args
-        .get(3)
-        .unwrap_or(&"1".to_string())
-        .parse()
-        .unwrap_or(1);
-    
+    let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
+
     for level in n..=n_upper {
         find_solution(graph::make::make_graph(level), repeats);
     }
 }
-
 
 pub fn find_solution(
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order): (
@@ -159,7 +143,6 @@ pub fn find_solution(
     ),
     repeats: u32,
 ) {
-
     let mut solution = Solution::new();
     let mut min_dur = INFINITY;
     for _ in 0..repeats {
