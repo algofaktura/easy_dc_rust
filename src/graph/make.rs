@@ -64,19 +64,19 @@ fn vertices(max_xyz: Point) -> Verts {
                 })
                 .collect::<Verts>()
         })
-        .sorted_by_key(|v| (edist(*v), v.0, v.1, v.2))
+        .sorted_by_key(|v| (absumv(*v), v.0, v.1, v.2))
         .collect()
 }
 
-fn absumv((x, y, z): Vert) -> Point {
-    [x, y, z]
+pub fn absumv((x, y, z): Vert) -> i32 {
+    let abs_sum = [x, y, z]
         .iter()
-        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
-        .sum()
-}
-
-fn edist((x, y, z): Vert) -> Point {
-    ((x.pow(2) + y.pow(2) + z.pow(2)) as f32).sqrt().round() as i32
+        .fold(0, |acc, x| {
+            let mask = x >> 31;
+            acc + (x ^ mask) - mask
+        });
+    let sign_bit = abs_sum >> 31;
+    (abs_sum ^ sign_bit) - sign_bit
 }
 
 fn vi_map(verts: &Verts) -> VIMap {

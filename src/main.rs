@@ -103,25 +103,41 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::env;
-use std::time::Instant;
+use std::{
+    env,
+    time::Instant, f32::INFINITY,
+};
 
 pub mod graph;
 
-use graph::{check, types::*, weave};
+use graph::{
+    check, 
+    types::*, 
+    weave
+};
 
 /// see n_order.txt for a list of n and the corresponding order:
-/// cargo run --release [N] [REPEATS]
+/// cargo run --release [N] [N_UPPER_INCLUSIVE][REPEATS]
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     let n: u32 = args
         .get(1)
+        .unwrap_or(&"1".to_string())
+        .parse()
+        .unwrap_or(1);
+    let n_upper: u32 = args
+        .get(2)
         .unwrap_or(&"100".to_string())
         .parse()
         .unwrap_or(100);
-    let repeats: u32 = args.get(2).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
-    let graph = graph::make::make_graph(n);
-    find_solution(graph, repeats)
+    let repeats: u32 = args
+        .get(3)
+        .unwrap_or(&"1".to_string())
+        .parse()
+        .unwrap_or(1);
+    for level in n..=n_upper {
+        find_solution(graph::make::make_graph(level), repeats)
+    }
 }
 
 pub fn find_solution(
@@ -137,19 +153,24 @@ pub fn find_solution(
     ),
     repeats: u32,
 ) {
+    let mut min_dur = INFINITY;
     let mut solution: Solution = Solution::new();
-    let start: Instant = Instant::now();
     for _ in 0..repeats {
+        let start: Instant = Instant::now();
         solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
+        let dur = (Instant::now() - start).as_secs_f32();
+        if min_dur > dur {
+            min_dur = dur
+        }
+
     }
-    let dur = Instant::now() - start;
     let seq_id = check::id_seq(&solution, &adj);
     println!(
-        "🇳 {:?} | ⭕️ {:?} | 🔁 {} |  🕗 {} | 📌 {:?}",
+        "🇳  {:?}  ⭕️ {:?}  🔁 {}  🕗 {}  📌 {:?}",
         n,
         order,
         repeats,
-        dur.as_secs_f64(),
+        min_dur,
         seq_id,
     );
 }
