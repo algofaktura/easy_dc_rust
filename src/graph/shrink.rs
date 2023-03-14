@@ -5,7 +5,7 @@ use super::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMa
 pub fn adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
     let stratified: ZlevelNodesMap = stratify_nodes(verts);
     (
-        filter_adjacency(&adj, stratified[&(-1 as Point)].clone()),
+        filter_adjacency(adj, stratified[&(-1 as Point)].clone()),
         get_zlevel_order(&stratified),
     )
 }

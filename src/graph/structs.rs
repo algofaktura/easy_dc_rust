@@ -1,7 +1,7 @@
 use std::iter::zip;
 
 use super::{
-    check::is_valid_edge,
+    make::is_valid_edge,
     types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, VertsC3},
     utils::orient,
 };
@@ -39,7 +39,7 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn retrieve(&self) -> Solution {
-        self.data.iter().cloned().collect()
+        self.data.to_vec()
     }
 
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
@@ -83,8 +83,9 @@ impl<'a> Cycle<'a> {
     pub fn eadjs(&mut self) -> Edges {
         self.edges()
             .iter()
-            .flat_map(|edge| self.edge_adj[edge].iter())
-            .map(|&ea| ea)
+            .flat_map(|edge| self.edge_adj[edge].iter()).copied()
+            // .flat_map(|edge| self.edge_adj[edge].iter())
+            // .map(|&ea| ea)
             .collect()
     }
 

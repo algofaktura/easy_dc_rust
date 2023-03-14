@@ -3,11 +3,10 @@ use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::{
-    check::is_valid_edge,
     shrink,
     types::{
         Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap,
-        Verts, Weights, ZOrder,
+        Verts, Weights, ZOrder, Vert,
     },
     utils::{orient, absumv},
 };
@@ -49,7 +48,7 @@ fn get_order_from_n(n: u32) -> u32 {
     ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
 }
 
-fn vertices(max_xyz: Point) -> Verts {
+pub fn vertices(max_xyz: Point) -> Verts {
     (-(max_xyz)..=(max_xyz))
         .step_by(2)
         .flat_map(|x| {
@@ -64,11 +63,11 @@ fn vertices(max_xyz: Point) -> Verts {
                 })
                 .collect::<Verts>()
         })
-        .sorted_by_key(|v| (absumv_v3d([v.0, v.1, v.2]), v.0, v.1, v.2))
+        .sorted_by_key(|(x, y, z)| (absumv_v3d([*x, *y, *z]), *x, *y))
         .collect()
 }
 
-fn absumv_v3d(v: V3d) -> Point {
+pub fn absumv_v3d(v: V3d) -> Point {
     let abs_sum = v.iter().fold(0, |acc, x| {
         let mask = x >> 31;
         acc + (x ^ mask) - mask
@@ -138,10 +137,12 @@ fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdj
         .collect()
 }
 
-fn _edges_from_adjacency(adj: &Adjacency) -> Edges {
-    adj.iter()
-        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
-        .collect()
+pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    matches!((x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF), 4..=10)
+}
+
+pub fn is_valid_edge2((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    matches!(((x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF), (x1 >> 31) + (y1 >> 31) + (x2 >> 31) + (y2 >> 31)), (4..=10, 0))
 }
 
 fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
@@ -149,6 +150,12 @@ fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts
         .par_iter()
         .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
         .map(|&(m, n)| (orient(m, n), get_adjacent_edges(adj, m, n, verts)))
+        .collect()
+}
+
+fn _edges_from_adjacency(adj: &Adjacency) -> Edges {
+    adj.iter()
+        .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .collect()
 }
 
