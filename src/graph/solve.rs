@@ -20,11 +20,11 @@ pub fn weave(
     z_adj: &Adjacency,
     z_order: &ZOrder,
 ) -> Solution {
-    let mut warp_wefts: Loom = warp_loom(vi_map, verts, z_adj, z_order);
+    let mut warp_wefts: Loom = prepare_loom(vi_map, verts, z_adj, z_order);
     join_loops(warp_wefts.split_first_mut().unwrap(), adj, verts, edge_adj)
 }
 
-fn warp_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
+fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
@@ -50,11 +50,11 @@ fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 fn spin(z_adj: &Adjacency, verts: &Verts) -> Yarn {
     let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
-    (1..order).for_each(|idx| path.push(get_next(path, z_adj, verts, idx, order)));
-    from_nodes_to_yarn(path, verts)
+    (1..order).for_each(|idx| path.push(next_step(path, z_adj, verts, idx, order)));
+    convert_nodes_to_yarn(path, verts)
 }
 
-fn get_next(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
+fn next_step(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
     if idx < order - 5 {
         adj[path.last().unwrap()]
             .iter()
@@ -68,9 +68,9 @@ fn get_next(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: 
         adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
-            .map(|&n| (n, get_axis_2d(curr_vert, &verts[n as usize])))
+            .map(|&n| (n, axis_2d(curr_vert, &verts[n as usize])))
             .filter(|(_, next_axis)| {
-                *next_axis != get_axis_2d(&verts[path[path.len() - 2] as usize], curr_vert)
+                *next_axis != axis_2d(&verts[path[path.len() - 2] as usize], curr_vert)
             })
             .max_by_key(|&(n, _)| absumv_2d(verts[n as usize]))
             .unwrap()
@@ -78,7 +78,7 @@ fn get_next(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: 
     }
 }
 
-fn get_axis_2d((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
+fn axis_2d((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
     (0..2)
         .find(|&i| [x, y][i] != [x1, y1][i])
         .expect("Something's wrong, the same verts are being compared.")
@@ -93,7 +93,7 @@ fn absumv_2d((x, y, _): Vert) -> i32 {
     (abs_sum ^ sign_bit) - sign_bit
 }
 
-fn from_nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
+fn convert_nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
     Yarn::from(
         path.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
