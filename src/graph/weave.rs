@@ -7,7 +7,8 @@ use super::{
     structs,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, VIMap, Vert, WarpedLoom, Warps, Woven, Yarn, ZOrder, Verts,
+        Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn,
+        ZOrder,
     },
 };
 
@@ -84,12 +85,10 @@ fn get_axis_2d((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
 }
 
 fn absumv_2d((x, y, _): Vert) -> i32 {
-    let abs_sum = [x, y]
-        .iter()
-        .fold(0, |acc, x| {
-            let mask = x >> 31;
-            acc + (x ^ mask) - mask
-        });
+    let abs_sum = [x, y].iter().fold(0, |acc, x| {
+        let mask = x >> 31;
+        acc + (x ^ mask) - mask
+    });
     let sign_bit = abs_sum >> 31;
     (abs_sum ^ sign_bit) - sign_bit
 }
@@ -238,19 +237,16 @@ fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
 }
 
 fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    loom
-        .par_iter_mut()
-        .for_each(|thread| {
-            thread.extend(
-                thread
-                    .iter()
-                    .rev()
-                    .map(|&node| verts[node as usize])
-                    .map(|(x, y, z)| vi_map[&(x, y, -z)])
-                    .collect::<Tour>(),
-            )
-        }
-    );
+    loom.par_iter_mut().for_each(|thread| {
+        thread.extend(
+            thread
+                .iter()
+                .rev()
+                .map(|&node| verts[node as usize])
+                .map(|(x, y, z)| vi_map[&(x, y, -z)])
+                .collect::<Tour>(),
+        )
+    });
 }
 
 fn join_loops(

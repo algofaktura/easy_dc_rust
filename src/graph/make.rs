@@ -5,10 +5,10 @@ use rayon::prelude::*;
 use super::{
     shrink,
     types::{
-        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap,
-        Verts, Weights, ZOrder, Vert,
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts, Weights,
+        ZOrder,
     },
-    utils::{orient, absumv},
+    utils::{absumv, orient},
 };
 
 pub fn make_graph(
@@ -138,11 +138,20 @@ fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdj
 }
 
 pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-    matches!((x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF), 4..=10)
+    matches!(
+        (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
+        4..=10
+    )
 }
 
 pub fn is_valid_edge2((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-    matches!(((x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF), (x1 >> 31) + (y1 >> 31) + (x2 >> 31) + (y2 >> 31)), (4..=10, 0))
+    matches!(
+        (
+            (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
+            (x1 >> 31) + (y1 >> 31) + (x2 >> 31) + (y2 >> 31)
+        ),
+        (4..=10, 0)
+    )
 }
 
 fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
