@@ -107,7 +107,7 @@ use std::{env, f32::INFINITY, mem, time::Instant};
 
 pub mod graph;
 
-use graph::{certify, types::*, weave};
+use graph::{certify, types::*, solve};
 
 /// see n_order.txt for a list of n and the corresponding order:
 /// cargo run --release [N] [N_UPPER_INCLUSIVE][REPEATS]
@@ -147,7 +147,7 @@ pub fn find_solution(
     let mut min_dur = INFINITY;
     for _ in 0..repeats {
         let start: Instant = Instant::now();
-        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
+        solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
         let dur = (Instant::now() - start).as_secs_f32();
         if min_dur > dur {
             min_dur = dur

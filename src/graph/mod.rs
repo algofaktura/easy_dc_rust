@@ -4,4 +4,4 @@ pub mod shrink;
 pub mod structs;
 pub mod types;
 pub mod utils;
-pub mod weave;
+pub mod solve;
