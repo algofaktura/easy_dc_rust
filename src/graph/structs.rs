@@ -67,8 +67,15 @@ impl<'a> Cycle<'a> {
             if reversed { oedge.0 } else { oedge.1 },
         );
         self.data.extend(&other.data);
-        other.data.clear();
+        self.clear_other(other);
         other.is_empty = true;
+    }
+
+    pub fn clear_other(&self, other: &mut Cycle) {
+        other.data.clear();
+        other.prev.clear();
+        other._eadjs.clear();
+        other._edges.clear();
     }
 
     pub fn make_edges(&self) -> Edges {
