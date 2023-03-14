@@ -1,4 +1,4 @@
-pub mod check;
+pub mod certify;
 pub mod make;
 pub mod shrink;
 pub mod structs;

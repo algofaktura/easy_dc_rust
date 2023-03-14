@@ -105,26 +105,30 @@ extern crate rayon;
 
 use std::{
     env,
-    time::Instant, f32::INFINITY,
+    f32::INFINITY,
+    mem,
+    time::Instant, 
 };
 
 pub mod graph;
 
 use graph::{
-    check, 
+    certify, 
     types::*, 
     weave
 };
 
+
 /// see n_order.txt for a list of n and the corresponding order:
 /// cargo run --release [N] [N_UPPER_INCLUSIVE][REPEATS]
-pub fn main() {
+pub fn main() {    
+
     let args: Vec<String> = env::args().collect();
     let n: u32 = args
         .get(1)
-        .unwrap_or(&"1".to_string())
+        .unwrap_or(&"100".to_string())
         .parse()
-        .unwrap_or(1);
+        .unwrap_or(100);
     let n_upper: u32 = args
         .get(2)
         .unwrap_or(&"100".to_string())
@@ -135,15 +139,12 @@ pub fn main() {
         .unwrap_or(&"1".to_string())
         .parse()
         .unwrap_or(1);
-    println!("");
+    
     for level in n..=n_upper {
-        if (level - 1) % 75 == 0 {
-            println!("");
-            println!("");
-        }
-        find_solution(graph::make::make_graph(level), repeats)
+        find_solution(graph::make::make_graph(level), repeats);
     }
 }
+
 
 pub fn find_solution(
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order): (
@@ -158,8 +159,9 @@ pub fn find_solution(
     ),
     repeats: u32,
 ) {
+
+    let mut solution = Solution::new();
     let mut min_dur = INFINITY;
-    let mut solution: Solution = Solution::new();
     for _ in 0..repeats {
         let start: Instant = Instant::now();
         solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
@@ -167,14 +169,13 @@ pub fn find_solution(
         if min_dur > dur {
             min_dur = dur
         }
-
     }
-    let seq_id = check::id_seq(&solution, &adj);
-    println!(
-        "| 🇳 {:>4} | ⭕️ {:>10} | 🕗 {:>14.7} | 📌 {:?} |",
-        n,  
-        order,
-        min_dur, 
-        seq_id,
-    );
+    let seq_id = certify::id_seq(&solution, &adj);
+    println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
+    mem::drop(verts);
+    mem::drop(vi_map);
+    mem::drop(adj);
+    mem::drop(edge_adj);
+    mem::drop(z_adj);
+    mem::drop(z_order);
 }

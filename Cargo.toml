@@ -15,6 +15,8 @@ rayon = "1.7.0"
 serde = { version = "1.0.1", features = ["derive"] }
 serde_cbor = "0.11.1"
 serde_json = "1.0.94"
+flamegraph = "0.6.2"
+criterion = "0.4.0"
 
 [profile.release]
 debug = true
