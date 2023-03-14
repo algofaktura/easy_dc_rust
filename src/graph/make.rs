@@ -6,10 +6,10 @@ use super::{
     check::is_valid_edge,
     shrink,
     types::{
-        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap, Vert, Verts, Weights,
-        ZOrder,
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, V3d, VIMap,
+        Verts, Weights, ZOrder,
     },
-    utils::orient,
+    utils::{orient, absumv},
 };
 
 pub fn make_graph(
@@ -59,22 +59,20 @@ fn vertices(max_xyz: Point) -> Verts {
                     (-max_xyz..=max_xyz)
                         .step_by(2)
                         .map(move |z| (x, y, z))
-                        .filter(|&v| absumv(v) < (max_xyz + 4))
+                        .filter(|&v| absumv_v3d([v.0, v.1, v.2]) < (max_xyz + 4))
                         .collect::<Verts>()
                 })
                 .collect::<Verts>()
         })
-        .sorted_by_key(|v| (absumv(*v), v.0, v.1, v.2))
+        .sorted_by_key(|v| (absumv_v3d([v.0, v.1, v.2]), v.0, v.1, v.2))
         .collect()
 }
 
-pub fn absumv((x, y, z): Vert) -> i32 {
-    let abs_sum = [x, y, z]
-        .iter()
-        .fold(0, |acc, x| {
-            let mask = x >> 31;
-            acc + (x ^ mask) - mask
-        });
+fn absumv_v3d(v: V3d) -> Point {
+    let abs_sum = v.iter().fold(0, |acc, x| {
+        let mask = x >> 31;
+        acc + (x ^ mask) - mask
+    });
     let sign_bit = abs_sum >> 31;
     (abs_sum ^ sign_bit) - sign_bit
 }
@@ -116,12 +114,6 @@ fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
         [0, 0, 2],
         [0, 0, -2],
     ])
-}
-
-fn absumv_v3d(vert: V3d) -> Point {
-    vert.iter()
-        .map(|&n| ((n >> 31) ^ n).wrapping_sub(n >> 31))
-        .sum()
 }
 
 fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts) -> Edges {
