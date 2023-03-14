@@ -203,6 +203,7 @@ fn cut(tour: Tour, subset: &Bobbins) -> Subtours {
 }
 
 fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
+    coz::scope!("foo");
     let mut woven: Woven = Woven::new();
     for thread in loom {
         for (idx, warp) in warps.iter().enumerate() {
@@ -237,16 +238,19 @@ fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
 }
 
 fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    loom.par_iter_mut().for_each(|thread| {
-        thread.extend(
-            thread
-                .iter()
-                .rev()
-                .map(|&node| verts[node as usize])
-                .map(|(x, y, z)| vi_map[&(x, y, -z)])
-                .collect::<Tour>(),
-        )
-    });
+    loom
+        .par_iter_mut()
+        .for_each(|thread| {
+            thread.extend(
+                thread
+                    .iter()
+                    .rev()
+                    .map(|&node| verts[node as usize])
+                    .map(|(x, y, z)| vi_map[&(x, y, -z)])
+                    .collect::<Tour>(),
+            )
+        }
+    );
 }
 
 fn join_loops(
