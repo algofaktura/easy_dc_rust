@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use super::types::{Adjacency, Idx, Point, V2d};
+use super::types::{Adjacency, Idx, Point, V2d, Vert};
 
 pub fn elapsed_ms(start: Instant, end: Instant, repeats: u32, name: &str) -> f64 {
     let dur: Duration = end - start;
@@ -43,9 +43,8 @@ pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
         .expect("Something's wrong, the same verts are being compared.")
 }
 
-
-pub fn absumv(v: &[Point]) -> Point {
-    let abs_sum = v.iter().fold(0, |acc, x| {
+pub fn absumv((x, y, z): Vert) -> Point {
+    let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
         let mask = x >> 31;
         acc + (x ^ mask) - mask
     });
