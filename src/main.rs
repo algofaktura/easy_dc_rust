@@ -110,22 +110,31 @@ pub mod graph;
 use graph::{certify, types::*, solve};
 
 /// see n_order.txt for a list of n and the corresponding order:
-/// cargo run --release [N] [N_UPPER_INCLUSIVE][REPEATS]
+/// n: 100 = 1_373_600 vertices
+/// 
+/// ```
+/// cargo run --release [N] [N_UPPER_INCLUSIVE] [REPEATS]
+/// cargo run --release 1 100 10
+/// ```
+/// will build target/release/hamcycle and start with level 1 with 8 vertices and 
+/// for each level, create the graph and find the hamiltonian cycle in that graph.
+/// 1 (start with order 8) 100 (end at order 1,373,600) 10 (repeats)
+/// /////////////////////////////////////////////////////////////////////////
 pub fn main() {
     let args: Vec<String> = env::args().collect();
-    let n: u32 = args
+    let n_start: u32 = args
         .get(1)
         .unwrap_or(&"100".to_string())
         .parse()
         .unwrap_or(100);
-    let n_upper: u32 = args
+    let n_end: u32 = args
         .get(2)
         .unwrap_or(&"100".to_string())
         .parse()
         .unwrap_or(100);
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
-    for level in n..=n_upper {
+    for level in n_start..=n_end {
         find_solution(graph::make::make_graph(level), repeats);
     }
 }

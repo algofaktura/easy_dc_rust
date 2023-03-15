@@ -154,6 +154,25 @@ pub fn is_valid_edge2((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
     )
 }
 
+pub fn is_valid_edge21((x, y, z): Vert, (x2, y2, z2): Vert, lead_loop: bool, max_xyz: i32) -> bool {
+    if (z == 1 || z == -1) && (z2 == 1 || z == -1) {
+        // (30, 31) [(3, 1, -1), (3, 1, 1)] (7, 6) [(1, 1, 1), (1, 1, -1)]
+        lead_loop && x == 3 && x2 == 3 && y == 1 && y2 == 1
+        ||
+        !lead_loop && x == x2 && y == y2 && x == y && y2 == 1
+    } else if z == -max_xyz {
+        // (1373376, 1373420) [(1, 1, -195), (3, 1, -195)] (1373448, 1373412) [(3, 3, -195), (1, 3, -195)]
+        lead_loop && x == 1 || x == 3 && x2 == 1 || x2 == 3 && y == y2 && y2 == 1
+        || 
+        !lead_loop && x == 1 || x == 3 && x2 == 1 || x2 == 3 && y == y2 && y2 == 3
+    } else {
+        //(1366752, 1368336) [(1, 1, -179), (1, 1, -181)] (1368380, 1366796) [(3, 1, -181), (3, 1, -179)]
+        lead_loop && x == y && y == 1 && x2 == y2 && y2 == 1 
+        ||
+        !lead_loop && x == x2 && x2 == 3 && y == y2 && y2 == 1
+    }
+}
+
 fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .par_iter()
