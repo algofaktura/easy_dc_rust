@@ -107,19 +107,22 @@ use std::{env, f32::INFINITY, mem, time::Instant};
 
 pub mod graph;
 
-use graph::{certify, types::*, solve};
+use graph::{types::*, weave};
+
+use crate::graph::certify;
 
 /// see n_order.txt for a list of n and the corresponding order:
 /// n: 100 = 1_373_600 vertices
-/// 
 /// ```
 /// cargo run --release [N] [N_UPPER_INCLUSIVE] [REPEATS]
 /// cargo run --release 1 100 10
 /// ```
-/// will build target/release/hamcycle and start with level 1 with 8 vertices and 
-/// for each level, create the graph and find the hamiltonian cycle in that graph.
+/// will build target/release/hamcycle and start with level 1 with 8 vertices and
+/// end with level 100 with 1,373,600 vertices.
+/// Creates graph for each level finds the hamiltonian cycle for each graph.
 /// 1 (start with order 8) 100 (end at order 1,373,600) 10 (repeats)
 /// /////////////////////////////////////////////////////////////////////////
+
 pub fn main() {
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = args
@@ -129,9 +132,10 @@ pub fn main() {
         .unwrap_or(100);
     let n_end: u32 = args
         .get(2)
-        .unwrap_or(&"100".to_string())
+        .unwrap_or(&"{n_start}".to_string())
         .parse()
-        .unwrap_or(100);
+        .unwrap_or(n_start);
+
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
@@ -152,11 +156,11 @@ pub fn find_solution(
     ),
     repeats: u32,
 ) {
-    let mut solution = Solution::new();
     let mut min_dur = INFINITY;
+    let mut solution = Solution::with_capacity(order as usize);
+    let start: Instant = Instant::now();
     for _ in 0..repeats {
-        let start: Instant = Instant::now();
-        solution = solve::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
+        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
         let dur = (Instant::now() - start).as_secs_f32();
         if min_dur > dur {
             min_dur = dur
@@ -164,6 +168,7 @@ pub fn find_solution(
     }
     let seq_id = certify::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
+    mem::drop(solution);
     mem::drop(verts);
     mem::drop(vi_map);
     mem::drop(adj);
