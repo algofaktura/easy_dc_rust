@@ -9,13 +9,11 @@ use super::{
 #[derive(Clone, Debug)]
 pub struct Cycle<'a> {
     pub data: Tour,
-    prev: Tour,
     _eadjs: Edges,
     _edges: Edges,
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
-    pub is_empty: bool,
 }
 
 impl<'a> Cycle<'a> {
@@ -27,19 +25,25 @@ impl<'a> Cycle<'a> {
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
             data: data.iter().cloned().collect::<Tour>(),
-            prev: Tour::new(),
             _eadjs: Edges::new(),
             _edges: Edges::new(),
             verts,
             adj,
             edge_adj,
-            is_empty: false,
         };
         Box::leak(Box::new(cycle))
     }
 
-    pub fn retrieve(&self) -> Solution {
+    pub fn retrieve_nodes(&self) -> Solution {
         self.data.to_vec()
+    }
+
+    pub fn retrieve_vectors(&self) -> Verts {
+        self.data
+            .to_vec()
+            .iter()
+            .map(|node| self.verts[*node as usize])
+            .collect()
     }
 
     pub fn rotate_to_edge(&mut self, left: u32, right: u32) {
@@ -67,24 +71,6 @@ impl<'a> Cycle<'a> {
             if reversed { oedge.0 } else { oedge.1 },
         );
         self.data.extend(&other.data);
-        self.clear_other(other);
-        other.is_empty = true;
-    }
-
-    pub fn clear_other(&self, other: &mut Cycle) {
-        other.data.clear();
-        other.prev.clear();
-        other._eadjs.clear();
-        other._edges.clear();
-    }
-
-    pub fn make_edges(&self) -> Edges {
-        zip(
-            self.data.clone(),
-            [&self.data[1..], &self.data[..1]].concat(),
-        )
-        .map(|(a, b)| orient(a, b))
-        .collect()
     }
 
     pub fn eadjs(&mut self) -> Edges {
@@ -96,17 +82,13 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn edges(&mut self) -> Edges {
-        if self.prev != self.data {
-            self._edges = zip(
-                self.data.clone(),
-                [&self.data[1..], &self.data[..1]].concat(),
-            )
-            .into_iter()
-            .map(|(a, b)| orient(a, b))
-            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
-            .collect();
-            self.prev = self.data.clone()
-        }
-        self._edges.clone()
+        zip(
+            self.data.clone(),
+            [&self.data[1..], &self.data[..1]].concat(),
+        )
+        .into_iter()
+        .map(|(a, b)| orient(a, b))
+        .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+        .collect()
     }
 }
