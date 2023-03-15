@@ -42,18 +42,8 @@ Execution time of each order (in millions):
 
 
 ## Running times
-As the order of the graph increases the number of function calls for each nodes goes down to less than 1.5 function calls when profiled using a deterministic profiler. At around 2 million vertices the function call for each node goes down to almost one.
-
-New running times cut down by the introduction of the colored yarns:
-
-***before***
-![Runtimes of each order](imgs/8-2million.png?raw=true "Runtimes of each order")
-
-***after***
-![Runtimes of each order](imgs/8-2million2.png?raw=true "Runtimes of each order")
-
-***after after: 2x faster***
-![Runtimes of each order](imgs/8-2million2x2.png?raw=true "Runtimes of each order 2x faster")
+![Running times from 8 to 68,085,920 vertices](imgs/8_to_68085920.png?raw=true "Runtimes up to 68 million")
+8_to_68085920.png
 
 ### PYTHON VS. RUST:
 
