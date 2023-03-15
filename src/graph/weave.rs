@@ -50,11 +50,11 @@ fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 fn spin(z_adj: &Adjacency, verts: &Verts) -> Yarn {
     let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
-    (1..order).for_each(|idx| path.push(next_step(path, z_adj, verts, idx, order)));
+    (1..order).for_each(|idx| path.push(next_node(path, z_adj, verts, idx, order)));
     convert_nodes_to_yarn(path, verts)
 }
 
-fn next_step(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
+fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
     if idx < order - 5 {
         adj[path.last().unwrap()]
             .iter()
