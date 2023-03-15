@@ -45,7 +45,7 @@ fn get_max_xyz(order: i32) -> Point {
 }
 
 fn get_order_from_n(n: u32) -> u32 {
-    ((4.0 / 3.0) * (n as f64 + 2.0) * (n as f64 + 1.0) * n as f64).round() as u32
+    ((4.0 / 3.0) * ((n + 2) * (n + 1) * n) as f64).round() as u32
 }
 
 pub fn vertices(max_xyz: Point) -> Verts {
