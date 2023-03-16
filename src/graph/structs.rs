@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use super::{
     make::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, Verts},
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, YarnEnds, Tour, Verts},
     utils::orient,
 };
 
@@ -17,7 +17,7 @@ pub struct Cycle<'a> {
 
 impl<'a> Cycle<'a> {
     pub fn new(
-        data: &Thread,
+        data: &YarnEnds,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
