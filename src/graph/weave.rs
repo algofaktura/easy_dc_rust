@@ -255,7 +255,7 @@ pub fn join_loops(
     edge_adj: &EdgeAdjacency,
 ) -> Solution {
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
-    let lead_warp: &mut Cycle = Cycle::new(warp, adj, edge_adj, verts);
+    let core_cord: &mut Cycle = Cycle::new(warp, adj, edge_adj, verts);
     let mut loom: WarpedLoom = wefts
         .iter()
         .enumerate()
@@ -264,25 +264,26 @@ pub fn join_loops(
     loop {
         for key in loom.keys() {
             let other = &mut loom[key].borrow_mut();
-            if let Some(warp_e) = lead_warp.edges().intersection(&other.eadjs()).next() {
+            if let Some(warp_e) = core_cord.edges().intersection(&other.eadjs()).next() {
                 if let Some(weft_e) = edge_adj
                     .get(warp_e)
                     .unwrap()
                     .intersection(&other.edges())
                     .next()
                 {
-                    lead_warp.join(*warp_e, *weft_e, other);
+                    core_cord.join(*warp_e, *weft_e, other);
                     key_to_remove.push(*key);
                     break;
                 }
             }
         }
         for key in key_to_remove.iter() {
-            loom.remove_entry(key);
+            loom.remove(key);
             if loom.is_empty() {
-                return lead_warp.retrieve_nodes();
+                return core_cord.retrieve_nodes();
             }
         }
         key_to_remove.clear();
     }
 }
+
