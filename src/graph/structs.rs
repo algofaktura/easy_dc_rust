@@ -1,4 +1,4 @@
-use std::iter::zip;
+use itertools::Itertools;
 
 use super::{
     make::is_valid_edge,
@@ -12,6 +12,7 @@ pub struct Cycle<'a> {
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
+    _eadjs: Option<Edges>
 }
 
 impl<'a> Cycle<'a> {
@@ -26,11 +27,19 @@ impl<'a> Cycle<'a> {
             verts,
             adj,
             edge_adj,
+            _eadjs: None
         };
         Box::new(cycle)
     }
 
     pub fn eadjs(&mut self) -> Edges {
+        if self._eadjs.is_none() {
+            self._eadjs = Some(self.make_eadjs());
+        }
+        self._eadjs.clone().unwrap()
+    }
+
+    pub fn make_eadjs(&mut self) -> Edges {
         self.edges()
             .iter()
             .flat_map(|edge| self.edge_adj[edge].iter())
@@ -39,14 +48,12 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn edges(&mut self) -> Edges {
-        zip(
-            self.data.clone(),
-            [&self.data[1..], &self.data[..1]].concat(),
-        )
-        .into_iter()
-        .map(|(a, b)| orient(a, b))
-        .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
-        .collect()
+        self.data
+            .iter()
+            .circular_tuple_windows()
+            .map(|(a, b)| orient(*a, *b))
+            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            .collect()
     }
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
