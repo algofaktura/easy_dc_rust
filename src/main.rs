@@ -138,9 +138,7 @@ pub fn main() -> Result<(), &'static str> {
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
-        if let Err(e) = find_solution(graph::make::make_graph(level), repeats) {
-            return Err(e);
-        }
+        find_solution(graph::make::make_graph(level), repeats)?
     }
     Ok(())
 }

@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use super::{
     structs::Cycle,
     types::{
-        Adjacency, Bobbins, CoreCord, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution,
+        Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution,
         Spool, Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven,
         Yarn, ZOrder,
     },
@@ -260,7 +260,7 @@ pub fn join_loops<'a>(
 ) -> Solution {
     let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
-    let mut core_cord: CoreCord = Cycle::new(warp, adj, edge_adj, verts);
+    let mut core_cord: Cycle = Cycle::new(warp, adj, edge_adj, verts);
     let mut loom: WarpedLoom = wefts
         .iter()
         .enumerate()
