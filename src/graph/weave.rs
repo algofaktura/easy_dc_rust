@@ -6,9 +6,9 @@ use std::cell::RefCell;
 use super::{
     structs::Cycle,
     types::{
-        Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn,
-        ZOrder,
+        Adjacency, Bobbins, CoreCord, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution,
+        Spool, Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven,
+        Yarn, ZOrder,
     },
 };
 
@@ -20,8 +20,12 @@ pub fn weave(
     z_adj: &Adjacency,
     z_order: &ZOrder,
 ) -> Solution {
-    let mut warp_wefts: Loom = prepare_loom(vi_map, verts, z_adj, z_order);
-    join_loops(warp_wefts.split_first_mut().unwrap(), adj, verts, edge_adj)
+    join_loops(
+        prepare_loom(vi_map, verts, z_adj, z_order),
+        adj,
+        verts,
+        edge_adj,
+    )
 }
 
 fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
@@ -52,6 +56,46 @@ fn spin(z_adj: &Adjacency, verts: &Verts) -> Yarn {
     let order: Count = z_adj.len();
     (1..order).for_each(|idx| path.push(next_node(path, z_adj, verts, idx, order)));
     convert_nodes_to_yarn(path, verts)
+}
+
+pub fn spin2(z_adj: &Adjacency, verts: &Verts) -> Result<Yarn, &'static str> {
+    let path: &mut Tour = &mut vec![*z_adj.keys().max().ok_or("No nodes found")? as Node];
+    let order: Count = z_adj.len();
+    (1..order).try_for_each(|idx| {
+        path.push(next_node2(path, z_adj, verts, idx, order)?);
+        Ok(())
+    })?;
+    Ok(convert_nodes_to_yarn(path, verts))
+}
+
+pub fn next_node2(
+    path: TourSlice,
+    adj: &Adjacency,
+    verts: &Verts,
+    idx: usize,
+    order: usize,
+) -> Result<Node, &'static str> {
+    if idx < order - 5 {
+        Ok(adj[path.last().ok_or("Empty path")?]
+            .iter()
+            .filter(|n| !path.contains(*n))
+            .copied()
+            .max_by_key(|&n| absumv_2d(verts[n as usize]))
+            .ok_or("No valid nodes found")?)
+    } else {
+        let curr = path.last().ok_or("Empty path")?;
+        let curr_vert = &verts[*curr as usize];
+        Ok(adj[curr]
+            .iter()
+            .filter(|n| !path.contains(*n))
+            .map(|&n| (n, axis_2d(curr_vert, &verts[n as usize])))
+            .filter(|(_, next_axis)| {
+                *next_axis != axis_2d(&verts[path[path.len() - 2] as usize], curr_vert)
+            })
+            .max_by_key(|&(n, _)| absumv_2d(verts[n as usize]))
+            .ok_or("No valid nodes found")?
+            .0)
+    }
 }
 
 fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
@@ -248,14 +292,15 @@ fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     });
 }
 
-pub fn join_loops(
-    (warp, wefts): (&mut Thread, &mut [Thread]),
-    adj: &Adjacency,
-    verts: &Verts,
-    edge_adj: &EdgeAdjacency,
+pub fn join_loops<'a>(
+    mut warp_wefts: Loom,
+    adj: &'a Adjacency,
+    verts: &'a Verts,
+    edge_adj: &'a EdgeAdjacency,
 ) -> Solution {
+    let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
-    let core_cord: &mut Cycle = Cycle::new(warp, adj, edge_adj, verts);
+    let mut core_cord: CoreCord = Cycle::new(warp, adj, edge_adj, verts);
     let mut loom: WarpedLoom = wefts
         .iter()
         .enumerate()
@@ -279,11 +324,11 @@ pub fn join_loops(
         }
         for key in key_to_remove.iter() {
             loom.remove(key);
-            if loom.is_empty() {
-                return core_cord.retrieve_nodes();
-            }
+        }
+
+        if loom.is_empty() {
+            return core_cord.retrieve_nodes();
         }
         key_to_remove.clear();
     }
 }
-

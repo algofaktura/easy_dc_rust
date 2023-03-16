@@ -1507,6 +1507,13 @@
 | 🇳  502 | ⭕️  169_684_032 | 🕗    511.3805542 | 📌 HamCycle |
 | 🇳  503 | ⭕️  170_698_080 | 🕗    514.9252930 | 📌 HamCycle |
 | 🇳  504 | ⭕️  171_716_160 | 🕗    522.7913818 | 📌 HamCycle |
+| 🇳  505 | ⭕️  172_738_280 | 🕗    505.0050659 | 📌 HamCycle |
+| 🇳  506 | ⭕️  173_764_448 | 🕗    521.3956299 | 📌 HamCycle |
+| 🇳  507 | ⭕️  174_794_672 | 🕗    534.2333374 | 📌 HamCycle |
+| 🇳  508 | ⭕️  175_828_960 | 🕗    533.0936279 | 📌 HamCycle |
+| 🇳  509 | ⭕️  176_867_320 | 🕗    530.5546265 | 📌 HamCycle |
+| 🇳  510 | ⭕️  177_909_760 | 🕗    537.9629517 | 📌 HamCycle |
+| 🇳  511 | ⭕️  178_956_288 | 🕗    554.1561279 | 📌 HamCycle |
 (30, 31) [(3, 1, -1), (3, 1, 1)] (7, 6) [(1, 1, 1), (1, 1, -1)]
 
 if cycle is head
@@ -1605,3 +1612,99 @@ we can also say that each side has a maximum of what each side has 2 when lead e
             x == x2 && x2 == 3 && y == y2 && y2 == 1
         }
     }
+
+
+use std::iter::zip;
+
+use super::{
+    make::is_valid_edge,
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Thread, Tour, Verts},
+    utils::orient,
+};
+
+/// Cycle struct provides functionality that allows instances to be joined together.
+#[derive(Clone, Debug)]
+pub struct Cycle<'a> {
+    pub data: Tour,
+    verts: &'a Verts,
+    adj: &'a Adjacency,
+    edge_adj: &'a EdgeAdjacency,
+}
+
+impl<'a> Cycle<'a> {
+    pub fn new(
+        data: &Thread,
+        adj: &'a Adjacency,
+        edge_adj: &'a EdgeAdjacency,
+        verts: &'a Verts,
+    ) -> &'a mut Cycle<'a> {
+        let cycle = Cycle {
+            data: data.iter().cloned().collect::<Tour>(),
+            verts,
+            adj,
+            edge_adj,
+        };
+        Box::leak(Box::new(cycle))
+    }
+
+    pub fn eadjs(&mut self) -> Edges {
+        self.edges()
+            .iter()
+            .flat_map(|edge| self.edge_adj[edge].iter())
+            .copied()
+            .collect()
+    }
+
+    pub fn edges(&mut self) -> Edges {
+        zip(self.data.clone(),
+            [&self.data[1..], &self.data[..1]].concat(),
+            )
+            .into_iter()
+            .map(|(a, b)| orient(a, b))
+            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            .collect()
+    }
+
+    /// Retrieve the data
+    pub fn retrieve_nodes(&self) -> Solution {
+        self.data.to_vec()
+    }
+
+    /// Retrieve the data but as vectors.
+    pub fn retrieve_vectors(&self) -> Verts {
+        self.data.to_vec()
+            .iter()
+            .map(
+                |node|
+                self.verts[*node as usize]
+            )
+            .collect()
+    }
+
+    pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
+        self.rotate_to_edge(edge.0, edge.1);
+        let reversed = !self.adj[&edge.1].contains(&oedge.0);
+        other.rotate_to_edge(
+            if reversed { oedge.1 } else { oedge.0 },
+            if reversed { oedge.0 } else { oedge.1 },
+        );
+        self.data.extend(&other.data);
+    }
+
+    pub fn rotate_to_edge(&mut self, lhs: u32, rhs: u32) {
+        if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
+            self.data.reverse();
+        } else {
+            match (
+                self.data.iter().position(|&x| x == lhs).unwrap(),
+                self.data.iter().position(|&x| x == rhs).unwrap(),
+            ) {
+                (idx_lhs, idx_rhs) if idx_lhs < idx_rhs => {
+                    self.data.rotate_left(idx_rhs);
+                    self.data.reverse()
+                }
+                (idx_lhs, _) => self.data.rotate_left(idx_lhs),
+            }
+        }
+    }
+}
