@@ -16,20 +16,20 @@ pub struct Cycle<'a> {
 }
 
 impl<'a> Cycle<'a> {
+    
     pub fn new(
         data: &Thread,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
-    ) -> Box<Cycle<'a>> {
-        let cycle = Cycle {
+    ) -> Cycle<'a> {
+        Cycle {
             data: data.iter().cloned().collect::<Tour>(),
             verts,
             adj,
             edge_adj,
             _eadjs: None
-        };
-        Box::new(cycle)
+        }
     }
 
     pub fn eadjs(&mut self) -> Edges {
