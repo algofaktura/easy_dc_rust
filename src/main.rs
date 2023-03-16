@@ -100,7 +100,7 @@
 /// 98: 1293600
 /// 99: 1333200
 /// 100: 1373600
-/// 
+///
 /// see n_order.txt for a list of n and the corresponding order:
 /// n: 100 = 1_373_600 vertices
 /// ```

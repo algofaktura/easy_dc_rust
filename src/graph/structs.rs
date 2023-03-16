@@ -12,11 +12,10 @@ pub struct Cycle<'a> {
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
-    _eadjs: Option<Edges>
+    _eadjs: Option<Edges>,
 }
 
 impl<'a> Cycle<'a> {
-    
     pub fn new(
         data: &Thread,
         adj: &'a Adjacency,
@@ -28,7 +27,7 @@ impl<'a> Cycle<'a> {
             verts,
             adj,
             edge_adj,
-            _eadjs: None
+            _eadjs: None,
         }
     }
 
@@ -36,10 +35,10 @@ impl<'a> Cycle<'a> {
         if self._eadjs.is_none() {
             self._eadjs = Some(
                 self.edges()
-                .iter()
-                .flat_map(|edge| self.edge_adj[edge].iter())
-                .copied()
-                .collect()
+                    .iter()
+                    .flat_map(|edge| self.edge_adj[edge].iter())
+                    .copied()
+                    .collect(),
             );
         }
         self._eadjs.clone().unwrap()
