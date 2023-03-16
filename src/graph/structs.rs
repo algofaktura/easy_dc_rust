@@ -34,17 +34,15 @@ impl<'a> Cycle<'a> {
 
     pub fn eadjs(&mut self) -> Edges {
         if self._eadjs.is_none() {
-            self._eadjs = Some(self.make_eadjs());
+            self._eadjs = Some(
+                self.edges()
+                .iter()
+                .flat_map(|edge| self.edge_adj[edge].iter())
+                .copied()
+                .collect()
+            );
         }
         self._eadjs.clone().unwrap()
-    }
-
-    pub fn make_eadjs(&mut self) -> Edges {
-        self.edges()
-            .iter()
-            .flat_map(|edge| self.edge_adj[edge].iter())
-            .copied()
-            .collect()
     }
 
     pub fn edges(&mut self) -> Edges {
