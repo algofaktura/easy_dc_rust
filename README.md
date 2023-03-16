@@ -79,7 +79,7 @@ cargo run --release 1 100 10
 ```
 Means order 32 to 1,373,600 where each order is run 10 times.
 
-## Running times from 8 to almost 150 million vertices:
+## Running times from 8 to a billion vertices (to be continued):
 ```
 | 🇳    1 | ⭕️            8 | 🕗      0.0000010 | 📌 HamCycle |
 | 🇳    2 | ⭕️           32 | 🕗      0.0000021 | 📌 HamCycle |
@@ -575,7 +575,10 @@ Means order 32 to 1,373,600 where each order is run 10 times.
 | 🇳  489 | ⭕️  156_864_680 | 🕗    388.6850586 | 📌 HamCycle |
 | 🇳  490 | ⭕️  157_827_040 | 🕗    403.0396729 | 📌 HamCycle |
 | 🇳  491 | ⭕️  158_793_328 | 🕗    407.4985352 | 📌 HamCycle |
-| 🇳  492 | ⭕️  159_763_552 | 🕗    409.3179932 | 📌 HamCycle |
+| 🇳  492 | ⭕️  159_763_552 | 🕗    399.9544678 | 📌 HamCycle |
+| 🇳  493 | ⭕️  160_737_720 | 🕗    412.5714417 | 📌 HamCycle |
+| 🇳  494 | ⭕️  161_715_840 | 🕗    410.0222778 | 📌 HamCycle |
+| 🇳  495 | ⭕️  162_697_920 | 🕗    418.6289673 | 📌 HamCycle |
 ```
 ## Licensing:
 
