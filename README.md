@@ -64,7 +64,6 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 
 ![Discocube 3640 view](imgs/icy_cube.png?raw=true "icy cube") 
 ![Discocube 3640 view](imgs/icy_cube5.png?raw=true "icy cube")
-![Discocube 3640 view](imgs/icy_cube4.png?raw=true "icy cube")
 ![Discocube 3640 view](imgs/icy_cube3.png?raw=true "icy cube another view")
 ![Discocube 3640 view](imgs/icy_cube2.png?raw=true "icy cube another view")
 ![Always Turning Discocube 9120 view](imgs/always_turning_9120.png?raw=true "Always Turning Discocube 9120 view")
@@ -603,8 +602,16 @@ cargo run --release 1 100 10
 | 🇳  511 | ⭕️  178_956_288 | 🕗    554.1561279 | 📌 HamCycle |
 | 🇳  512 | ⭕️  180_006_912 | 🕗    562.2781372 | 📌 HamCycle |
 | 🇳  513 | ⭕️  181_061_640 | 🕗    536.6725464 | 📌 HamCycle |
+| 🇳  514 | ⭕️  182_120_480 | 🕗    558.1255493 | 📌 HamCycle |
+| 🇳  515 | ⭕️  183_183_440 | 🕗    559.7949829 | 📌 HamCycle |
+| 🇳  516 | ⭕️  184_250_528 | 🕗    553.7504272 | 📌 HamCycle |
+| 🇳  517 | ⭕️  185_321_752 | 🕗    568.6388550 | 📌 HamCycle |
+| 🇳  518 | ⭕️  186_397_120 | 🕗    566.1765747 | 📌 HamCycle |
+| 🇳  519 | ⭕️  187_476_640 | 🕗    554.7770996 | 📌 HamCycle |
+| 🇳  520 | ⭕️  188_560_320 | 🕗    567.4897461 | 📌 HamCycle |
+| 🇳  521 | ⭕️  189_648_168 | 🕗    582.4830933 | 📌 HamCycle |
 
-TO BE CONTINUED TO: | 🇳  1000 | ⭕️  1_337_336_000 | 
+TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES| 
 ```
 ## Licensing:
 
