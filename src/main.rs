@@ -109,7 +109,7 @@ pub mod graph;
 
 use graph::{types::*, weave};
 
-use crate::graph::certify;
+use crate::graph::check;
 
 /// see n_order.txt for a list of n and the corresponding order:
 /// n: 100 = 1_373_600 vertices
@@ -166,6 +166,6 @@ pub fn find_solution(
             min_dur = dur
         }
     }
-    let seq_id = certify::id_seq(&solution, &adj);
+    let seq_id = check::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
 }
