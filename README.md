@@ -71,15 +71,15 @@ The other algorithms I spoke of earlier accomplish this task.
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
 ```
-cargo run --release [N] [N_UPPER INCLUSIVE] [REPEATS]
+cargo run --release [N] [N_UPPER_INCLUSIVE] [REPEATS]
+// Graph start instance | Graph end instance | Repeats
 ```
-Where [N] is extrusion level for which the graph is made and solved. Note n=100 is already a graph with 1,373,600 vertices.
 ```
+// run each graph 10 tens from the first instance to the 100th (32-1,373600)
 cargo run --release 1 100 10
 ```
-Means order 32 to 1,373,600 where each order is run 10 times.
 
-## Running times from 8 to a billion vertices (to be continued):
+#### Running times for the first 500 instances: graphs with 8 to 167_668_000 vertices (to be continued until 1000th order (over 1 billion)):
 ```
 | 🇳    1 | ⭕️            8 | 🕗      0.0000010 | 📌 HamCycle |
 | 🇳    2 | ⭕️           32 | 🕗      0.0000021 | 📌 HamCycle |
@@ -582,6 +582,8 @@ Means order 32 to 1,373,600 where each order is run 10 times.
 | 🇳  496 | ⭕️  163_683_968 | 🕗    418.1947937 | 📌 HamCycle |
 | 🇳  497 | ⭕️  164_673_992 | 🕗    439.4223633 | 📌 HamCycle |
 | 🇳  498 | ⭕️  165_668_000 | 🕗    438.3364868 | 📌 HamCycle |
+| 🇳  499 | ⭕️  166_666_000 | 🕗    492.7932739 | 📌 HamCycle |
+| 🇳  500 | ⭕️  167_668_000 | 🕗    516.4312134 | 📌 HamCycle |
 ```
 ## Licensing:
 
