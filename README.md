@@ -20,7 +20,13 @@ The goal wasn't to write a fast algorithm that finds always turning hamiltonian 
 
 Art studies forms, the curvature of the neck as it disappears into the back, the color in the foreground, so luminous, relegating all things beyond to irrelevance. So in this project, I studied the discocube as a body, where each turn was conceptualized not as a discrete math object but as movement of the body, resulting in more doodles and sketches than pages of equations.
 
-I hope to tell the story of the discocube, introduce an undefined graph class *Cubic Accretion Graphs*, some of its properties, and the share insights I've gained by solving this problem having taken an approach similar to that of sculpting the human body...After thousands of studies, drawings, a little math: this is a tiny glimpse into how moving towards a specific aethetic goal yields results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait?
+I hope that I've shared some insights (through code) I've gained by solving this problem having taken an approach similar to that of sculpting the human body...After thousands of studies, drawings, a little math: this is a tiny glimpse into how moving towards a specific aethetic goal yields results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait?
+
+Goal:
+Optimize the algorithm so that it is able to solve instances of over a billion vertices:
+``
+TO BE CONTINUED TO: | 🇳  1000 | ⭕️  1_337_336_000 | 
+``
 
 ![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
 *Discocubes 8 - 1760*
@@ -607,4 +613,4 @@ This package is licensed under the MIT license.
 
 
 
-Happy reading!
+Thanks for making it this far!

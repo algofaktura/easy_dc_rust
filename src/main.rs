@@ -100,17 +100,7 @@
 /// 98: 1293600
 /// 99: 1333200
 /// 100: 1373600
-/////////////////////////////////////////////////////////////////////////////
-extern crate rayon;
-
-use std::{env, f32::INFINITY, time::Instant};
-
-pub mod graph;
-
-use graph::{types::*, weave};
-
-use crate::graph::check;
-
+/// 
 /// see n_order.txt for a list of n and the corresponding order:
 /// n: 100 = 1_373_600 vertices
 /// ```
@@ -121,9 +111,18 @@ use crate::graph::check;
 /// end with level 100 with 1,373,600 vertices.
 /// Creates graph for each level finds the hamiltonian cycle for each graph.
 /// 1 (start with order 8) 100 (end at order 1,373,600) 10 (repeats)
-/// /////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+extern crate rayon;
 
-pub fn main() {
+use std::{env, f32::INFINITY, time::Instant};
+
+pub mod graph;
+
+use graph::{types::*, weave};
+
+use crate::graph::check::{self, SequenceID};
+
+pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = args
         .get(1)
@@ -139,8 +138,11 @@ pub fn main() {
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
-        find_solution(graph::make::make_graph(level), repeats);
+        if let Err(e) = find_solution(graph::make::make_graph(level), repeats) {
+            return Err(e);
+        }
     }
+    Ok(())
 }
 
 pub fn find_solution(
@@ -155,7 +157,7 @@ pub fn find_solution(
         ZOrder,
     ),
     repeats: u32,
-) {
+) -> Result<(), &'static str> {
     let mut min_dur = INFINITY;
     let mut solution = Solution::with_capacity(order as usize);
     let start: Instant = Instant::now();
@@ -168,4 +170,6 @@ pub fn find_solution(
     }
     let seq_id = check::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
+    assert_eq!(seq_id, SequenceID::HamCycle);
+    Ok(())
 }
