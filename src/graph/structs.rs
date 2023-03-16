@@ -9,8 +9,6 @@ use super::{
 #[derive(Clone, Debug)]
 pub struct Cycle<'a> {
     pub data: Tour,
-    _eadjs: Edges,
-    _edges: Edges,
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
@@ -25,8 +23,6 @@ impl<'a> Cycle<'a> {
     ) -> &'a mut Cycle<'a> {
         let cycle = Cycle {
             data: data.iter().cloned().collect::<Tour>(),
-            _eadjs: Edges::new(),
-            _edges: Edges::new(),
             verts,
             adj,
             edge_adj,
