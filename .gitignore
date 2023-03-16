@@ -3,3 +3,4 @@
 /.vscode
 /.idea/
 /.idea/misc.xml
+/src/erroring.rs

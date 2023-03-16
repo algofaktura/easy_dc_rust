@@ -6,7 +6,7 @@ use super::{
     utils::orient,
 };
 
-/// Cycle struct provides functionality that allows instances to be joined together.
+/// Cycle struct provides functionality allowing instances to be joined at adjacent edges.
 #[derive(Clone, Debug)]
 pub struct Cycle<'a> {
     pub data: Tour,
@@ -49,7 +49,9 @@ impl<'a> Cycle<'a> {
             .collect()
     }
 
-    /// Data represented as a sliding window of two positions incrementing one step and wraps the end to the beginning:
+    /// Return successive overlapping pairs as tuples in a HashSet using self.data as the iterable which wraps from the end to the front.
+    /// Data represented as a sliding window of two positions incrementing one step and wraps the end to the beginning,
+    /// Or collection of windows to the first two elements in a sequence that is rotated by the number of elements it contains.
     /// ```
     /// data = [0, 1, 2, 3]
     /// data_as_edges = [(0, 1), (1, 2), (2, 3), (3, 0)]

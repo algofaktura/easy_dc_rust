@@ -103,7 +103,7 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{env, f32::INFINITY, mem, time::Instant};
+use std::{env, f32::INFINITY, time::Instant};
 
 pub mod graph;
 
@@ -168,11 +168,4 @@ pub fn find_solution(
     }
     let seq_id = certify::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
-    mem::drop(solution);
-    mem::drop(verts);
-    mem::drop(vi_map);
-    mem::drop(adj);
-    mem::drop(edge_adj);
-    mem::drop(z_adj);
-    mem::drop(z_order);
 }
