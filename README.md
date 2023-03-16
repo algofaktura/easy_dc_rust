@@ -46,19 +46,6 @@ Execution time of each order (in millions):
 ![Hexprism Honeycomb Diamond](imgs/hexhoneydiamond.png?raw=true "Hexprism Honeycomb Diamond")
 *Hexprism Honeycomb Diamond*
 
-
-## Running times
-![Running times from 8 to 68,085,920 vertices](imgs/8_to_68085920.png?raw=true "Runtimes up to 68 million")
-8_to_68085920.png
-
-### PYTHON VS. RUST:
-
-### solve python profile 5,061,680 vertices:
-![Profile of solve_np](imgs/profile_solve_np5.png?raw=true "Profile of solve_np")
-### solve rust speed 5,061,680 vertices:
-![Profile of solve_np](imgs/rust_speed_graph_5061680_verts.png?raw=true "Profile of solve_np")
-
-
 ### digital discocubes
 As each solution is as unique as a fingerprint, or a diamond it allows one to have their own digital version of a discocube, which is also an instruction for building your own.
 
@@ -83,6 +70,17 @@ cargo run --release [N] [N_UPPER_INCLUSIVE] [REPEATS]
 // run each graph 10 tens from the first instance to the 100th (32-1,373600)
 cargo run --release 1 100 10
 ```
+
+## Running times
+![Running times from 8 to 68,085,920 vertices](imgs/8_to_68085920.png?raw=true "Runtimes up to 68 million")
+8_to_68085920.png
+
+### PYTHON VS. RUST:
+
+### solve python profile 5,061,680 vertices:
+![Profile of solve_np](imgs/profile_solve_np5.png?raw=true "Profile of solve_np")
+### solve rust speed 5,061,680 vertices:
+![Profile of solve_np](imgs/rust_speed_graph_5061680_verts.png?raw=true "Profile of solve_np")
 
 #### Running times for the first 500 instances: graphs with 8 to 167_668_000 vertices (to be continued until 1000th order (over 1 billion)):
 ```

@@ -7,7 +7,7 @@ use super::{
     structs::Cycle,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, Thread, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn,
+        Subtours, YarnEnds, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn,
         ZOrder,
     },
 };
@@ -235,7 +235,7 @@ fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
         .enumerate()
         .filter(|(idx, _)| !woven.contains(idx))
     {
-        loom.extend(vec![seq.iter().cloned().collect::<Thread>()])
+        loom.extend(vec![seq.iter().cloned().collect::<YarnEnds>()])
     }
 }
 
