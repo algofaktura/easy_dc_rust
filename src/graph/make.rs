@@ -9,7 +9,8 @@ use super::{
         ZOrder,
     },
     utils::{
-        info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n, is_valid_edge},
+        check_edge::valid_edge,
+        info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n},
         operators::{orient, shift_xyz},
     },
 };
@@ -25,6 +26,7 @@ pub fn make_graph(
     EdgeAdjacency,
     Adjacency,
     ZOrder,
+    i32,
 ) {
     let order = get_order_from_n(n);
     let max_xyz = get_max_xyz(order as i32);
@@ -33,7 +35,9 @@ pub fn make_graph(
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
     let edge_adj: EdgeAdjacency = edges_adjacency_map_from_adjacency(&adj, &verts);
     let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
-    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
+    (
+        n, order, verts, vi_map, adj, edge_adj, z_adj, z_order, max_xyz,
+    )
 }
 
 pub fn vertices(max_xyz: Point) -> VertsVec {
@@ -87,7 +91,7 @@ fn get_adjacent_edges(adj: &Adjacency, m_node: Node, n_node: Node, verts: &Verts
     adj[&m_node]
         .iter()
         .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
-        .filter(|(m, n)| adj[m].contains(n) && is_valid_edge(verts[*m as Idx], verts[*n as Idx]))
+        .filter(|(m, n)| adj[m].contains(n) && valid_edge(verts[*m as Idx], verts[*n as Idx]))
         .map(|(m, n)| orient(m, n))
         .collect()
 }
@@ -96,7 +100,7 @@ fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdj
     adj.iter()
         .flat_map(|(k, v)| v.iter().map(move |&i| (*k, i)))
         .filter_map(|(m, n)| {
-            if is_valid_edge(verts[m as usize], verts[n as usize]) {
+            if valid_edge(verts[m as usize], verts[n as usize]) {
                 Some((orient(m, n), get_adjacent_edges(adj, m, n, verts)))
             } else {
                 None
@@ -108,7 +112,7 @@ fn edges_adjacency_map_from_adjacency(adj: &Adjacency, verts: &Verts) -> EdgeAdj
 fn _edges_adjacency_map_from_edges(adj: &Adjacency, edges: &Edges, verts: &Verts) -> EdgeAdjacency {
     edges
         .par_iter()
-        .filter(|&(a, b)| is_valid_edge(verts[*a as Idx], verts[*b as Idx]))
+        .filter(|&(a, b)| valid_edge(verts[*a as Idx], verts[*b as Idx]))
         .map(|&(m, n)| (orient(m, n), get_adjacent_edges(adj, m, n, verts)))
         .collect()
 }

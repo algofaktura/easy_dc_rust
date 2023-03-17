@@ -1,11 +1,8 @@
-use std::rc::Rc;
-
 use itertools::Itertools;
 
 use super::{
     types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, VertsVec, YarnEnds},
-    utils::info::is_valid_edge,
-    utils::operators::orient,
+    utils::{check_edge::is_valid_edge, operators::orient},
 };
 
 #[derive(Clone, Debug)]
@@ -14,7 +11,10 @@ pub struct Cycle<'a> {
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
-    _eadjs: Option<Edges>,
+    pub made_edges: Option<Edges>,
+    lead: bool,
+    max_xyz: i32,
+    order: u32,
 }
 
 impl<'a> Cycle<'a> {
@@ -23,57 +23,54 @@ impl<'a> Cycle<'a> {
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
+        lead: bool,
+        max_xyz: i32,
     ) -> Cycle<'a> {
         Cycle {
             data: data.into_iter().collect::<Tour>(),
             verts,
             adj,
             edge_adj,
-            _eadjs: None,
+            made_edges: None,
+            lead,
+            max_xyz,
+            order: verts.len() as u32,
         }
     }
 
-    pub fn eadjs(&mut self) -> Rc<Option<&Edges>> {
-        if self._eadjs.is_none() {
-            self._eadjs = Some(
-                self.edges()
-                    .iter()
-                    .flat_map(|edge| self.edge_adj[edge].iter())
-                    .copied()
-                    .collect(),
-            );
+    pub fn eadjs(&mut self) -> Edges {
+        match &self.made_edges {
+            None => {
+                self.made_edges = Some(self.make_edges());
+                self.made_edges.as_ref().unwrap()
+            }
+            Some(edges) => edges,
         }
-        Rc::new(self._eadjs.as_ref())
+        .iter()
+        .flat_map(|edge| self.edge_adj[edge].iter())
+        .copied()
+        .collect()
     }
-
-    pub fn edges(&mut self) -> Edges {
+    
+    // can i use only the main without altering it?
+    pub fn make_edges(&mut self) -> Edges {
         self.data
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(|&(a, b)| is_valid_edge(self.verts[a as usize], self.verts[b as usize]))
+            .filter(|&(a, b)| {
+                is_valid_edge(
+                    self.verts[a as usize],
+                    self.verts[b as usize],
+                    self.max_xyz,
+                    self.order,
+                    self.lead,
+                )
+            })
             .collect()
     }
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
-        println!("{:?}", super::utils::debug::show_edge_vectors(edge, oedge, self.verts));
-        self.rotate_to_edge(edge.0, edge.1);
-        let reversed = !self.adj[&edge.1].contains(&oedge.0);
-        other.rotate_to_edge(
-            if reversed { oedge.1 } else { oedge.0 },
-            if reversed { oedge.0 } else { oedge.1 },
-        );
-        self.data.extend(&other.data);
-    }
-
-    pub fn show_edge_vectors(&self, (m, n): Edge, (o, p): Edge) -> Vec<(String, (i32, i32, i32), (i32, i32, i32))> {
-        vec![
-            ("main_edge".to_string(), self.verts[m as usize], self.verts[n as usize]), 
-            ("other_edge".to_string(), self.verts[o as usize], self.verts[p as usize]), 
-        ]
-    }
-
-    pub fn joinb(&mut self, edge: Edge, oedge: Edge, mut other: Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
         let reversed = !self.adj[&edge.1].contains(&oedge.0);
         other.rotate_to_edge(
