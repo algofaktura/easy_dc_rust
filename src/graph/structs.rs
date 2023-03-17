@@ -1,8 +1,10 @@
+use std::rc::Rc;
+
 use itertools::Itertools;
 
 use super::{
     make::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, YarnEnds, Tour, Verts},
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, YarnEnds},
     utils::orient,
 };
 
@@ -31,7 +33,7 @@ impl<'a> Cycle<'a> {
         }
     }
 
-    pub fn eadjs(&mut self) -> Edges {
+    pub fn eadjs(&mut self) -> Rc<Option<&Edges>> {
         if self._eadjs.is_none() {
             self._eadjs = Some(
                 self.edges()
@@ -41,7 +43,7 @@ impl<'a> Cycle<'a> {
                     .collect(),
             );
         }
-        self._eadjs.clone().unwrap()
+        Rc::new(self._eadjs.as_ref())
     }
 
     pub fn edges(&mut self) -> Edges {
