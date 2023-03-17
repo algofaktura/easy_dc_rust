@@ -3,8 +3,9 @@ use std::rc::Rc;
 use itertools::Itertools;
 
 use super::{
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, YarnEnds, VertsVec},
-    utils::{orient, is_valid_edge},
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, VertsVec, YarnEnds},
+    utils::info::is_valid_edge,
+    utils::operators::orient,
 };
 
 #[derive(Clone, Debug)]
