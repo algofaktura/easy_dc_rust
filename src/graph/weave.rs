@@ -244,11 +244,10 @@ pub fn join_loops<'a>(
     verts: &'a Verts,
     edge_adj: &'a EdgeAdjacency,
 ) -> Solution {
-    let (warp, wefts) = warp_wefts.split_first_mut().unwrap();
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
-    let mut core_cord: Cycle = Cycle::new(warp, adj, edge_adj, verts);
-    let mut loom: WarpedLoom = wefts
-        .iter()
+    let mut core_cord: Cycle = Cycle::new(warp_wefts[0].split_off(0), adj, edge_adj, verts);
+    let mut loom: WarpedLoom = warp_wefts.split_off(1)
+        .into_iter()
         .enumerate()
         .map(|(idx, seq)| (idx, RefCell::new(Cycle::new(seq, adj, edge_adj, verts))))
         .collect();
@@ -260,6 +259,7 @@ pub fn join_loops<'a>(
                 .next()
             {
                 if let Some(weft_e) = edge_adj[(&warp_e)].intersection(&other.edges()).next() {
+                    // core_cord should take ownership of other here
                     core_cord.join(warp_e, *weft_e, other);
                     key_to_remove.push(*key);
                     break;
