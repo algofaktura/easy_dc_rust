@@ -7,7 +7,7 @@ use super::{
     structs::Cycle,
     types::{
         Adjacency, Bobbins, Count, EdgeAdjacency, Idx, Loom, Node, Point, Solution, Spool,
-        Subtours, YarnEnds, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn,
+        Subtours, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, YarnEnds,
         ZOrder,
     },
 };
@@ -269,7 +269,10 @@ pub fn join_loops<'a>(
     loop {
         for key in loom.keys() {
             let other = &mut loom[key].borrow_mut();
-            if let Some(warp_e) = (&core_cord.edges() & &other.eadjs()).into_iter().next() {
+            if let Some(warp_e) = (&core_cord.edges() & other.eadjs().unwrap())
+                .into_iter()
+                .next()
+            {
                 if let Some(weft_e) = edge_adj[(&warp_e)].intersection(&other.edges()).next() {
                     core_cord.join(warp_e, *weft_e, other);
                     key_to_remove.push(*key);

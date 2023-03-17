@@ -41,3 +41,38 @@ pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize
         }
     })
 }
+
+pub fn sum(numbers: &[i16]) -> i16 {
+    numbers.iter().fold(0, |acc, &num| {
+        let sum = acc ^ num;
+        let carry = (acc & num) << 1;
+        sum + carry
+    })
+}
+
+pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    matches!(
+        (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
+        4..=10
+    )
+}
+
+pub fn abs(n: i16) -> i16 {
+    let mask = n >> 15;
+    (n + mask) ^ mask
+}
+
+pub fn absumv16((x, y, z): (i16, i16, i16)) -> i16 {
+    let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
+        let mask = x >> 15;
+        acc + (x ^ mask) - mask
+    });
+    let sign_bit = abs_sum >> 15;
+    (abs_sum ^ sign_bit) - sign_bit
+}
+
+pub fn add_numbers(numbers: &[i16]) -> i16 {
+    numbers
+        .iter()
+        .fold(0, |acc, num| (acc.wrapping_add(num & 0x7FFF)) & 0x7FFF)
+}

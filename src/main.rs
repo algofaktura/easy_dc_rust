@@ -7,7 +7,7 @@
 /// builds binary under hamcycle/target/release/hamcycle
 /// runs binary: ./hamcycle/target/release/hamcycle
 /// starts with the first order in the sequence with 32 vertices,
-/// creates the graph for that order and solves it 10 times, 
+/// creates the graph for that order and solves it 10 times,
 /// getting the best runtime for each order.
 /// continues to the next orders up to the 100th which is an order with 1,373,600 vertices,
 /// makes graph, solves it ten times....
