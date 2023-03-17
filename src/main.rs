@@ -48,7 +48,7 @@ pub fn find_solution(
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order): (
         u32,
         u32,
-        Verts,
+        VertsVec,
         VIMap,
         Adjacency,
         EdgeAdjacency,

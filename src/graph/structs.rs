@@ -3,9 +3,8 @@ use std::rc::Rc;
 use itertools::Itertools;
 
 use super::{
-    make::is_valid_edge,
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, YarnEnds},
-    utils::orient,
+    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, YarnEnds, VertsVec},
+    utils::{orient, is_valid_edge},
 };
 
 #[derive(Clone, Debug)]
@@ -86,7 +85,7 @@ impl<'a> Cycle<'a> {
         self.data.to_vec()
     }
 
-    pub fn retrieve_vectors(&self) -> Verts {
+    pub fn retrieve_vectors(&self) -> VertsVec {
         self.data
             .to_vec()
             .iter()
