@@ -1,3 +1,4 @@
+// Output is of primitive type scalar.
 pub mod info {
     use super::super::types::{Adjacency, Idx, Point, V2d, V3d, Vert};
     pub fn absumv((x, y, z): Vert) -> Point {
@@ -24,7 +25,7 @@ pub mod info {
             .expect("Something's wrong, the same verts are being compared.")
     }
 
-    pub fn get_max_xyz(order: i32) -> Point {
+    pub fn get_max_xyz(order: Point) -> Point {
         (0..order)
             .map(|n| (n, get_order_from_n(n as u32)))
             .filter(|(_, sum)| *sum == order as u32)
@@ -42,15 +43,9 @@ pub mod info {
     pub fn sum_neighbors(adj: &Adjacency) -> usize {
         adj.values().map(|value| value.len()).sum()
     }
-
-    pub fn is_valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-        matches!(
-            (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
-            4..=10
-        )
-    }
 }
 
+// Input and output are the same.
 pub mod operators {
     use ndarray::{arr2, Array2};
 
@@ -92,7 +87,8 @@ pub mod iters {
     }
 }
 
-pub mod two_dimensions {
+// Versions in which only xy where otherwise xyz is considered.
+pub mod xy {
     use super::super::types::Vert;
 
     pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
@@ -111,6 +107,7 @@ pub mod two_dimensions {
     }
 }
 
+// Version for eventual changing of type from i16 to i32.
 pub mod version_i16 {
 
     pub fn abs(n: i16) -> i16 {
@@ -142,10 +139,45 @@ pub mod version_i16 {
     }
 }
 
-pub mod versions {
+// Checks if edge is valid to reduce memory use.
+pub mod check_edge {
     use crate::graph::types::Vert;
+    
+    pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: i32, order: u32, lead: bool) -> bool {
+        if order < 160 {
+            return valid_edge(v1, v2) }
+        match lead {
+            true => valid_main_edge(v1, v2, max_xyz),
+            false => valid_other_edge(v1, v2, max_xyz),
+        }
+    }
+    
+    pub fn valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+        matches!(
+            (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
+            4..=10
+        )
+    }
 
-    pub fn is_valid_edge2((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: i32) -> bool {
+        let lowest = max_xyz - 4;
+        if z.abs() == lowest && lowest == z2.abs() {
+            (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
+        } else {
+            x == x2 && x2 == 1 && y == y2 && y2 == 1
+        }
+    }
+
+    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: i32) -> bool {
+        let lowest = max_xyz - 4;
+        if z.abs() == lowest && lowest == z2.abs() {
+            (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
+        } else {
+            x == x2 && x2 == 3 && y == y2 && y2 == 1
+        }
+    }
+
+    pub fn valid_edge_abs((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
         matches!(
             (
                 (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
@@ -159,15 +191,27 @@ pub mod versions {
 pub mod debug {
     use crate::graph::types::{Edge, Vert};
 
-    pub fn show_edge_vectors((m, n): Edge, (o, p): Edge, verts: &[Vert]) -> Vec<(String, (i32, i32, i32), (i32, i32, i32))> {
+    pub fn show_edge_vectors(
+        (m, n): Edge,
+        (o, p): Edge,
+        verts: &[Vert],
+    ) -> Vec<(String, Vert, Vert)> {
         vec![
-            ("main_edge".to_string(), verts[m as usize], verts[n as usize]), 
-            ("other_edge".to_string(), verts[o as usize], verts[p as usize]), 
+            (
+                "main_edge".to_string(),
+                verts[m as usize],
+                verts[n as usize],
+            ),
+            (
+                "other_edge".to_string(),
+                verts[o as usize],
+                verts[p as usize],
+            ),
         ]
     }
 }
 
-pub mod check {
+pub mod certify {
     use itertools::Itertools;
     use std::fmt;
 

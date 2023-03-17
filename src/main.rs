@@ -21,7 +21,7 @@ pub mod graph;
 
 use graph::{types::*, weave};
 
-use crate::graph::utils::check::{self, SequenceID};
+use crate::graph::utils::certify::{self, SequenceID};
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
@@ -45,7 +45,7 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(
-    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order): (
+    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order, max_xyz): (
         u32,
         u32,
         VertsVec,
@@ -54,6 +54,7 @@ pub fn find_solution(
         EdgeAdjacency,
         Adjacency,
         ZOrder,
+        i32,
     ),
     repeats: u32,
 ) -> Result<(), &'static str> {
@@ -61,13 +62,13 @@ pub fn find_solution(
     let mut solution = Solution::with_capacity(order as usize);
     let start: Instant = Instant::now();
     for _ in 0..repeats {
-        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order);
+        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order, max_xyz);
         let dur = (Instant::now() - start).as_secs_f32();
         if min_dur > dur {
             min_dur = dur
         }
     }
-    let seq_id = check::id_seq(&solution, &adj);
+    let seq_id = certify::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
     assert_eq!(seq_id, SequenceID::HamCycle);
     Ok(())

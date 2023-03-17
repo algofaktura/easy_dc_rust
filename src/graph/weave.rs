@@ -10,7 +10,7 @@ use super::{
         Subtours, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, YarnEnds,
         ZOrder,
     },
-    utils::two_dimensions::{absumv, axis},
+    utils::xy::{absumv, axis},
 };
 
 pub fn weave(
@@ -20,12 +20,14 @@ pub fn weave(
     verts: &Verts,
     z_adj: &Adjacency,
     z_order: &ZOrder,
+    max_xyz: i32,
 ) -> Solution {
     join_loops(
         prepare_loom(vi_map, verts, z_adj, z_order),
         adj,
         verts,
         edge_adj,
+        max_xyz,
     )
 }
 
@@ -42,7 +44,6 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrd
         }
     }
     reflect_loom(&mut loom, verts, vi_map);
-    loom.sort_by_key(|w| w.len());
     loom
 }
 
@@ -243,23 +244,39 @@ pub fn join_loops<'a>(
     adj: &'a Adjacency,
     verts: &'a Verts,
     edge_adj: &'a EdgeAdjacency,
+    max_xyz: i32,
 ) -> Solution {
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
-    let mut core_cord: Cycle = Cycle::new(warp_wefts[0].split_off(0), adj, edge_adj, verts);
-    let mut loom: WarpedLoom = warp_wefts.split_off(1)
+    let mut core_cord: Cycle = Cycle::new(
+        warp_wefts[0].split_off(0),
+        adj,
+        edge_adj,
+        verts,
+        true,
+        max_xyz,
+    );
+    let mut loom: WarpedLoom = warp_wefts
+        .split_off(1)
         .into_iter()
         .enumerate()
-        .map(|(idx, seq)| (idx, RefCell::new(Cycle::new(seq, adj, edge_adj, verts))))
+        .map(|(idx, seq)| {
+            (
+                idx,
+                RefCell::new(Cycle::new(seq, adj, edge_adj, verts, false, max_xyz)),
+            )
+        })
         .collect();
     loop {
         for key in loom.keys() {
             let other = &mut loom[key].borrow_mut();
-            if let Some(warp_e) = (&core_cord.edges() & other.eadjs().unwrap())
+            if let Some(warp_e) = (&core_cord.make_edges() & &other.eadjs())
                 .into_iter()
                 .next()
             {
-                if let Some(weft_e) = edge_adj[(&warp_e)].intersection(&other.edges()).next() {
-                    // core_cord should take ownership of other here
+                if let Some(weft_e) = edge_adj[(&warp_e)]
+                    .intersection(other.made_edges.as_ref().unwrap())
+                    .next()
+                {
                     core_cord.join(warp_e, *weft_e, other);
                     key_to_remove.push(*key);
                     break;
