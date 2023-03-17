@@ -142,16 +142,17 @@ pub mod version_i16 {
 // Checks if edge is valid to reduce memory use.
 pub mod check_edge {
     use crate::graph::types::Vert;
-    
+
     pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: i32, order: u32, lead: bool) -> bool {
         if order < 160 {
-            return valid_edge(v1, v2) }
+            return valid_edge(v1, v2);
+        }
         match lead {
             true => valid_main_edge(v1, v2, max_xyz),
             false => valid_other_edge(v1, v2, max_xyz),
         }
     }
-    
+
     pub fn valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
         matches!(
             (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
