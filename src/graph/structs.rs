@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use super::{
     types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, VertsVec, YarnEnds},
-    utils::{check_edge::is_valid_edge, operators::orient},
+    utils::{check::is_valid_edge, modify::orient},
 };
 
 #[derive(Clone, Debug)]

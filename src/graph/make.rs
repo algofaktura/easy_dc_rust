@@ -9,9 +9,9 @@ use super::{
         ZOrder,
     },
     utils::{
-        check_edge::valid_edge,
+        check::valid_edge,
         info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n},
-        operators::{orient, shift_xyz},
+        modify::{orient, shift_xyz},
     },
 };
 

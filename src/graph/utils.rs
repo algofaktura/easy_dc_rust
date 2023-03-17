@@ -1,4 +1,4 @@
-// Output is of primitive type scalar.
+// Output is a primitive type scalar.
 pub mod info {
     use super::super::types::{Adjacency, Idx, Point, V2d, V3d, Vert};
     pub fn absumv((x, y, z): Vert) -> Point {
@@ -46,7 +46,7 @@ pub mod info {
 }
 
 // Input and output are the same.
-pub mod operators {
+pub mod modify {
     use ndarray::{arr2, Array2};
 
     use crate::graph::types::Point;
@@ -140,7 +140,7 @@ pub mod version_i16 {
 }
 
 // Checks if edge is valid to reduce memory use.
-pub mod check_edge {
+pub mod check {
     use crate::graph::types::Vert;
 
     pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: i32, order: u32, lead: bool) -> bool {
