@@ -15,13 +15,19 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{env, f32::INFINITY, time::Instant};
+use std::{
+    env, 
+    f32::INFINITY, 
+    time::Instant
+};
 
 pub mod graph;
 
-use graph::{types::*, weave};
-
-use crate::graph::utils::certify::{self, SequenceID};
+use graph::{
+    types::*,
+    utils::certify::{self, SequenceID},
+    weave
+};
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
