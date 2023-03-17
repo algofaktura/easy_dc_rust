@@ -10,6 +10,7 @@ use super::{
         Subtours, Tour, TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, YarnEnds,
         ZOrder,
     },
+    utils::two_dimensions::{absumv, axis},
 };
 
 pub fn weave(
@@ -64,7 +65,7 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
             .iter()
             .filter(|n| !path.contains(*n))
             .copied()
-            .max_by_key(|&n| absumv_2d(verts[n as usize]))
+            .max_by_key(|&n| absumv(verts[n as usize]))
             .unwrap()
     } else {
         let curr: &Node = &path[path.len() - 1];
@@ -72,29 +73,14 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
         adj[curr]
             .iter()
             .filter(|n| !path.contains(*n))
-            .map(|&n| (n, axis_2d(curr_vert, &verts[n as usize])))
+            .map(|&n| (n, axis(curr_vert, &verts[n as usize])))
             .filter(|(_, next_axis)| {
-                *next_axis != axis_2d(&verts[path[path.len() - 2] as usize], curr_vert)
+                *next_axis != axis(&verts[path[path.len() - 2] as usize], curr_vert)
             })
-            .max_by_key(|&(n, _)| absumv_2d(verts[n as usize]))
+            .max_by_key(|&(n, _)| absumv(verts[n as usize]))
             .unwrap()
             .0
     }
-}
-
-fn axis_2d((x, y, _): &Vert, (x1, y1, _): &Vert) -> Idx {
-    (0..2)
-        .find(|&i| [x, y][i] != [x1, y1][i])
-        .expect("Something's wrong, the same verts are being compared.")
-}
-
-fn absumv_2d((x, y, _): Vert) -> i32 {
-    let abs_sum = [x, y].iter().fold(0, |acc, x| {
-        let mask = x >> 31;
-        acc + (x ^ mask) - mask
-    });
-    let sign_bit = abs_sum >> 31;
-    (abs_sum ^ sign_bit) - sign_bit
 }
 
 fn convert_nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
@@ -135,7 +121,7 @@ fn get_warps(
     spool: &Spool,
     vi_map: &VIMap,
 ) -> Warps {
-    let node_yarn: Tour = convert_yarn_to_nodes(
+    let node_yarn: Tour = preallocate_node_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
         order,
@@ -148,7 +134,7 @@ fn get_warps(
     }
 }
 
-fn convert_yarn_to_nodes(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+fn preallocate_node_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(

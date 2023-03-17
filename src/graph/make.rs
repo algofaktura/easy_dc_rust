@@ -5,10 +5,13 @@ use rayon::prelude::*;
 use super::{
     shrink,
     types::{
-        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, Weights,
-        ZOrder, VertsVec,
+        Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsVec, Weights,
+        ZOrder,
     },
-    utils::{absumv, absumv_v3d, get_max_xyz, get_order_from_n, is_valid_edge, orient, shift_xyz},
+    utils::{
+        info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n, is_valid_edge},
+        operators::{orient, shift_xyz},
+    },
 };
 
 pub fn make_graph(
@@ -32,7 +35,6 @@ pub fn make_graph(
     let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
     (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order)
 }
-
 
 pub fn vertices(max_xyz: Point) -> VertsVec {
     (-(max_xyz)..=(max_xyz))
