@@ -3,7 +3,6 @@ use ndarray::arr2;
 use rayon::prelude::*;
 
 use super::{
-    shrink,
     types::{
         Adjacency, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, VIMap, Verts, VertsVec, Weights,
         ZOrder,
@@ -12,6 +11,7 @@ use super::{
         check::valid_edge,
         info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n},
         modify::{orient, shift_xyz},
+        shrink::shrink_adjacency
     },
 };
 
@@ -34,7 +34,7 @@ pub fn make_graph(
     let vi_map: VIMap = vi_map(&verts);
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
     let edge_adj: EdgeAdjacency = edges_adjacency_map_from_adjacency(&adj, &verts);
-    let (z_adj, z_order) = shrink::adjacency(&verts, &adj);
+    let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
     (
         n, order, verts, vi_map, adj, edge_adj, z_adj, z_order, max_xyz,
     )

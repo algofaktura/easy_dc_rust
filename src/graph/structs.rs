@@ -52,7 +52,6 @@ impl<'a> Cycle<'a> {
         .collect()
     }
 
-    // can i use only the main without altering it?
     pub fn make_edges(&mut self) -> Edges {
         self.data
             .iter()
