@@ -11,7 +11,7 @@ use super::{
         check::valid_edge,
         info::{absumv, absumv_v3d, get_max_xyz, get_order_from_n},
         modify::{orient, shift_xyz},
-        shrink::shrink_adjacency
+        shrink::shrink_adjacency,
     },
 };
 
