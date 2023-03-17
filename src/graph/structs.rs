@@ -19,13 +19,13 @@ pub struct Cycle<'a> {
 
 impl<'a> Cycle<'a> {
     pub fn new(
-        data: &YarnEnds,
+        data: YarnEnds,
         adj: &'a Adjacency,
         edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
     ) -> Cycle<'a> {
         Cycle {
-            data: data.iter().cloned().collect::<Tour>(),
+            data: data.into_iter().collect::<Tour>(),
             verts,
             adj,
             edge_adj,
@@ -56,6 +56,24 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
+        println!("{:?}", super::utils::debug::show_edge_vectors(edge, oedge, self.verts));
+        self.rotate_to_edge(edge.0, edge.1);
+        let reversed = !self.adj[&edge.1].contains(&oedge.0);
+        other.rotate_to_edge(
+            if reversed { oedge.1 } else { oedge.0 },
+            if reversed { oedge.0 } else { oedge.1 },
+        );
+        self.data.extend(&other.data);
+    }
+
+    pub fn show_edge_vectors(&self, (m, n): Edge, (o, p): Edge) -> Vec<(String, (i32, i32, i32), (i32, i32, i32))> {
+        vec![
+            ("main_edge".to_string(), self.verts[m as usize], self.verts[n as usize]), 
+            ("other_edge".to_string(), self.verts[o as usize], self.verts[p as usize]), 
+        ]
+    }
+
+    pub fn joinb(&mut self, edge: Edge, oedge: Edge, mut other: Cycle) {
         self.rotate_to_edge(edge.0, edge.1);
         let reversed = !self.adj[&edge.1].contains(&oedge.0);
         other.rotate_to_edge(

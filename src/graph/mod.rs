@@ -1,4 +1,3 @@
-pub mod check;
 pub mod make;
 pub mod shrink;
 pub mod structs;

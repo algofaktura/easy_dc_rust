@@ -21,7 +21,7 @@ pub mod graph;
 
 use graph::{types::*, weave};
 
-use crate::graph::check::{self, SequenceID};
+use crate::graph::utils::check::{self, SequenceID};
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
