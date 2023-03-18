@@ -681,9 +681,9 @@ UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY BELOW TO ACCOMPL
 
 #### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
 
-```
+
 | ORDER  |   VERTS    |   TOUR     |   VI_MAP  |   ADJ     |   TOTAL     |
-|--------|------------|------------|-----------|-----------|-------------|
+| ------:| ----------:| ----------:| --------- | ---------:| -----------:|
 | 200M   |    7.6 GB  |  0.8 GB    |   8.4 GB  |   2.4 GB  |   18.2 GB   |
 | 250M   |   11.7 GB  |  1.3 GB    |  14.0 GB  |   3.8 GB  |   31.8 GB   |
 | 300M   |   16.7 GB  |  1.8 GB    |  21.0 GB  |   5.9 GB  |   45.4 GB   |
@@ -701,7 +701,7 @@ UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY BELOW TO ACCOMPL
 | 900M   |  152.4 GB  | 15.2 GB    | 562.0 GB  | 106.0 GB  |  836.6 GB   |
 | 950M   |  170.2 GB  | 17.0 GB    | 678.0 GB  | 121.0 GB  |  1.005 TB   |
 | 1B     |  189.0 GB  | 18.9 GB    | 810.0 GB  | 137.0 GB  |  1.154 TB   |
-```
+
 
 ## Licensing:
 
