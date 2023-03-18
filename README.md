@@ -647,7 +647,11 @@ cargo run --release 1 100 10
 | 🇳  557 | ⭕️  231_654_072 | 🕗    714.2865601 | 📌 HamCycle | 53.5 GB Memory
 | 🇳  558 | ⭕️  232_901_760 | 🕗    738.4812622 | 📌 HamCycle | 53.1 GB Memory
 | 🇳  559 | ⭕️  234_153_920 | 🕗    678.1728516 | 📌 HamCycle | 61.1 GB Memory
-| 🇳  560 | ⭕️  235_410_560 | 🕗    * Killed *  | 📌 HamCycle | 74.9 GB Memory -> 62.1 GB Memory | 78.2 GB Virtual
+| 🇳  560 | ⭕️  235_410_560 | 🕗    **** killed | 📌 HamCycle | 74.9 GB Memory | Too much memory | 78.2 GB Virtual
+| 🇳  560 | ⭕️  235_410_560 | 🕗    741.5216064 | 📌 HamCycle | 58.2 GB Memory | i32 to i16
+| 🇳  561 | ⭕️  235_410_560 | 🕗    739.4226074 | 📌 HamCycle | 60.3 GB Memory
+| 🇳  562 | ⭕️  237_937_312 | 🕗    751.3547363 | 📌 HamCycle | 60.3 GB Memory
+| 🇳  563 | ⭕️  239_207_440 | 🕗    751.3547363 | 📌 HamCycle | 58.6 GB Memory | 71.4 Virtual
 
 TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES| 
 ```
