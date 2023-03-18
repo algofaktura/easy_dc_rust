@@ -4,7 +4,10 @@ use super::{
     types::{
         Adjacency, Edge, EdgeAdjacency, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds,
     },
-    utils::{check::is_valid_edge, modify::orient},
+    utils::{
+        check::is_valid_edge, 
+        modify::orient
+    },
 };
 
 #[derive(Clone, Debug)]
