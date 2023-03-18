@@ -84,7 +84,8 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
             }
         })
         .max_by_key(|&(_, absumv)| absumv)
-        .unwrap().0
+        .unwrap()
+        .0
 }
 
 fn nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
