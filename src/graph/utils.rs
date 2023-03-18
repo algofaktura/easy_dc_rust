@@ -3,8 +3,8 @@ use ndarray::{arr2, Array2};
 use std::fmt;
 
 use super::types::{
-    Adjacency, Edge, Edges,Idx, Nodes, Point, Points, SignedIdx, Solution,
-    V2d, V3d, Vert, Verts, ZOrder, ZlevelNodesMap
+    Adjacency, Edge, Edges, Idx, Nodes, Point, Points, SignedIdx, Solution, V2d, V3d, Vert, Verts,
+    ZOrder, ZlevelNodesMap,
 };
 
 // Output is a primitive type scalar.
@@ -62,11 +62,13 @@ pub mod info {
             .fold([0, 0, 0], |mut axes, (m, n)| {
                 let m_vert = vert[*m as usize];
                 let n_vert = vert[*n as usize];
-                axes[get_axis_3d(&[m_vert.0, m_vert.1, m_vert.2], &[n_vert.0, n_vert.1, n_vert.2])] += 1;
+                axes[get_axis_3d(
+                    &[m_vert.0, m_vert.1, m_vert.2],
+                    &[n_vert.0, n_vert.1, n_vert.2],
+                )] += 1;
                 axes
             })
     }
-    
 }
 
 pub mod shrink {
@@ -118,9 +120,9 @@ pub mod shrink {
 
 // Input and output are the same.
 pub mod modify {
-    
-    use super::{arr2, Array2};
+
     use super::Point;
+    use super::{arr2, Array2};
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
         if m < n {
             (m, n)
@@ -177,13 +179,11 @@ pub mod xy {
         (abs_sum ^ sign_bit) - sign_bit
     }
 
-
     pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
         (0..2)
             .find(|&i| m_vert[i] != n_vert[i])
             .expect("Something's wrong, the same verts are being compared.")
     }
-
 }
 
 // Version for eventual changing of type from i16 to i32.
@@ -308,7 +308,6 @@ pub mod certify {
 pub mod maker {
     use super::Itertools;
     use super::{Adjacency, Edge, Edges, Idx, Verts};
-
 
     use super::{check::valid_edge, modify::orient};
 

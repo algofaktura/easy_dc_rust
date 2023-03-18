@@ -21,9 +21,7 @@ pub mod graph;
 
 use graph::{
     types::*,
-    utils::{
-        certify::{self, SequenceID},
-    },
+    utils::certify::{self, SequenceID},
     weave,
 };
 
