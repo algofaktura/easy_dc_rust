@@ -41,7 +41,7 @@ impl<'a> Cycle<'a> {
     }
 
     pub fn make_eadjs(&self, edges: &Edges) -> Edges {
-        let made: HashSet<_> = edges
+        edges
             .iter()
             .flat_map(|edge| self.edge_adj[edge].iter())
             .filter(|&(a, b)| {
@@ -54,8 +54,7 @@ impl<'a> Cycle<'a> {
                 )
             })
             .copied()
-            .collect();
-        made
+            .collect()
     }
 
     pub fn make_edges(&mut self) -> Edges {
