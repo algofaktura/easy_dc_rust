@@ -75,7 +75,6 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
                 let prev_vert = &verts[prev_node as usize];
                 let next_axis = axis(curr_vert, next_vert);
                 let prev_axis = axis(prev_vert, curr_vert);
-
                 if next_axis == prev_axis {
                     None
                 } else {
