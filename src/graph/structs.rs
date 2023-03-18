@@ -42,15 +42,7 @@ impl<'a> Cycle<'a> {
         edges
             .iter()
             .flat_map(|edge| self.edge_adj[edge].iter())
-            .filter(|&(a, b)| {
-                is_valid_edge(
-                    self.verts[*a as usize],
-                    self.verts[*b as usize],
-                    self.max_xyz,
-                    self.order,
-                    true,
-                )
-            })
+            .filter(|&(a, b)| self.is_valid_edge(*a, *b, true))
             .copied()
             .collect()
     }
@@ -60,16 +52,19 @@ impl<'a> Cycle<'a> {
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(|&(a, b)| {
-                is_valid_edge(
-                    self.verts[a as usize],
-                    self.verts[b as usize],
-                    self.max_xyz,
-                    self.order,
-                    self.lead,
-                )
-            })
+            .filter(|&(a, b)| self.is_valid_edge(a, b, self.lead))
+            
             .collect()
+    }
+
+    pub fn is_valid_edge(&self, m: u32, n: u32, lead: bool) -> bool {
+        is_valid_edge(
+            self.verts[m as usize],
+            self.verts[n as usize],
+            self.max_xyz,
+            self.order,
+            lead,
+        )
     }
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
