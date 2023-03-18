@@ -38,18 +38,17 @@ impl<'a> Cycle<'a> {
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(|&(a, b)| self.is_valid_edge(a, b, self.lead))
+            .filter(
+                |&(m, n)| 
+                is_valid_edge(
+                    self.verts[m as usize],
+                    self.verts[n as usize],
+                    self.max_xyz,
+                    self.order,
+                    self.lead,
+                )
+            )
             .collect()
-    }
-
-    pub fn is_valid_edge(&self, m: u32, n: u32, lead: bool) -> bool {
-        is_valid_edge(
-            self.verts[m as usize],
-            self.verts[n as usize],
-            self.max_xyz,
-            self.order,
-            lead,
-        )
     }
 
     pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
