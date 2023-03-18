@@ -1602,17 +1602,19 @@ ________________________________________________________________________________
 __________________________________________________________________________________________________
 | 🇳  572 | ⭕️  250_842_592 | 🕗    **** killed | 📌 ???????? | 64.1 GB Memory | 72.8 Virtual    |
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-| 🇳  572 | ⭕️  250_842_592 | 🕗    842.4531250 | 📌 HamCycle |
+| 🇳  572 | ⭕️  250_842_592 | 🕗    842.4531250 | 📌 HamCycle | 60.5 GB Memory | 73.2 Virtual 
+| 🇳  573 | ⭕️  252_158_200 | 🕗    832.7617188 | 📌 HamCycle | 61.5 GB Memory | 85.4 Virtual 
 
 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
+UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: &[((i16, i16, i16), u32)]
 
 ```
 
 #### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
 
-```
+
 ORDER	VERTS	    TOUR	    VI_MAP	    ADJ	        TOTAL
 200M	7.6 GB	    800 MB	    8.4 GB	    2.4 GB	    18.2 GB
 250M	11.7 GB	    1.3 GB	    14 GB	    3.8 GB	    31.8 GB
@@ -1631,4 +1633,3 @@ ORDER	VERTS	    TOUR	    VI_MAP	    ADJ	        TOTAL
 900M	152.4 GB	15.2 GB	    562 GB	    106.0 GB	836.6 GB
 950M	170.2 GB	17.0 GB	    678 GB	    121.0 GB	1.005 TB
 1B	    189.0 GB	18.9 GB	    810 GB	    137.0 GB	1.154 TB
-```
