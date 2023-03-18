@@ -4,10 +4,7 @@ use super::{
     types::{
         Adjacency, Edge, EdgeAdjacency, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds,
     },
-    utils::{
-        check::is_valid_edge, 
-        modify::orient
-    },
+    utils::{check::is_valid_edge, modify::orient},
 };
 
 #[derive(Clone, Debug)]
@@ -56,7 +53,6 @@ impl<'a> Cycle<'a> {
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
             .filter(|&(a, b)| self.is_valid_edge(a, b, self.lead))
-            
             .collect()
     }
 
