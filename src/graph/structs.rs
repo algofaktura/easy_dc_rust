@@ -1,7 +1,11 @@
+use std::collections::HashSet;
+
 use itertools::Itertools;
 
 use super::{
-    types::{Adjacency, Edge, EdgeAdjacency, Edges, Solution, Tour, Verts, VertsVec, YarnEnds},
+    types::{
+        Adjacency, Edge, EdgeAdjacency, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds,
+    },
     utils::{check::is_valid_edge, modify::orient},
 };
 
@@ -11,9 +15,8 @@ pub struct Cycle<'a> {
     verts: &'a Verts,
     adj: &'a Adjacency,
     edge_adj: &'a EdgeAdjacency,
-    pub made_edges: Option<Edges>,
     lead: bool,
-    max_xyz: i32,
+    max_xyz: Point,
     order: u32,
 }
 
@@ -24,32 +27,35 @@ impl<'a> Cycle<'a> {
         edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
         lead: bool,
-        max_xyz: i32,
+        max_xyz: Point,
     ) -> Cycle<'a> {
         Cycle {
             data: data.into_iter().collect::<Tour>(),
             verts,
             adj,
             edge_adj,
-            made_edges: None,
             lead,
             max_xyz,
             order: verts.len() as u32,
         }
     }
 
-    pub fn eadjs(&mut self) -> Edges {
-        match &self.made_edges {
-            None => {
-                self.made_edges = Some(self.make_edges());
-                self.made_edges.as_ref().unwrap()
-            }
-            Some(edges) => edges,
-        }
-        .iter()
-        .flat_map(|edge| self.edge_adj[edge].iter())
-        .copied()
-        .collect()
+    pub fn make_eadjs(&self, edges: &Edges) -> Edges {
+        let made: HashSet<_> = edges
+            .iter()
+            .flat_map(|edge| self.edge_adj[edge].iter())
+            .filter(|&(a, b)| {
+                is_valid_edge(
+                    self.verts[*a as usize],
+                    self.verts[*b as usize],
+                    self.max_xyz,
+                    self.order,
+                    true,
+                )
+            })
+            .copied()
+            .collect();
+        made
     }
 
     pub fn make_edges(&mut self) -> Edges {
@@ -77,6 +83,7 @@ impl<'a> Cycle<'a> {
             if reversed { oedge.0 } else { oedge.1 },
         );
         self.data.extend(&other.data);
+        other.data = Vec::with_capacity(1);
     }
 
     pub fn rotate_to_edge(&mut self, lhs: u32, rhs: u32) {
