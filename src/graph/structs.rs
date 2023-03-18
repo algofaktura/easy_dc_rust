@@ -1,9 +1,7 @@
 use itertools::Itertools;
 
 use super::{
-    types::{
-        Adjacency, Edge, EdgeAdjacency, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds,
-    },
+    types::{Adjacency, Edge, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds},
     utils::{check::is_valid_edge, modify::orient},
 };
 
@@ -12,7 +10,6 @@ pub struct Cycle<'a> {
     pub data: Tour,
     verts: &'a Verts,
     adj: &'a Adjacency,
-    edge_adj: &'a EdgeAdjacency,
     lead: bool,
     max_xyz: Point,
     order: u32,
@@ -22,7 +19,6 @@ impl<'a> Cycle<'a> {
     pub fn new(
         data: YarnEnds,
         adj: &'a Adjacency,
-        edge_adj: &'a EdgeAdjacency,
         verts: &'a Verts,
         lead: bool,
         max_xyz: Point,
@@ -31,20 +27,10 @@ impl<'a> Cycle<'a> {
             data: data.into_iter().collect::<Tour>(),
             verts,
             adj,
-            edge_adj,
             lead,
             max_xyz,
             order: verts.len() as u32,
         }
-    }
-
-    pub fn make_eadjs(&self, edges: &Edges) -> Edges {
-        edges
-            .iter()
-            .flat_map(|edge| self.edge_adj[edge].iter())
-            .filter(|&(a, b)| self.is_valid_edge(*a, *b, true))
-            .copied()
-            .collect()
     }
 
     pub fn make_edges(&mut self) -> Edges {
