@@ -20,7 +20,7 @@ pub fn weave(
     verts: &Verts,
     z_adj: &Adjacency,
     z_order: &ZOrder,
-    max_xyz: i32,
+    max_xyz: Point,
 ) -> Solution {
     join_loops(
         prepare_loom(vi_map, verts, z_adj, z_order),
@@ -239,12 +239,12 @@ fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     });
 }
 
-pub fn join_loops<'a>(
+pub fn join_loops2<'a>(
     mut warp_wefts: Loom,
     adj: &'a Adjacency,
     verts: &'a Verts,
     edge_adj: &'a EdgeAdjacency,
-    max_xyz: i32,
+    max_xyz: Point,
 ) -> Solution {
     let mut key_to_remove: Vec<usize> = Vec::with_capacity(1);
     let mut core_cord: Cycle = Cycle::new(
@@ -269,12 +269,13 @@ pub fn join_loops<'a>(
     loop {
         for key in loom.keys() {
             let other = &mut loom[key].borrow_mut();
-            if let Some(warp_e) = (&core_cord.make_edges() & &other.eadjs())
+            let other_edges = other.make_edges();
+            if let Some(warp_e) = (&core_cord.make_edges() & &other.make_eadjs(&other_edges))
                 .into_iter()
                 .next()
             {
                 if let Some(weft_e) = edge_adj[(&warp_e)]
-                    .intersection(other.made_edges.as_ref().unwrap())
+                    .intersection(&other_edges)
                     .next()
                 {
                     core_cord.join(warp_e, *weft_e, other);
@@ -292,3 +293,47 @@ pub fn join_loops<'a>(
         key_to_remove.clear();
     }
 }
+
+pub fn join_loops<'a>(
+    mut warp_wefts: Loom,
+    adj: &'a Adjacency,
+    verts: &'a Verts,
+    edge_adj: &'a EdgeAdjacency,
+    max_xyz: Point,
+) -> Solution {
+    let mut core_cord: Cycle = Cycle::new(
+        warp_wefts[0].split_off(0),
+        adj,
+        edge_adj,
+        verts,
+        true,
+        max_xyz,
+    );
+    let loom: WarpedLoom = warp_wefts
+        .split_off(1)
+        .into_iter()
+        .enumerate()
+        .map(|(idx, seq)| {
+            (
+                idx,
+                RefCell::new(Cycle::new(seq, adj, edge_adj, verts, false, max_xyz)),
+            )
+        })
+        .collect();
+    for key in loom.keys() {
+        let other = &mut loom[key].borrow_mut();
+        let other_edges = other.make_edges();
+        if let Some(warp_e) = (&core_cord.make_edges() & &other.make_eadjs(&other_edges))
+            .into_iter()
+            .next()
+        {
+            if let Some(weft_e) = (&edge_adj[(&warp_e)] & &other_edges)
+                .into_iter()
+                .next()
+            {
+                core_cord.join(warp_e, weft_e, other);
+            }
+        }
+    }
+    core_cord.retrieve_nodes()
+    }

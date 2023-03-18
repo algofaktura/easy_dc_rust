@@ -1,39 +1,50 @@
+use itertools::Itertools;
+use ndarray::{arr2, Array2};
+use std::fmt;
+
+use super::types::{
+    Adjacency, Edge, Edges,Idx, Nodes, Point, Points, SignedIdx, Solution,
+    V2d, V3d, Vert, Verts, ZOrder, ZlevelNodesMap
+};
+
 // Output is a primitive type scalar.
 pub mod info {
-    use super::super::types::{Adjacency, Idx, Point, V2d, V3d, Vert};
+    use super::Itertools;
+    use super::{Adjacency, Idx, Point, SignedIdx, Solution, V3d, Vert, Verts};
+
     pub fn absumv((x, y, z): Vert) -> Point {
         let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
-            let mask = x >> 31;
+            let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
-        let sign_bit = abs_sum >> 31;
+        let sign_bit = abs_sum >> 15;
         (abs_sum ^ sign_bit) - sign_bit
     }
 
     pub fn absumv_v3d(v: V3d) -> Point {
         let abs_sum = v.iter().fold(0, |acc, x| {
-            let mask = x >> 31;
+            let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
-        let sign_bit = abs_sum >> 31;
+        let sign_bit = abs_sum >> 15;
         (abs_sum ^ sign_bit) - sign_bit
     }
 
-    pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
-        (0..2)
+    pub fn get_axis_3d(m_vert: &V3d, n_vert: &V3d) -> Idx {
+        (0..3)
             .find(|&i| m_vert[i] != n_vert[i])
             .expect("Something's wrong, the same verts are being compared.")
     }
 
-    pub fn get_max_xyz(order: Point) -> Point {
-        (0..order)
-            .map(|n| (n, get_order_from_n(n as u32)))
-            .filter(|(_, sum)| *sum == order as u32)
+    pub fn get_max_xyz(order: u32) -> SignedIdx {
+        ((0..order)
+            .map(|n| (n, get_order_from_n(n)))
+            .filter(|(_, sum)| *sum == order)
             .map(|(n, _)| n)
             .next()
             .unwrap()
             * 2
-            - 1
+            - 1) as i32
     }
 
     pub fn get_order_from_n(n: u32) -> u32 {
@@ -43,12 +54,24 @@ pub mod info {
     pub fn sum_neighbors(adj: &Adjacency) -> usize {
         adj.values().map(|value| value.len()).sum()
     }
+
+    pub fn count_axes(solution: &Solution, vert: &Verts) -> [u32; 3] {
+        solution
+            .iter()
+            .circular_tuple_windows()
+            .fold([0, 0, 0], |mut axes, (m, n)| {
+                let m_vert = vert[*m as usize];
+                let n_vert = vert[*n as usize];
+                axes[get_axis_3d(&[m_vert.0, m_vert.1, m_vert.2], &[n_vert.0, n_vert.1, n_vert.2])] += 1;
+                axes
+            })
+    }
+    
 }
 
 pub mod shrink {
-    use itertools::Itertools;
-
-    use super::super::types::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
+    use super::Itertools;
+    use super::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
     pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
@@ -95,9 +118,9 @@ pub mod shrink {
 
 // Input and output are the same.
 pub mod modify {
-    use ndarray::{arr2, Array2};
-
-    use crate::graph::types::Point;
+    
+    use super::{arr2, Array2};
+    use super::Point;
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
         if m < n {
             (m, n)
@@ -137,30 +160,12 @@ pub mod iters {
 
 // Versions in which only xy where otherwise xyz is considered.
 pub mod xy {
-    use super::super::types::Vert;
+    use super::{Idx, V2d, Vert};
 
     pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
         (0..2)
             .find(|&i| [x, y][i] != [x1, y1][i])
             .expect("Something's wrong, the same verts are being compared.")
-    }
-
-    pub fn absumv((x, y, _): Vert) -> i32 {
-        let abs_sum = [x, y].iter().fold(0, |acc, x| {
-            let mask = x >> 31;
-            acc + (x ^ mask) - mask
-        });
-        let sign_bit = abs_sum >> 31;
-        (abs_sum ^ sign_bit) - sign_bit
-    }
-}
-
-// Version for eventual changing of type from i16 to i32.
-pub mod version_i16 {
-
-    pub fn abs(n: i16) -> i16 {
-        let mask = n >> 15;
-        (n + mask) ^ mask
     }
 
     pub fn absumv((x, y, z): (i16, i16, i16)) -> i16 {
@@ -170,6 +175,23 @@ pub mod version_i16 {
         });
         let sign_bit = abs_sum >> 15;
         (abs_sum ^ sign_bit) - sign_bit
+    }
+
+
+    pub fn get_axis(m_vert: &V2d, n_vert: &V2d) -> Idx {
+        (0..2)
+            .find(|&i| m_vert[i] != n_vert[i])
+            .expect("Something's wrong, the same verts are being compared.")
+    }
+
+}
+
+// Version for eventual changing of type from i16 to i32.
+pub mod version_i16 {
+
+    pub fn abs(n: i16) -> i16 {
+        let mask = n >> 15;
+        (n + mask) ^ mask
     }
 
     pub fn sum(numbers: &[i16]) -> i16 {
@@ -187,11 +209,10 @@ pub mod version_i16 {
     }
 }
 
-// Checks if edge is valid to reduce memory use.
 pub mod check {
-    use crate::graph::types::Vert;
+    use super::{Point, Vert};
 
-    pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: i32, order: u32, lead: bool) -> bool {
+    pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: Point, order: u32, lead: bool) -> bool {
         if order < 160 {
             return valid_edge(v1, v2);
         }
@@ -202,13 +223,10 @@ pub mod check {
     }
 
     pub fn valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-        matches!(
-            (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
-            4..=10
-        )
+        matches!(x1 + y1 + x2 + y2, 4..=10)
     }
 
-    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: i32) -> bool {
+    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: Point) -> bool {
         let lowest = max_xyz - 4;
         if z.abs() == lowest && lowest == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
@@ -217,7 +235,7 @@ pub mod check {
         }
     }
 
-    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: i32) -> bool {
+    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: Point) -> bool {
         let lowest = max_xyz - 4;
         if z.abs() == lowest && lowest == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
@@ -225,20 +243,10 @@ pub mod check {
             x == x2 && x2 == 3 && y == y2 && y2 == 1
         }
     }
-
-    pub fn valid_edge_abs((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
-        matches!(
-            (
-                (x1 & 0xFFFF) + (y1 & 0xFFFF) + (x2 & 0xFFFF) + (y2 & 0xFFFF),
-                (x1 >> 31) + (y1 >> 31) + (x2 >> 31) + (y2 >> 31)
-            ),
-            (4..=10, 0)
-        )
-    }
 }
 
 pub mod debug {
-    use crate::graph::types::{Edge, Vert};
+    use super::{Edge, Vert};
 
     pub fn show_edge_vectors(
         (m, n): Edge,
@@ -261,10 +269,9 @@ pub mod debug {
 }
 
 pub mod certify {
-    use itertools::Itertools;
-    use std::fmt;
-
-    use super::super::types::{Adjacency, Solution};
+    use super::fmt;
+    use super::Itertools;
+    use super::{Adjacency, Solution};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
@@ -295,5 +302,30 @@ pub mod certify {
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
+    }
+}
+
+pub mod maker {
+    use super::Itertools;
+    use super::{Adjacency, Edge, Edges, Idx, Verts};
+
+
+    use super::{check::valid_edge, modify::orient};
+
+    pub fn get_adjacent_edges(adj: &Adjacency, (m_node, n_node): Edge, verts: &Verts) -> Edges {
+        adj[&m_node]
+            .iter()
+            .flat_map(|m| adj[&n_node].iter().map(move |n| (*m, *n)))
+            .filter(|(m, n)| adj[m].contains(n) && valid_edge(verts[*m as Idx], verts[*n as Idx]))
+            .map(|(m, n)| orient(m, n))
+            .collect()
+    }
+
+    pub fn make_edges(data: Vec<u32>, verts: &Verts) -> Edges {
+        data.iter()
+            .circular_tuple_windows()
+            .map(|(a, b)| orient(*a, *b))
+            .filter(|&(a, b)| valid_edge(verts[a as usize], verts[b as usize]))
+            .collect()
     }
 }

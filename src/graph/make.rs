@@ -26,10 +26,10 @@ pub fn make_graph(
     EdgeAdjacency,
     Adjacency,
     ZOrder,
-    i32,
+    i16,
 ) {
     let order = get_order_from_n(n);
-    let max_xyz = get_max_xyz(order as i32);
+    let max_xyz = get_max_xyz(order) as i16;
     let verts: VertsVec = vertices(max_xyz);
     let vi_map: VIMap = vi_map(&verts);
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);

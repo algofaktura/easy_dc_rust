@@ -15,18 +15,16 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{
-    env, 
-    f32::INFINITY, 
-    time::Instant
-};
+use std::{env, f32::INFINITY, time::Instant};
 
 pub mod graph;
 
 use graph::{
     types::*,
-    utils::certify::{self, SequenceID},
-    weave
+    utils::{
+        certify::{self, SequenceID},
+    },
+    weave,
 };
 
 pub fn main() -> Result<(), &'static str> {
@@ -45,7 +43,8 @@ pub fn main() -> Result<(), &'static str> {
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
-        find_solution(graph::make::make_graph(level), repeats)?
+        let graph = graph::make::make_graph(level);
+        find_solution(graph, repeats)?;
     }
     Ok(())
 }
@@ -60,10 +59,10 @@ pub fn find_solution(
         EdgeAdjacency,
         Adjacency,
         ZOrder,
-        i32,
+        i16,
     ),
     repeats: u32,
-) -> Result<(), &'static str> {
+) -> Result<Solution, &'static str> {
     let mut min_dur = INFINITY;
     let mut solution = Solution::with_capacity(order as usize);
     let start: Instant = Instant::now();
@@ -77,5 +76,5 @@ pub fn find_solution(
     let seq_id = certify::id_seq(&solution, &adj);
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
     assert_eq!(seq_id, SequenceID::HamCycle);
-    Ok(())
+    Ok(solution)
 }
