@@ -18,6 +18,7 @@ extern crate rayon;
 use std::{env, f32::INFINITY, time::Instant};
 
 pub mod graph;
+pub mod play;
 
 use graph::{
     types::*,
@@ -48,13 +49,12 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(
-    (n, order, verts, vi_map, adj, edge_adj, z_adj, z_order, max_xyz): (
+    (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz): (
         u32,
         u32,
         VertsVec,
         VIMap,
         Adjacency,
-        EdgeAdjacency,
         Adjacency,
         ZOrder,
         i16,
@@ -65,7 +65,7 @@ pub fn find_solution(
     let mut solution = Solution::with_capacity(order as usize);
     let start: Instant = Instant::now();
     for _ in 0..repeats {
-        solution = weave::weave(&adj, &vi_map, &edge_adj, &verts, &z_adj, &z_order, max_xyz);
+        solution = weave::weave(&adj, &vi_map, &verts, &z_adj, &z_order, max_xyz);
         let dur = (Instant::now() - start).as_secs_f32();
         if min_dur > dur {
             min_dur = dur
