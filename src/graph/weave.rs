@@ -62,7 +62,6 @@ fn spin_yarn(z_adj: &Adjacency, verts: &Verts) -> Yarn {
 
 fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
     let curr = *path.last().unwrap();
-    let curr_vert = &verts[curr as usize];
     adj[&curr]
         .iter()
         .filter(|n| !path.contains(*n))
@@ -70,12 +69,10 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
             if idx < order - 5 {
                 Some((n, absumv(verts[n as usize])))
             } else {
-                let next_vert = &verts[n as usize];
-                let prev_node = path[path.len() - 2];
-                let prev_vert = &verts[prev_node as usize];
-                let next_axis = axis(curr_vert, next_vert);
-                let prev_axis = axis(prev_vert, curr_vert);
-                if next_axis == prev_axis {
+                let curr_vert = &verts[curr as usize];
+                if axis(&verts[path[path.len() - 2] as usize], curr_vert)
+                    == axis(curr_vert, &verts[n as usize])
+                {
                     None
                 } else {
                     Some((n, absumv(verts[n as usize])))
