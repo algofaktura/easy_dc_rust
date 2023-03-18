@@ -279,3 +279,43 @@ pub fn join_loops<'a>(
     }
     core_cord.retrieve_nodes()
 }
+
+pub fn join_loopsm<'a>(
+    mut warp_wefts: Loom,
+    adj: &'a Adjacency,
+    verts: &'a Verts,
+    edge_adj: &'a EdgeAdjacency,
+    max_xyz: Point,
+) -> Solution {
+    let mut core_cord: Cycle = Cycle::new(
+        warp_wefts[0].split_off(0),
+        adj,
+        edge_adj,
+        verts,
+        true,
+        max_xyz,
+    );
+    let loom: WarpedLoom = warp_wefts
+        .split_off(1)
+        .into_iter()
+        .enumerate()
+        .map(|(idx, seq)| {
+            (
+                idx,
+                RefCell::new(Cycle::new(seq, adj, edge_adj, verts, false, max_xyz)),
+            )
+        })
+        .collect();
+    loom.keys().for_each(|key| {
+        let other_edges = loom[key].borrow_mut().make_edges();
+        if let Some(warp_e) = (&core_cord.make_edges() & &core_cord.make_eadjs(&other_edges))
+            .into_iter()
+            .next()
+        {
+            if let Some(weft_e) = (&edge_adj[(&warp_e)] & &other_edges).into_iter().next() {
+                core_cord.join(warp_e, weft_e, &mut loom[key].borrow_mut());
+            }
+        }
+    });
+    core_cord.retrieve_nodes()
+}
