@@ -2,7 +2,7 @@ use itertools::Itertools;
 
 use super::{
     types::{Adjacency, Edge, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds, Vix},
-    utils::{check::is_valid_edge, modify::orient, self},
+    utils::{check::is_valid_edge, modify::orient},
 };
 
 #[derive(Clone, Debug)]
@@ -125,7 +125,7 @@ impl<'a> Cyclex<'a> {
             .map(|(a, b)| orient(*a, *b))
             .filter(
                 |&(m, n)| 
-                utils::check_v3::is_valid_edge(
+                is_valid_edge(
                     *self.vertx.get_index(m as usize).unwrap().0,
                     *self.vertx.get_index(n as usize).unwrap().0,
                     self.max_xyz,
@@ -168,11 +168,11 @@ impl<'a> Cyclex<'a> {
         self.data.to_vec()
     }
 
-    pub fn retrieve_vectors(&self) -> Vec<&[i16; 3]> {
+    pub fn retrieve_vectors(&self) -> VertsVec {
         self.data
             .to_vec()
             .iter()
-            .map(|node| self.vertx.get_index(*node as usize).unwrap().0)
+            .map(|node| *self.vertx.get_index(*node as usize).unwrap().0)
             .collect()
     }
 }

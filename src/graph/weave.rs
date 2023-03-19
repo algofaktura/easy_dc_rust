@@ -7,12 +7,12 @@ use super::{
     structs::{Cycle, Cyclex},
     types::{
         Adjacency, Bobbins, Count, Edges, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
-        TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, YarnEnds, ZOrder, V3d, Vix, WarpedLoomx,
+        TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, YarnEnds, ZOrder, Vix, WarpedLoomx,
     },
     utils::{
         get_adj_edges::{create_eadjs, create_edges},
         get_adj_edgesx::{create_eadjsx, create_edgesx},
-        xy::{absumv, axis, absumvx, axisx},
+        xy::{absumv, axis},
     },
 };
 
@@ -135,15 +135,15 @@ fn next_nodex(path: TourSlice, adj: &Adjacency, vertx: &Vix, idx: usize, order: 
         .filter(|n| !path.contains(*n))
         .filter_map(|&n| {
             if idx < order - 5 {
-                Some((n, absumvx(*vertx.get_index(n as usize).unwrap().0)))
+                Some((n, absumv(*vertx.get_index(n as usize).unwrap().0)))
             } else {
                 let curr_vert = *vertx.get_index(curr as usize).unwrap().0;
-                if axisx(vertx.get_index(path[path.len() - 2] as usize).unwrap().0, &curr_vert)
-                    == axisx(&curr_vert, vertx.get_index(n as usize).unwrap().0)
+                if axis(vertx.get_index(path[path.len() - 2] as usize).unwrap().0, &curr_vert)
+                    == axis(&curr_vert, vertx.get_index(n as usize).unwrap().0)
                 {
                     None 
                 } else {
-                    Some((n, absumvx(*vertx.get_index(n as usize).unwrap().0)))
+                    Some((n, absumv(*vertx.get_index(n as usize).unwrap().0)))
                 }
             }
         })
@@ -167,7 +167,7 @@ pub fn nodes_to_yarnx(path: &mut Tour, vertx: &Vix) -> Yarn {
                 |&n| 
                 {
                     let vert = vertx.get_index(n as usize).unwrap().0;
-                    [vert[0], vert[1]]
+                    [vert.0, vert.1]
                 }
             )
             .collect::<Vec<[Point; 2]>>(),
@@ -212,10 +212,10 @@ fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32,
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
-pub fn get_upper_nodesx([x, y, z]: V3d, [a, b, c]: V3d, vertx: &Vix) -> (u32, u32) {
+pub fn get_upper_nodesx((x, y, z): Vert, (a, b, c): Vert, vertx: &Vix) -> (u32, u32) {
     (
-        vertx.get_index_of(&[x, y, z + 2]).unwrap() as u32, 
-        vertx.get_index_of(&[a, b, c + 2]).unwrap() as u32
+        vertx.get_index_of(&(x, y, z + 2)).unwrap() as u32, 
+        vertx.get_index_of(&(a, b, c + 2)).unwrap() as u32
     )
 }
 
@@ -286,7 +286,7 @@ pub fn precut_node_yarnx(mut yarn: Yarn, zlevel: Point, order: Count, vertx: &Vi
         .outer_iter()
         .map(
             |row| 
-            vertx.get_index_of(&[row[0], row[1], zlevel]).unwrap() as u32
+            vertx.get_index_of(&(row[0], row[1], zlevel)).unwrap() as u32
         )
         .collect()
 }
@@ -389,7 +389,7 @@ pub fn reflect_loomx(loom: &mut Loom, vertx: &Vix) {
                 .iter()
                 .rev()
                 .map(|&node| vertx.get_index(node as usize).unwrap().0)
-                .map(|[x, y, z]| vertx.get_index_of(&[*x, *y, -z]).unwrap() as u32)
+                .map(|(x, y, z)| vertx.get_index_of(&(*x, *y, -z)).unwrap() as u32)
                 .collect::<Tour>()
         )
     });

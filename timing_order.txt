@@ -1609,8 +1609,8 @@ ________________________________________________________________________________
 | 🇳  576 | ⭕️  256_132_608 | 🕗    774.5940552 | 📌 HamCycle |
 | 🇳  577 | ⭕️  257_466_632 | 🕗    791.0694580 | 📌 HamCycle |
 | 🇳  578 | ⭕️  258_805_280 | 🕗    807.0501709 | 📌 HamCycle | 60.4 GB Memory | 70.2 Virtual
-| 🇳  579 | ⭕️  260_148_560 | 🕗    824.6404419 | 📌 HamCycle |
-
+| 🇳  579 | ⭕️  260_148_560 | 🕗    824.6404419 | 📌 HamCycle | I don't have to check the validity of eadjs at all only if it intersects with edges.
+| 🇳  580 | 61.8 111.1 GB Virtual
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED SET IN PYTHON.
