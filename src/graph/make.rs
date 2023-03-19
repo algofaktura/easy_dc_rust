@@ -3,7 +3,7 @@ use ndarray::arr2;
 use rayon::prelude::*;
 
 use super::{
-    types::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder, Vix},
+    types::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder},
     utils::{
         info::{absumv_v3d, get_max_xyz, get_order_from_n},
         modify::shift_xyz,
@@ -19,17 +19,6 @@ pub fn make_graph(n: u32) -> (u32, u32, VertsVec, VIMap, Adjacency, Adjacency, Z
     let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
     let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
     (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz)
-}
-
-pub fn make_graphx(n: u32) -> (u32, u32, Vix, Adjacency, ZOrder, i16) {
-    let order = get_order_from_n(n);
-    let max_xyz = get_max_xyz(order) as i16;
-    let verts: VertsVec = vertices(max_xyz);
-    let vi_map: VIMap = vi_map(&verts);
-    let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
-    let vertx = vi_map_mix(&verts, &adj);
-    let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
-    (n, order, vertx, z_adj, z_order, max_xyz)
 }
 
 pub fn vertices(max_xyz: Point) -> VertsVec {
@@ -56,15 +45,6 @@ fn vi_map(verts: &Verts) -> VIMap {
         .par_iter()
         .enumerate()
         .map(|(idx, vert)| (*vert, idx as Node))
-        .collect()
-}
-
-pub fn vi_map_mix(verts: &Verts, adj: &Adjacency) -> Vix {
-    // a hybrid of a vi map and a vertices list. 
-    verts
-        .iter()
-        .enumerate()
-        .map(|(idx, (x, y, z))| ((*x, *y, *z), adj[&(idx as u32)].clone()))
         .collect()
 }
 

@@ -43,38 +43,10 @@ pub fn main() -> Result<(), &'static str> {
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
-        let graph = graph::make::make_graphx(level);
-        find_solutionx(graph, repeats)?;
+        let graph = graph::make::make_graph(level);
+        find_solution(graph, repeats)?;
     }
     Ok(())
-}
-
-pub fn find_solutionx(
-    (n, order, vertx, z_adj, z_order, max_xyz): (
-        u32,
-        u32,
-        Vix,
-        Adjacency,
-        ZOrder,
-        i16,
-    ),
-    repeats: u32,
-) -> Result<Solution, &'static str> {
-
-    let mut min_dur = INFINITY;
-    let mut solution = Solution::with_capacity(order as usize);
-    let start: Instant = Instant::now();
-    for _ in 0..repeats {
-        solution = weave::weavex(&vertx, &z_adj, &z_order, max_xyz);
-        let dur = (Instant::now() - start).as_secs_f32();
-        if min_dur > dur {
-            min_dur = dur
-        }
-    }
-    let seq_id = certify::id_seqx(&solution, &vertx);
-    println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
-    assert_eq!(seq_id, SequenceID::HamCycle);
-    Ok(solution)
 }
 
 pub fn find_solution(
