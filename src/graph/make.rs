@@ -64,7 +64,7 @@ pub fn vi_map_mix(verts: &Verts, adj: &Adjacency) -> Vix {
     verts
         .iter()
         .enumerate()
-        .map(|(idx, (x, y, z))| ([*x, *y, *z], adj[&(idx as u32)].clone()))
+        .map(|(idx, (x, y, z))| ((*x, *y, *z), adj[&(idx as u32)].clone()))
         .collect()
 }
 

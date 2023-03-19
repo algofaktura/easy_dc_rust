@@ -652,13 +652,13 @@ pub mod get_adj_edges {
 }
 
 pub mod get_adj_edgesx {
-    use crate::graph::types::{V3d, Vix};
+    use crate::graph::types::{V3d, Vix, Vert};
 
     use super::{Edge, Edges, modify::orient};
 
     pub fn create_edges(
-        [a, b, c]: V3d,
-        [x, y, z]: V3d,
+        (a, b, c): Vert,
+        (x, y, z): Vert,
         max_xyz: i16,
         vertx: &Vix,
     ) -> Edges {
@@ -696,7 +696,7 @@ pub mod get_adj_edgesx {
             && (a == 1 || a == 3)
             || x == a && a == 1 && y == b && b == 1
         {
-            Some(orient(vertx.get_index_of(&[a, b, c]).unwrap() as u32, vertx.get_index_of(&[x, y, z]).unwrap() as u32))
+            Some(orient(vertx.get_index_of(&(a, b, c)).unwrap() as u32, vertx.get_index_of(&(x, y, z)).unwrap() as u32))
         } else {
             None
         }
@@ -717,15 +717,15 @@ pub mod get_adj_edgesx {
             && (a == 1 || a == 3)
             || x == a && a == 3 && y == b && b == 1
         {
-            Some(orient(vertx.get_index_of(&[a, b, c]).unwrap() as u32, vertx.get_index_of(&[x, y, z]).unwrap() as u32))
+            Some(orient(vertx.get_index_of(&(a, b, c)).unwrap() as u32, vertx.get_index_of(&(x, y, z)).unwrap() as u32))
         } else {
             None
         }
     }
 
     pub fn create_eadjsx(
-        [a, b, c]: V3d,
-        [x, y, z]: V3d,
+        (a, b, c): Vert,
+        (x, y, z): Vert,
         max_xyz: i16,
         vertx: &Vix,
     ) -> Edges {
@@ -784,8 +784,8 @@ pub mod get_adj_edgesx {
     }
 
     pub fn create_edgesx(
-        [a, b, c]: V3d,
-        [x, y, z]: V3d,
+        (a, b, c): Vert,
+        (x, y, z): Vert,
         max_xyz: i16,
         vertx: &Vix,
     ) -> Edges {
