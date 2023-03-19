@@ -50,6 +50,7 @@ pub type VIMixref<'a> = &'a [(Vert, Node)];
 pub type VIMixar = [(Vert, Node)];
 pub type VIMix = Vec<(Vert, Node)>;
 pub type WarpedLoom<'a> = HashMap<usize, RefCell<Cycle<'a>>>;
+pub type WarpedLoomx<'a> = Vec<RefCell<Cycle<'a>>>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
 pub type Woven = Vec<usize>;

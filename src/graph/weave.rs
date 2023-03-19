@@ -7,7 +7,7 @@ use super::{
     structs::Cycle,
     types::{
         Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
-        TourSlice, VIMap, Vert, Verts, WarpedLoom, Warps, Woven, Yarn, ZOrder,
+        TourSlice, VIMap, Vert, Verts, WarpedLoomx, Warps, Woven, Yarn, ZOrder,
     },
     utils::{
         get_adj_edges::{create_eadjs, create_edges},
@@ -248,6 +248,57 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     });
 }
 
+pub fn weave_loomx<'a>(
+    mut warp_wefts: Loom,
+    adj: &'a Adjacency,
+    verts: &'a Verts,
+    vi_map: &VIMap,
+    max_xyz: Point,
+) -> Solution {
+    let mut weaver: Cycle = Cycle::new_iter(
+        warp_wefts[0].split_off(0).into_iter(),
+        adj,
+        verts,
+        true,
+        max_xyz,
+    );
+    warp_wefts
+        .split_off(1)
+        .iter()
+        .map(|seq| {
+            RefCell::new(Cycle::new_iter(
+                seq.clone().into_iter(),
+                adj,
+                verts,
+                false,
+                max_xyz,
+            ))
+        })
+        .for_each(|other| {
+            let other_edges = other.borrow_mut().make_edges();
+            if let Some((m, n)) = (&weaver.make_edges()
+                & &other_edges
+                    .iter()
+                    .flat_map(|(m, n)| {
+                        create_edges(verts[*m as usize], verts[*n as usize], max_xyz, vi_map)
+                    })
+                    .collect())
+                .into_iter()
+                .next()
+            {
+                if let Some(weft_e) =
+                    (&create_eadjs(verts[m as usize], verts[n as usize], max_xyz, vi_map)
+                        & &other_edges)
+                        .into_iter()
+                        .next()
+                {
+                    weaver.join((m, n), weft_e, &mut other.borrow_mut());
+                }
+            }
+        });
+    weaver.retrieve_nodes()
+}
+
 pub fn weave_loom<'a>(
     mut warp_wefts: Loom,
     adj: &'a Adjacency,
@@ -256,18 +307,12 @@ pub fn weave_loom<'a>(
     max_xyz: Point,
 ) -> Solution {
     let mut weaver: Cycle = Cycle::new(warp_wefts[0].split_off(0), adj, verts, true, max_xyz);
-    let mut loom: WarpedLoom = warp_wefts
+    let loom: WarpedLoomx = warp_wefts
         .split_off(1)
         .into_iter()
-        .enumerate()
-        .map(|(idx, seq)| {
-            (
-                idx,
-                RefCell::new(Cycle::new(seq, adj, verts, false, max_xyz)),
-            )
-        })
+        .map(|seq| RefCell::new(Cycle::new(seq, adj, verts, false, max_xyz)))
         .collect();
-    loom.values_mut().for_each(|other| {
+    loom.iter().for_each(|other| {
         let other_edges = other.borrow_mut().make_edges();
         if let Some((m, n)) = (&weaver.make_edges()
             & &other_edges
