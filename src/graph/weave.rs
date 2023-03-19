@@ -196,7 +196,6 @@ fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
 fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
     let mut woven: Woven = Woven::new();
     for thread in loom {
-
         for (idx, warp) in warps.iter().enumerate() {
             if !woven.contains(&idx) {
                 match (thread.front(), thread.back()) {

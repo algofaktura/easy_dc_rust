@@ -1,3 +1,4 @@
+extern crate fxhash;
 /// see n_order.txt for a list of n and the corresponding order:
 /// n: 100 = 1_373_600 vertices
 /// ```
@@ -14,7 +15,6 @@
 /// 1 (start with order 8 end at order 1,373,600) 100 10 (solve graph 10 times for each order)
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
-extern crate fxhash;
 
 use std::{env, f32::INFINITY, time::Instant};
 

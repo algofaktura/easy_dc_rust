@@ -38,8 +38,7 @@ impl<'a> Cycle<'a> {
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(
-                |&(m, n)| 
+            .filter(|&(m, n)| {
                 is_valid_edge(
                     self.verts[m as usize],
                     self.verts[n as usize],
@@ -47,7 +46,7 @@ impl<'a> Cycle<'a> {
                     self.order,
                     self.lead,
                 )
-            )
+            })
             .collect()
     }
 
