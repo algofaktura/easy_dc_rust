@@ -1,14 +1,12 @@
 use fxhash::FxBuildHasher;
-use indexmap::IndexMap;
 use ndarray::Array2;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet, VecDeque},
 };
 
-use super::structs::{Cycle, Cyclex};
+use super::structs::Cycle;
 
-pub type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];
@@ -51,9 +49,7 @@ pub type VIMap = HashMap<Vert, Node>;
 pub type VIMixref<'a> = &'a [(Vert, Node)];
 pub type VIMixar = [(Vert, Node)];
 pub type VIMix = Vec<(Vert, Node)>;
-pub type Vix = IndexMap<Vert, Neighbors>;
 pub type WarpedLoom<'a> = HashMap<usize, RefCell<Cycle<'a>>>;
-pub type WarpedLoomx<'a> = HashMap<usize, RefCell<Cyclex<'a>>>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
 pub type Woven = Vec<usize>;
