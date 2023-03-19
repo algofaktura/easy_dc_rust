@@ -4,7 +4,7 @@ use std::fmt;
 
 use super::types::{
     Adjacency, Edge, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Points, SignedIdx, Solution,
-    V2d, V3d, VIMap, Vert, Verts, Weights, ZOrder, ZlevelNodesMap,
+    V2d, V3d, VIMap, Vert, VertN, Verts, Weights, ZOrder, ZlevelNodesMap,
 };
 
 // Output is a primitive type scalar.
@@ -336,7 +336,7 @@ pub mod debug {
 }
 
 pub mod certify {
-    use crate::graph::types::Vix;
+    use super::VertN;
 
     use super::fmt;
     use super::Itertools;
@@ -373,15 +373,15 @@ pub mod certify {
         }
     }
 
-    pub fn id_seqx(seq: &Solution, vertx: &Vix) -> SequenceID {
-        if seq.iter().duplicates().count() > 0 || seq.len() != vertx.len() {
+    pub fn id_seqx(seq: &Solution, vertn: &VertN) -> SequenceID {
+        if seq.iter().duplicates().count() > 0 || seq.len() != vertn.len() {
             return SequenceID::Broken;
         }
         match seq
             .windows(2)
-            .all(|window| vertx[window[0] as usize].contains(&window[1]))
+            .all(|window| vertn[window[0] as usize].1.contains(&window[1]))
         {
-            true if vertx[seq[seq.len() - 1] as usize].contains(&seq[0]) => SequenceID::HamCycle,
+            true if vertn[seq[seq.len() - 1] as usize].1.contains(&seq[0]) => SequenceID::HamCycle,
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
@@ -656,21 +656,6 @@ pub mod get_adj_edgesx {
 
     use super::{modify::orient, Edge, Edges};
 
-    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
-        // 16.710316
-        match (a != x, b != y, c != z) {
-            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
-            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
-            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
-            _ => panic!("NOT A VALID EDGE"),
-        }
-        .iter()
-        .filter_map(|[i, j, k]| {
-            get_valid_edgex([a + i, b + j, c + k], [x + i, y + j, z + k], max_xyz, vertx)
-        })
-        .collect()
-    }
-
     pub fn get_valid_edgex(
         [a, b, c]: V3d,
         [x, y, z]: V3d,
@@ -776,7 +761,7 @@ pub mod get_adj_edgesx {
 
     pub fn create_edgesx((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
         // 11.868491
-        // writing out the steps definitely yields improvements.
+        // unrolling helps speed! compare this function: 11.868491 to the one below: 16.710316.
         let mut new_edges = Edges::new();
         match (a != x, b != y, c != z) {
             (true, false, false) => {
@@ -827,5 +812,20 @@ pub mod get_adj_edgesx {
             _ => {} // The nodes aren't adjacent to each other.
         }
         new_edges
+    }
+
+    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
+        // 16.710316
+        match (a != x, b != y, c != z) {
+            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
+            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
+            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
+            _ => panic!("NOT A VALID EDGE"),
+        }
+        .iter()
+        .filter_map(|[i, j, k]| {
+            get_valid_edgex([a + i, b + j, c + k], [x + i, y + j, z + k], max_xyz, vertx)
+        })
+        .collect()
     }
 }
