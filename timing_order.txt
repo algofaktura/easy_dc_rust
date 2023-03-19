@@ -1604,16 +1604,47 @@ ________________________________________________________________________________
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 | 🇳  572 | ⭕️  250_842_592 | 🕗    842.4531250 | 📌 HamCycle | 60.5 GB Memory | 73.2 Virtual 
 | 🇳  573 | ⭕️  252_158_200 | 🕗    832.7617188 | 📌 HamCycle | 61.5 GB Memory | 85.4 Virtual 
-
+| 🇳  574 | ⭕️  253_478_400 | 🕗    923.9602661 | 📌 HamCycle | 
+| 🇳  575 | ⭕️  254_803_200 | 🕗    766.1255493 | 📌 HamCycle |
+| 🇳  576 | ⭕️  256_132_608 | 🕗    774.5940552 | 📌 HamCycle |
+| 🇳  577 | ⭕️  257_466_632 | 🕗    791.0694580 | 📌 HamCycle |
+| 🇳  578 | ⭕️  258_805_280 | 🕗    807.0501709 | 📌 HamCycle | 60.4 GB Memory | 70.2 Virtual
+| 🇳  579 | ⭕️  260_148_560 | 🕗    824.6404419 | 📌 HamCycle |
 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
-UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
-UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: &[((i16, i16, i16), u32)]
+UPDATE 2: ACTUALLY NOT, THAT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
+UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED SET IN PYTHON.
 
 ```
 
 #### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
 
+
+adj: adj[node] -> hashmap<nodes>
+vertx[node as usize] -> hashmap<nodes>
+
+in adj[node] -> bool
+vertx[node as usize].contains(node)
+
+vi_map: vi_map[vert] -> node
+vertx.get_index_of(vert) -> node
+
+verts: verts[idx] -> vert
+vertx.get_index(idx) -> (vert, hashmap<nodes>)
+
+new structure:
+
+indexable hash map:
+[idx]<(i16, i16, i16), HashSet<u32>>
+
+vertx[idx] ->
+vertx.get_index(idx) -> Option<&K, &V>
+vert.get_key_value(key) -> HashSet<u32> 
+
+pub fn get_key_value<Q: ?Sized>(&self, key: &Q) -> Option<(&K, &V)>
+pub fn get_index_of<Q: ?Sized>(&self, key: &Q) -> Option<usize> idx  similar to vi[vert] -> idx
+pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>  
+pub fn get_index(&self, index: usize) -> Option<(&K, &V)> simiar to adj[node] -> but with the vector with it.
 
 ORDER	VERTS	    TOUR	    VI_MAP	    ADJ	        TOTAL
 200M	7.6 GB	    800 MB	    8.4 GB	    2.4 GB	    18.2 GB

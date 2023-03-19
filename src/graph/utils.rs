@@ -41,9 +41,9 @@ pub mod info {
         (x, y, z): (i16, i16, i16),
     ) -> Result<usize, &'static str> {
         match (a != x, b != y, c != z) {
-            (true, false, false) => Ok(0),
-            (false, true, false) => Ok(1),
-            (false, false, true) => Ok(2),
+            (true, _, _edges_adjacency_map_from_adjacency) => Ok(0),
+            (_, true, _) => Ok(1),
+            (_, _, true) => Ok(2),
             _ => Err("The nodes aren't adjacent to each other."),
         }
     }
@@ -174,6 +174,8 @@ pub mod iters {
 
 // Versions in which only xy where otherwise xyz is considered.
 pub mod xy {
+    use crate::graph::types::V3d;
+
     use super::{Idx, V2d, Vert};
 
     pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
@@ -182,8 +184,23 @@ pub mod xy {
             .expect("Something's wrong, the same verts are being compared.")
     }
 
+    pub fn axisx(vert_m: &V3d, vert_n: &V3d) -> usize {
+        (0..2)
+            .find(|&i| vert_m[i] != vert_n[i])
+            .expect("Something's wrong, the same verts are being compared.")
+    }
+
     pub fn absumv((x, y, _): (i16, i16, i16)) -> i16 {
         let abs_sum = [x, y].iter().fold(0, |acc, x| {
+            let mask = x >> 15;
+            acc + (x ^ mask) - mask
+        });
+        let sign_bit = abs_sum >> 15;
+        (abs_sum ^ sign_bit) - sign_bit
+    }
+
+    pub fn absumvx(vert: [i16;3]) -> i16 {
+        let abs_sum = vert.iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
@@ -257,6 +274,44 @@ pub mod check {
     }
 }
 
+pub mod check_v3 {
+    use crate::graph::types::V3d;
+
+    use super::Point;
+
+    pub fn is_valid_edge(v1: V3d, v2: V3d, max_xyz: Point, order: u32, lead: bool) -> bool {
+        if order < 160 {
+            return valid_edgex(v1, v2);
+        }
+        match lead {
+            true => valid_main_edgex(v1, v2, max_xyz),
+            false => valid_other_edgex(v1, v2, max_xyz),
+        }
+    }
+
+    pub fn valid_edgex([x1, y1, _]: V3d, [x2, y2, _]: V3d) -> bool {
+        matches!(x1 + y1 + x2 + y2, 4..=10)
+    }
+
+    pub fn valid_main_edgex([x, y, z]: V3d, [x2, y2, z2]: V3d, max_xyz: Point) -> bool {
+        let lowest = max_xyz - 4;
+        if z.abs() == lowest && lowest == z2.abs() {
+            (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
+        } else {
+            x == x2 && x2 == 1 && y == y2 && y2 == 1
+        }
+    }
+
+    pub fn valid_other_edgex([x, y, z]: V3d, [x2, y2, z2]: V3d, max_xyz: Point) -> bool {
+        let lowest = max_xyz - 4;
+        if z.abs() == lowest && lowest == z2.abs() {
+            (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
+        } else {
+            x == x2 && x2 == 3 && y == y2 && y2 == 1
+        }
+    }
+}
+
 pub mod debug {
     use super::{Edge, Vert};
 
@@ -281,6 +336,8 @@ pub mod debug {
 }
 
 pub mod certify {
+    use crate::graph::types::Vix;
+
     use super::fmt;
     use super::Itertools;
     use super::{Adjacency, Solution};
@@ -311,6 +368,20 @@ pub mod certify {
             .all(|window| adj[&window[0]].contains(&window[1]))
         {
             true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
+            true => SequenceID::HamChain,
+            false => SequenceID::Broken,
+        }
+    }
+
+    pub fn id_seqx(seq: &Solution, vertx: &Vix) -> SequenceID {
+        if seq.iter().duplicates().count() > 0 || seq.len() != vertx.len() {
+            return SequenceID::Broken;
+        }
+        match seq
+            .windows(2)
+            .all(|window| vertx[window[0] as usize].contains(&window[1]))
+        {
+            true if vertx[seq[seq.len() - 1] as usize].contains(&seq[0]) => SequenceID::HamCycle,
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
@@ -571,6 +642,199 @@ pub mod get_adj_edges {
                     new_edges.insert(edge);
                 }
                 if let Some(edge) = get_valid_edge((a, b - 2, c), (x, y - 2, z), max_xyz, vi_map) {
+                    new_edges.insert(edge);
+                }
+            }
+            _ => {} // The nodes aren't adjacent to each other.
+        }
+        new_edges
+    }
+}
+
+pub mod get_adj_edgesx {
+    use crate::graph::types::{V3d, Vix};
+
+    use super::{Edge, Edges, modify::orient};
+
+    pub fn create_edges(
+        [a, b, c]: V3d,
+        [x, y, z]: V3d,
+        max_xyz: i16,
+        vertx: &Vix,
+    ) -> Edges {
+        // 16.710316
+        match (a != x, b != y, c != z) {
+            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
+            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
+            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
+            _ => panic!("NOT A VALID EDGE"),
+        }
+        .iter()
+        .filter_map(|[i, j, k]| {
+            get_valid_edgex(
+                [a + i, b + j, c + k],
+                [x + i, y + j, z + k],
+                max_xyz,
+                vertx,
+            )
+        })
+        .collect()
+    }
+
+    pub fn get_valid_edgex(
+        [a, b, c]: V3d,
+        [x, y, z]: V3d,
+        max_xyz: i16,
+        vertx: &Vix,
+    ) -> Option<Edge> {
+        let lowest = max_xyz - 4; // furthest axis value from origin.
+        if z.abs() == lowest
+            && lowest == c.abs()
+            && (x == 1 || x == 3)
+            && y == b
+            && b == 1
+            && (a == 1 || a == 3)
+            || x == a && a == 1 && y == b && b == 1
+        {
+            Some(orient(vertx.get_index_of(&[a, b, c]).unwrap() as u32, vertx.get_index_of(&[x, y, z]).unwrap() as u32))
+        } else {
+            None
+        }
+    }
+
+    pub fn get_valid_eadjx(
+        [a, b, c]: V3d,
+        [x, y, z]: V3d,
+        max_xyz: i16,
+        vertx: &Vix,
+    ) -> Option<Edge> {
+        let lowest = max_xyz - 4; // furthest axis value from origin.
+        if z.abs() == lowest
+            && lowest == c.abs()
+            && (x == 1 || x == 3)
+            && y == b
+            && b == 3
+            && (a == 1 || a == 3)
+            || x == a && a == 3 && y == b && b == 1
+        {
+            Some(orient(vertx.get_index_of(&[a, b, c]).unwrap() as u32, vertx.get_index_of(&[x, y, z]).unwrap() as u32))
+        } else {
+            None
+        }
+    }
+
+    pub fn create_eadjsx(
+        [a, b, c]: V3d,
+        [x, y, z]: V3d,
+        max_xyz: i16,
+        vertx: &Vix,
+    ) -> Edges {
+        // 11.868491
+        // writing out the steps definitely yields improvements.
+        let mut new_edges = Edges::new();
+        match (a != x, b != y, c != z) {
+            (true, false, false) => {
+                // Y_EDGE and Z_EDGE
+                if let Some(edge) = get_valid_eadjx([a, b + 2, c], [x, y + 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b - 2, c], [x, y - 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b, c + 2], [x, y, z + 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b, c - 2], [x, y, z - 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+            }
+            (false, true, false) => {
+                // X_EDGE and Z_EDGE
+                if let Some(edge) = get_valid_eadjx([a + 2, b, c], [x + 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a - 2, b, c], [x - 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b, c + 2], [x, y, z + 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b, c - 2], [x, y, z - 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+            }
+            (false, false, true) => {
+                // X_EDGE and Y_EDGE
+                if let Some(edge) = get_valid_eadjx([a + 2, b, c], [x + 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a - 2, b, c], [x - 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b + 2, c], [x, y + 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_eadjx([a, b - 2, c], [x, y - 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+            }
+            _ => {} // The nodes aren't adjacent to each other.
+        }
+        new_edges
+    }
+
+    pub fn create_edgesx(
+        [a, b, c]: V3d,
+        [x, y, z]: V3d,
+        max_xyz: i16,
+        vertx: &Vix,
+    ) -> Edges {
+        // 11.868491
+        // writing out the steps definitely yields improvements.
+        let mut new_edges = Edges::new();
+        match (a != x, b != y, c != z) {
+            (true, false, false) => {
+                // Y_EDGE and Z_EDGE
+                if let Some(edge) = get_valid_edgex([a, b + 2, c], [x, y + 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b - 2, c], [x, y - 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b, c + 2], [x, y, z + 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b, c - 2], [x, y, z - 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+            }
+            (false, true, false) => {
+                // X_EDGE and Z_EDGE
+                if let Some(edge) = get_valid_edgex([a + 2, b, c], [x + 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a - 2, b, c], [x - 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b, c + 2], [x, y, z + 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b, c - 2], [x, y, z - 2], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+            }
+            (false, false, true) => {
+                // X_EDGE and Y_EDGE
+                if let Some(edge) = get_valid_edgex([a + 2, b, c], [x + 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a - 2, b, c], [x - 2, y, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b + 2, c], [x, y + 2, z], max_xyz, vertx) {
+                    new_edges.insert(edge);
+                }
+                if let Some(edge) = get_valid_edgex([a, b - 2, c], [x, y - 2, z], max_xyz, vertx) {
                     new_edges.insert(edge);
                 }
             }
