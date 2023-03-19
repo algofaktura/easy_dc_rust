@@ -8,7 +8,6 @@ use std::{
 use super::structs::Cycle;
 use fxhash::FxBuildHasher;
 
-
 pub type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];
@@ -47,7 +46,7 @@ pub type VertsVec = Vec<Vert>;
 pub type Vert3d = (Point, Point, Point);
 pub type Vert3dd = Vec<Vert3d>;
 pub type VIMap = HashMap<Vert, Node>;
-pub type VIMixref<'a> = &'a[(Vert, Node)];
+pub type VIMixref<'a> = &'a [(Vert, Node)];
 pub type VIMixar = [(Vert, Node)];
 pub type VIMix = Vec<(Vert, Node)>;
 pub type Vix = IndexMap<Vert, Neighbors>;

@@ -199,7 +199,7 @@ pub mod xy {
         (abs_sum ^ sign_bit) - sign_bit
     }
 
-    pub fn absumvx(vert: [i16;3]) -> i16 {
+    pub fn absumvx(vert: [i16; 3]) -> i16 {
         let abs_sum = vert.iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
@@ -652,16 +652,11 @@ pub mod get_adj_edges {
 }
 
 pub mod get_adj_edgesx {
-    use crate::graph::types::{V3d, Vix, Vert};
+    use crate::graph::types::{V3d, Vert, Vix};
 
-    use super::{Edge, Edges, modify::orient};
+    use super::{modify::orient, Edge, Edges};
 
-    pub fn create_edges(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-        max_xyz: i16,
-        vertx: &Vix,
-    ) -> Edges {
+    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
         // 16.710316
         match (a != x, b != y, c != z) {
             (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
@@ -671,12 +666,7 @@ pub mod get_adj_edgesx {
         }
         .iter()
         .filter_map(|[i, j, k]| {
-            get_valid_edgex(
-                [a + i, b + j, c + k],
-                [x + i, y + j, z + k],
-                max_xyz,
-                vertx,
-            )
+            get_valid_edgex([a + i, b + j, c + k], [x + i, y + j, z + k], max_xyz, vertx)
         })
         .collect()
     }
@@ -696,7 +686,10 @@ pub mod get_adj_edgesx {
             && (a == 1 || a == 3)
             || x == a && a == 1 && y == b && b == 1
         {
-            Some(orient(vertx.get_index_of(&(a, b, c)).unwrap() as u32, vertx.get_index_of(&(x, y, z)).unwrap() as u32))
+            Some(orient(
+                vertx.get_index_of(&(a, b, c)).unwrap() as u32,
+                vertx.get_index_of(&(x, y, z)).unwrap() as u32,
+            ))
         } else {
             None
         }
@@ -717,18 +710,16 @@ pub mod get_adj_edgesx {
             && (a == 1 || a == 3)
             || x == a && a == 3 && y == b && b == 1
         {
-            Some(orient(vertx.get_index_of(&(a, b, c)).unwrap() as u32, vertx.get_index_of(&(x, y, z)).unwrap() as u32))
+            Some(orient(
+                vertx.get_index_of(&(a, b, c)).unwrap() as u32,
+                vertx.get_index_of(&(x, y, z)).unwrap() as u32,
+            ))
         } else {
             None
         }
     }
 
-    pub fn create_eadjsx(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-        max_xyz: i16,
-        vertx: &Vix,
-    ) -> Edges {
+    pub fn create_eadjsx((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
         // 11.868491
         // writing out the steps definitely yields improvements.
         let mut new_edges = Edges::new();
@@ -783,12 +774,7 @@ pub mod get_adj_edgesx {
         new_edges
     }
 
-    pub fn create_edgesx(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-        max_xyz: i16,
-        vertx: &Vix,
-    ) -> Edges {
+    pub fn create_edgesx((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vertx: &Vix) -> Edges {
         // 11.868491
         // writing out the steps definitely yields improvements.
         let mut new_edges = Edges::new();
