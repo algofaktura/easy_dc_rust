@@ -27,6 +27,8 @@ use graph::{
     weave,
 };
 
+use crate::graph::make::vert_neighs;
+
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = args
@@ -43,10 +45,38 @@ pub fn main() -> Result<(), &'static str> {
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
 
     for level in n_start..=n_end {
-        let graph = graph::make::make_graph(level);
-        find_solution(graph, repeats)?;
+        let graph = graph::make::make_graphx(level);
+        find_solutionx(graph, repeats)?;
     }
     Ok(())
+}
+
+pub fn find_solutionx(
+    (n, order, vertn, vi_map, z_adj, z_order, max_xyz): (
+        u32,
+        u32,
+        VertN,
+        VIMap,
+        Adjacency,
+        ZOrder,
+        i16,
+    ),
+    repeats: u32,
+) -> Result<Solution, &'static str> {
+    let mut min_dur = INFINITY;
+    let mut solution = Solution::with_capacity(order as usize);
+    let start: Instant = Instant::now();
+    for _ in 0..repeats {
+        solution = weave::weavex(&vertn, &vi_map, &z_adj, &z_order, max_xyz);
+        let dur = (Instant::now() - start).as_secs_f32();
+        if dur < min_dur {
+            min_dur = dur
+        }
+    }
+    let seq_id = certify::id_seqx(&solution, &vertn);
+    println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
+    assert_eq!(seq_id, SequenceID::HamCycle);
+    Ok(solution)
 }
 
 pub fn find_solution(
@@ -62,13 +92,17 @@ pub fn find_solution(
     ),
     repeats: u32,
 ) -> Result<Solution, &'static str> {
+    let vertn: Vec<(Vert, Neighbors)> = vert_neighs(&verts, max_xyz, &vi_map);
+
+    test_access(order, &verts, &adj, &vertn);
+
     let mut min_dur = INFINITY;
     let mut solution = Solution::with_capacity(order as usize);
     let start: Instant = Instant::now();
     for _ in 0..repeats {
         solution = weave::weave(&adj, &vi_map, &verts, &z_adj, &z_order, max_xyz);
         let dur = (Instant::now() - start).as_secs_f32();
-        if min_dur > dur {
+        if dur < min_dur {
             min_dur = dur
         }
     }
@@ -76,4 +110,31 @@ pub fn find_solution(
     println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {min_dur:>14.7} | 📌 {seq_id:?} |");
     assert_eq!(seq_id, SequenceID::HamCycle);
     Ok(solution)
+}
+
+pub fn test_access(order: u32, verts: &Verts, adj: &Adjacency, vertn: &Vec<(Vert, Neighbors)>) {
+    // testing out how long it takes to access a vertn[0].0 for the vert and vertn[0].1 for the neighbors
+    // vs. vert[0] and adj[0].
+    // iterate through 0-order - 1
+    let start: Instant = Instant::now();
+    for i in 0..order as usize - 1 {
+        let vert = verts[i.clone()];
+        let neighs = &adj[&(i as u32)];
+        if i == 0 {
+            println!("VERT {:?}", vert);
+            println!("NEIGHS {:?}", neighs);
+        }
+    }
+    println!("NORMAL {}", (Instant::now() - start).as_secs_f32());
+
+    let start: Instant = Instant::now();
+    for i in 0..order as usize - 1 {
+        let vert = vertn[i].0;
+        let neighs = &vertn[order as usize - i - 1].1;
+        if i == 0 {
+            println!("VERT {:?}", vert);
+            println!("NEIGHS {:?}", neighs);
+        }
+    }
+    println!("VERTN {}", (Instant::now() - start).as_secs_f32());
 }

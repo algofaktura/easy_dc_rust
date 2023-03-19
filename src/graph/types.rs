@@ -1,3 +1,4 @@
+use fxhash::FxBuildHasher;
 use indexmap::IndexMap;
 use ndarray::Array2;
 use std::{
@@ -5,10 +6,10 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
 };
 
-use super::structs::Cycle;
-use fxhash::FxBuildHasher;
+use super::structs::{Cycle, Cyclex};
 
 pub type FxIndexMap<K, V> = IndexMap<K, V, FxBuildHasher>;
+pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;
 pub type AdjC<'a> = [(Node, &'a [Node])];
 pub type Bobbins = Vec<Node>;
@@ -40,6 +41,7 @@ pub type V3d32 = [Point32; 3];
 pub type Varr = Vec<[Point; 2]>;
 pub type Vert = (Point, Point, Point);
 pub type Vert32 = (Point32, Point32, Point32);
+pub type VertN = Vec<(Vert, Neighbors)>;
 pub type Verts = [Vert];
 pub type Verts32 = [Vert32];
 pub type VertsVec = Vec<Vert>;
@@ -51,6 +53,7 @@ pub type VIMixar = [(Vert, Node)];
 pub type VIMix = Vec<(Vert, Node)>;
 pub type Vix = IndexMap<Vert, Neighbors>;
 pub type WarpedLoom<'a> = HashMap<usize, RefCell<Cycle<'a>>>;
+pub type WarpedLoomx<'a> = HashMap<usize, RefCell<Cyclex<'a>>>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
 pub type Woven = Vec<usize>;
