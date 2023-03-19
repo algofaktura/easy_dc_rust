@@ -692,7 +692,7 @@ ________________________________________________________________________________
 | 🇳  580 | 61.8 111.1 GB Virtual
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK IS MORE THAN THE 64 GB I HAVE 😢.
-UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED SET IN PYTHON.
+UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.
 UPDATE 4: TRIED #3 WHICH RESULTED IN 3X SLOWER RESULTS: SEE BELOW:
 | 🇳    1 | ⭕️          8 | 🕗      0.0000084 | 📌 HamCycle |
 | 🇳    2 | ⭕️         32 | 🕗      0.0000092 | 📌 HamCycle |
@@ -801,25 +801,25 @@ UPDATE 4: TRIED #3 WHICH RESULTED IN 3X SLOWER RESULTS: SEE BELOW:
 #### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
 
 
-| ORDER  |   VERTS    |   TOUR     |    VI_MAP |   ADJ     |   TOTAL     |
-| ------:| ----------:| ----------:|----------:| ---------:| -----------:|
-| 200M   |    7.6 GB  |  0.8 GB    |    8.4 GB |   2.4 GB  |   18.2 GB   |
-| 250M   |   11.7 GB  |  1.3 GB    |   14.0 GB |   3.8 GB  |   31.8 GB   |
-| 300M   |   16.7 GB  |  1.8 GB    |   21.0 GB |   5.9 GB  |   45.4 GB   |
-| 350M   |   22.6 GB  |  2.3 GB    |   30.0 GB |   8.4 GB  |   63.3 GB   |
-| 400M   |   29.4 GB  |  3.1 GB    |   42.0 GB |  12.0 GB  |   86.5 GB   |
-| 450M   |   37.2 GB  |  3.8 GB    |   58.0 GB |  16.0 GB  |  115.0 GB   |
-| 500M   |   46.0 GB  |  4.6 GB    |   80.0 GB |  22.0 GB  |  153.6 GB   |
-| 550M   |   55.8 GB  |  5.5 GB    |  108.0 GB |  29.0 GB  |  198.3 GB   |
-| 600M   |   66.6 GB  |  6.6 GB    |  144.0 GB |  37.0 GB  |  254.6 GB   |
-| 650M   |   78.4 GB  |  7.8 GB    |  188.0 GB |  46.0 GB  |  320.2 GB   |
-| 700M   |   91.2 GB  |  9.1 GB    |  240.0 GB |  56.0 GB  |  417.3 GB   |
-| 750M   |  105.0 GB  | 10.5 GB    |  302.0 GB |  67.0 GB  |  484.5 GB   |
-| 800M   |  119.8 GB  | 12.0 GB    |  376.0 GB |  79.0 GB  |  586.8 GB   |
-| 850M   |  135.6 GB  | 13.6 GB    |  462.0 GB |  92.0 GB  |  703.2 GB   |
-| 900M   |  152.4 GB  | 15.2 GB    |  562.0 GB | 106.0 GB  |  836.6 GB   |
-| 950M   |  170.2 GB  | 17.0 GB    |  678.0 GB | 121.0 GB  |  1.005 TB   |
-| 1B     |  189.0 GB  | 18.9 GB    |  810.0 GB | 137.0 GB  |  1.154 TB   |
+| ORDER  |   VERTS    |   TOUR   |    VI_MAP |   ADJ     |   TOTAL     |
+| ------:| ----------:| --------:|----------:| ---------:| -----------:|
+| 200M   |    7.6 GB  |  0.8 GB  |    8.4 GB |   2.4 GB  |   18.2 GB   |
+| 250M   |   11.7 GB  |  1.3 GB  |   14.0 GB |   3.8 GB  |   31.8 GB   |
+| 300M   |   16.7 GB  |  1.8 GB  |   21.0 GB |   5.9 GB  |   45.4 GB   |
+| 350M   |   22.6 GB  |  2.3 GB  |   30.0 GB |   8.4 GB  |   63.3 GB   |
+| 400M   |   29.4 GB  |  3.1 GB  |   42.0 GB |  12.0 GB  |   86.5 GB   |
+| 450M   |   37.2 GB  |  3.8 GB  |   58.0 GB |  16.0 GB  |  115.0 GB   |
+| 500M   |   46.0 GB  |  4.6 GB  |   80.0 GB |  22.0 GB  |  153.6 GB   |
+| 550M   |   55.8 GB  |  5.5 GB  |  108.0 GB |  29.0 GB  |  198.3 GB   |
+| 600M   |   66.6 GB  |  6.6 GB  |  144.0 GB |  37.0 GB  |  254.6 GB   |
+| 650M   |   78.4 GB  |  7.8 GB  |  188.0 GB |  46.0 GB  |  320.2 GB   |
+| 700M   |   91.2 GB  |  9.1 GB  |  240.0 GB |  56.0 GB  |  417.3 GB   |
+| 750M   |  105.0 GB  | 10.5 GB  |  302.0 GB |  67.0 GB  |  484.5 GB   |
+| 800M   |  119.8 GB  | 12.0 GB  |  376.0 GB |  79.0 GB  |  586.8 GB   |
+| 850M   |  135.6 GB  | 13.6 GB  |  462.0 GB |  92.0 GB  |  703.2 GB   |
+| 900M   |  152.4 GB  | 15.2 GB  |  562.0 GB | 106.0 GB  |  836.6 GB   |
+| 950M   |  170.2 GB  | 17.0 GB  |  678.0 GB | 121.0 GB  |  1.005 TB   |
+| 1B     |  189.0 GB  | 18.9 GB  |  810.0 GB | 137.0 GB  |  1.154 TB   |
 
 
 ## Licensing:

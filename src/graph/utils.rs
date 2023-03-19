@@ -686,7 +686,7 @@ pub mod get_adj_edgesx {
             && (a == 1 || a == 3)
             || x == a && a == 1 && y == b && b == 1
         {
-            Some(orient(
+            Some((
                 vertx.get_index_of(&(a, b, c)).unwrap() as u32,
                 vertx.get_index_of(&(x, y, z)).unwrap() as u32,
             ))

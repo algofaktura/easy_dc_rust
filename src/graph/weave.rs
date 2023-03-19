@@ -150,42 +150,45 @@ fn prepare_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> 
         .collect()
 }
 
-fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
+pub fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
     let mut subtours: Subtours = Vec::new();
     let last_ix: Idx = tour.len() - 1;
     let last_idx: Idx = subset.len() - 1;
     let mut prev: i32 = -1_i32;
-    for (e, idx) in tour
+    for (e, idx) in subset
         .iter()
-        .enumerate()
-        .filter_map(|(i, &node)| {
-            if subset.contains(&node) {
-                Some(i)
-            } else {
-                None
-            }
-        })
+        .filter_map(|node| tour.iter().position(|&x| x == *node))
         .sorted()
         .enumerate()
     {
         if e == last_idx && idx != last_ix {
-            for subtour in vec![tour[prev as usize + 1..idx].to_vec(), tour[idx..].to_vec()] {
-                if !subtour.is_empty() {
-                    subtours.push(if subset.contains(&subtour[0]) {
-                        subtour
+            if let Some(first_slice) = tour.get(prev as usize + 1..idx) {
+                if !first_slice.is_empty() {
+                    subtours.push(if subset.contains(&first_slice[0]) {
+                        first_slice.to_vec()
                     } else {
-                        subtour.iter().rev().cloned().collect()
+                        first_slice.iter().rev().cloned().collect()
+                    });
+                }
+            }
+            if let Some(first_slice) = tour.get(idx..) {
+                if !first_slice.is_empty() {
+                    subtours.push(if subset.contains(&first_slice[0]) {
+                        first_slice.to_vec()
+                    } else {
+                        first_slice.iter().rev().cloned().collect()
                     });
                 }
             }
         } else {
-            let subtour = tour[prev as usize + 1..=idx].to_vec();
-            if !subtour.is_empty() {
-                subtours.push(if subset.contains(&subtour[0]) {
-                    subtour
-                } else {
-                    subtour.iter().rev().cloned().collect()
-                });
+            if let Some(first_slice) = tour.get(prev as usize + 1..=idx) {
+                if !first_slice.is_empty() {
+                    subtours.push(if subset.contains(&first_slice[0]) {
+                        first_slice.to_vec()
+                    } else {
+                        first_slice.iter().rev().cloned().collect()
+                    });
+                }
             }
             prev = idx as i32;
         }
