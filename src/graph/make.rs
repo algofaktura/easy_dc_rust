@@ -3,7 +3,7 @@ use ndarray::arr2;
 use rayon::prelude::*;
 
 use super::{
-    types::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder},
+    types::{Adjacency, Neighbors, Node, Nodes, Point, VIMap, Vert, Verts, VertsVec, ZOrder},
     utils::{
         info::{absumv_v3d, get_max_xyz, get_order_from_n},
         modify::shift_xyz,
@@ -48,7 +48,7 @@ fn vi_map(verts: &Verts) -> VIMap {
         .collect()
 }
 
-fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
+fn adjacency_map(verts: &Verts, max_xyz: Point, vi_map: &VIMap) -> Adjacency {
     verts
         .par_iter()
         .enumerate()
@@ -60,7 +60,29 @@ fn adjacency_map(verts: &Verts, max_xyz: Point, vi: &VIMap) -> Adjacency {
                     .filter(|new_vert| {
                         absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
                     })
-                    .map(|new_vert| vi[&(new_vert[0], new_vert[1], new_vert[2])])
+                    .map(|new_vert| vi_map[&(new_vert[0], new_vert[1], new_vert[2])])
+                    .filter(|&m| m != (idx as Node))
+                    .collect::<Nodes>(),
+            )
+        })
+        .collect()
+}
+
+pub fn vert_neighs(verts: &Verts, max_xyz: Point, vi_map: &VIMap) -> Vec<(Vert, Neighbors)> {
+    // accessing verts is vertn[0].0
+    // accessing neighbors is vertn[0].1
+    verts
+        .par_iter()
+        .enumerate()
+        .map(|(idx, vert)| {
+            (
+                *vert,
+                shift_xyz(arr2(&[[vert.0, vert.1, vert.2]]))
+                    .outer_iter()
+                    .filter(|new_vert| {
+                        absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
+                    })
+                    .map(|new_vert| vi_map[&(new_vert[0], new_vert[1], new_vert[2])])
                     .filter(|&m| m != (idx as Node))
                     .collect::<Nodes>(),
             )
