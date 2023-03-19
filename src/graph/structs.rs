@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::collections::vec_deque::IntoIter;
 
 use super::{
     types::{Adjacency, Edge, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds},
@@ -24,7 +25,24 @@ impl<'a> Cycle<'a> {
         max_xyz: Point,
     ) -> Cycle<'a> {
         Cycle {
-            data: data.into_iter().collect::<Tour>(),
+            data: data.into_iter().collect_vec(),
+            verts,
+            adj,
+            lead,
+            max_xyz,
+            order: verts.len() as u32,
+        }
+    }
+
+    pub fn new_iter(
+        data_iter: IntoIter<u32>,
+        adj: &'a Adjacency,
+        verts: &'a Verts,
+        lead: bool,
+        max_xyz: Point,
+    ) -> Cycle<'a> {
+        Cycle {
+            data: data_iter.collect_vec(),
             verts,
             adj,
             lead,
