@@ -169,7 +169,7 @@ pub mod info {
 }
 
 pub mod shrink {
-    use super::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap, Itertools};
+    use super::{Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
     pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
@@ -356,7 +356,7 @@ pub mod debug {
 }
 
 pub mod certify {
-    use super::{fmt, Itertools, Adjacency, Solution};
+    use super::{fmt, Adjacency, Itertools, Solution};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
@@ -395,10 +395,9 @@ pub mod maker {
         arr2,
         check::valid_edge,
         info::{absumv, absumv_v3d},
-        Itertools,
         modify::{orient, shift_xyz},
-        Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, VIMap, Vert,
-        Verts, Weights,
+        Adjacency, Edge, EdgeAdjacency, Edges, Idx, Itertools, Neighbors, Node, Nodes, Point,
+        VIMap, Vert, Verts, Weights,
     };
     use rayon::prelude::*;
 
