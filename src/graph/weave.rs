@@ -21,14 +21,13 @@ pub fn weave(
     z_order: &ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    let mut loom = prepare_loom(vi_map, verts, z_adj, z_order);
-    let weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
-    let loom = loom
-        .split_off(1)
-        .into_iter()
-        .map(|mut data| data.drain(..).collect())
-        .collect::<Vec<Vec<_>>>();
-    weave_loom(weaver, loom, verts, vi_map, max_xyz)
+    weave_loom(
+        prepare_loom(vi_map, verts, z_adj, z_order),
+        adj,
+        verts,
+        vi_map,
+        max_xyz,
+    )
 }
 
 fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
@@ -255,12 +254,18 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
 }
 
 pub fn weave_loom<'a>(
-    mut weaver: Weaver,
-    mut loom: Vec<Vec<u32>>,
+    mut loom: Loom,
+    adj: &'a Adjacency,
     verts: &'a Verts,
     vi_map: &VIMap,
     max_xyz: Point,
 ) -> Solution {
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
+    let mut loom = loom
+        .split_off(1)
+        .into_iter()
+        .map(|mut data| data.drain(..).collect())
+        .collect::<Vec<Vec<_>>>();
     loom.iter_mut().for_each(|other| {
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
