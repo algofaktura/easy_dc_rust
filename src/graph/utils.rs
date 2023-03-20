@@ -8,16 +8,16 @@ use super::types::{
 };
 
 pub mod make {
-    use super::Itertools;
     use super::arr2;
+    use super::Itertools;
     use rayon::prelude::*;
 
-    use super::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder};
     use super::{
         info::{absumv_v3d, get_max_xyz, get_order_from_n},
         modify::shift_xyz,
         shrink::shrink_adjacency,
     };
+    use super::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder};
 
     pub fn make_graph(n: u32) -> (u32, u32, VertsVec, VIMap, Adjacency, Adjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
@@ -75,7 +75,6 @@ pub mod make {
             })
             .collect()
     }
-
 }
 // Output is a primitive type scalar.
 pub mod info {
@@ -120,10 +119,7 @@ pub mod info {
             })
     }
 
-    pub fn get_axis(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-    ) -> Result<usize, &'static str> {
+    pub fn get_axis((a, b, c): Vert, (x, y, z): Vert) -> Result<usize, &'static str> {
         match (a != x, b != y, c != z) {
             (true, _, _edges_adjacency_map_from_adjacency) => Ok(0),
             (_, true, _) => Ok(1),
@@ -170,9 +166,6 @@ pub mod info {
     pub fn sum_neighbors(adj: &Adjacency) -> usize {
         adj.values().map(|value| value.len()).sum()
     }
-
-
-   
 }
 
 pub mod shrink {
@@ -503,14 +496,9 @@ pub mod maker {
 }
 
 pub mod get_adj_edges {
-    use super::{Edge, Edges, Vert, VIMap};
+    use super::{Edge, Edges, VIMap, Vert};
 
-    pub fn create_eadjs(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-        max_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Edges {
+    pub fn create_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
         // 11.868491
         // writing out the steps definitely yields improvements.
         let mut new_edges = Edges::new();
@@ -565,12 +553,7 @@ pub mod get_adj_edges {
         new_edges
     }
 
-    pub fn create_edges(
-        (a, b, c): Vert,
-        (x, y, z): Vert,
-        max_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Edges {
+    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
         // 11.868491
         // writing out the steps definitely yields improvements.
         let mut new_edges = Edges::new();
