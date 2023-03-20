@@ -40,23 +40,13 @@ pub fn main() -> Result<(), &'static str> {
         .parse()
         .unwrap_or(n_start);
     for level in n_start..=n_end {
-        find_solution(make_graph(level))?;
+        find_solution(level)?;
     }
     Ok(())
 }
 
-pub fn find_solution(
-    (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz): (
-        u32,
-        u32,
-        VertsVec,
-        VIMap,
-        Adjacency,
-        Adjacency,
-        ZOrder,
-        i16,
-    ),
-) -> Result<Solution, &'static str> {
+pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
+    let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
     let start: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, max_xyz);
     let dur = (Instant::now() - start).as_secs_f32();
