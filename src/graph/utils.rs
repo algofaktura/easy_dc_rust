@@ -8,8 +8,7 @@ use super::types::{
 };
 
 pub mod make {
-    use super::arr2;
-    use super::Itertools;
+    use super::{arr2, Itertools};
     use rayon::prelude::*;
 
     use super::{
@@ -76,6 +75,7 @@ pub mod make {
             .collect()
     }
 }
+
 // Output is a primitive type scalar.
 pub mod info {
     use super::Itertools;
@@ -169,8 +169,7 @@ pub mod info {
 }
 
 pub mod shrink {
-    use super::Itertools;
-    use super::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
+    use super::{Adjacency, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap, Itertools};
 
     pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
@@ -217,9 +216,8 @@ pub mod shrink {
 
 // Input and output are the same.
 pub mod modify {
+    use super::{arr2, Array2, Point};
 
-    use super::Point;
-    use super::{arr2, Array2};
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
         if m < n {
             (m, n)
@@ -259,9 +257,7 @@ pub mod iters {
 
 // Versions in which only xy where otherwise xyz is considered.
 pub mod xy {
-    use crate::graph::types::V3d;
-
-    use super::{Idx, V2d, Vert};
+    use super::{Idx, V2d, V3d, Vert};
 
     pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
         (0..2)
@@ -360,9 +356,7 @@ pub mod debug {
 }
 
 pub mod certify {
-    use super::fmt;
-    use super::Itertools;
-    use super::{Adjacency, Solution};
+    use super::{fmt, Itertools, Adjacency, Solution};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
@@ -397,17 +391,16 @@ pub mod certify {
 }
 
 pub mod maker {
-    use super::arr2;
-    use super::info::{absumv, absumv_v3d};
-    use super::modify::shift_xyz;
-    use super::Itertools;
     use super::{
+        arr2,
+        check::valid_edge,
+        info::{absumv, absumv_v3d},
+        Itertools,
+        modify::{orient, shift_xyz},
         Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, VIMap, Vert,
         Verts, Weights,
     };
     use rayon::prelude::*;
-
-    use super::{check::valid_edge, modify::orient};
 
     pub fn get_adjacent_edges(adj: &Adjacency, (m_node, n_node): Edge, verts: &Verts) -> Edges {
         adj[&m_node]
