@@ -3,8 +3,8 @@ use ndarray::{arr2, Array2};
 use std::fmt;
 
 use super::types::{
-    Adjacency, Edge, EdgeAdjacency, Edges, Idx, Node, Nodes, Point, Points, SignedIdx, Solution,
-    V2d, V3d, VIMap, Vert, Verts, Weights, ZOrder, ZlevelNodesMap,
+    Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, Points, SignedIdx,
+    Solution, V2d, V3d, VIMap, Vert, Verts, Weights, ZOrder, ZlevelNodesMap,
 };
 
 // Output is a primitive type scalar.
@@ -372,9 +372,14 @@ pub mod certify {
 }
 
 pub mod maker {
-    use super::info::absumv;
+    use super::arr2;
+    use super::info::{absumv, absumv_v3d};
+    use super::modify::shift_xyz;
     use super::Itertools;
-    use super::{Adjacency, Edge, EdgeAdjacency, Edges, Idx, Node, Verts, Weights};
+    use super::{
+        Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, VIMap, Vert,
+        Verts, Weights,
+    };
     use rayon::prelude::*;
 
     use super::{check::valid_edge, modify::orient};
@@ -439,6 +444,28 @@ pub mod maker {
     fn _weights_map(adj: &Adjacency, verts: &Verts) -> Weights {
         adj.par_iter()
             .map(|(&n, _)| (n, absumv(verts[n as usize])))
+            .collect()
+    }
+
+    pub fn vert_neighs(verts: &Verts, max_xyz: Point, vi_map: &VIMap) -> Vec<(Vert, Neighbors)> {
+        // accessing verts is vertn[0].0
+        // accessing neighbors is vertn[0].1
+        verts
+            .par_iter()
+            .enumerate()
+            .map(|(idx, vert)| {
+                (
+                    *vert,
+                    shift_xyz(arr2(&[[vert.0, vert.1, vert.2]]))
+                        .outer_iter()
+                        .filter(|new_vert| {
+                            absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
+                        })
+                        .map(|new_vert| vi_map[&(new_vert[0], new_vert[1], new_vert[2])])
+                        .filter(|&m| m != (idx as Node))
+                        .collect::<Nodes>(),
+                )
+            })
             .collect()
     }
 }
