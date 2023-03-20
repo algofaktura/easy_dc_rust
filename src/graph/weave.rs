@@ -13,32 +13,60 @@ use super::{
     },
 };
 
-pub fn weave(
-    adj: &Adjacency,
-    vi_map: &VIMap,
-    verts: &Verts,
-    z_adj: &Adjacency,
-    z_order: &ZOrder,
-    max_xyz: Point,
-) -> Solution {
-    weave_loom(
-        prepare_loom(vi_map, verts, z_adj, z_order),
-        adj,
-        verts,
-        vi_map,
-        max_xyz,
-    )
+pub enum Loomed {
+    Looming(Vec<Vec<u32>>),
+    Weaving(Vec<Vec<u32>>)
 }
 
-fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrder) -> Loom {
-    let spool: Spool = spin_and_color_yarn(z_adj, verts);
+pub fn weave<'a>(
+    adj: &Adjacency,
+    vi_map: VIMap,
+    verts: &Verts,
+    z_adj: Adjacency,
+    z_order: ZOrder,
+    max_xyz: Point,
+) -> Solution {
+    let mut loom = prepare_loom(&vi_map, &verts, z_adj, z_order);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, &verts, true, max_xyz);
+    let mut loom = loom
+        .split_off(1)
+        .into_iter()
+        .map(|mut data| data.drain(..).collect())
+        .collect::<Vec<Vec<_>>>();
+    loom.iter_mut().for_each(|other| {
+        let other_edges = weaver.make_edges_for(other);
+        if let Some((m, n)) = (&weaver.get_edges()
+            & &other_edges
+                .iter()
+                .flat_map(|(m, n)| {
+                    create_edges(verts[*m as usize], verts[*n as usize], max_xyz, &vi_map)
+                })
+                .collect())
+            .into_iter()
+            .next()
+        {
+            if let Some(weft_e) =
+                (&create_eadjs(verts[m as usize], verts[n as usize], max_xyz, &vi_map)
+                    & &other_edges)
+                    .into_iter()
+                    .next()
+            {
+                weaver.join((m, n), weft_e, other);
+            }
+        }
+    });
+    weaver.get_nodes()
+}
+
+fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder) -> Loom {
+    let spool: Spool = spin_and_color_yarn(&z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
-        let warps: Warps = get_warps(*zlevel, *order, &bobbins, &spool, vi_map);
+        let warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
         let woven: Woven = attach_warps_to_loom(&mut loom, &warps);
         affix_unwoven_to_loom(&mut loom, warps, woven);
-        if *zlevel != -1 {
+        if zlevel != -1 {
             bobbins = wind_threads(&mut loom, verts, vi_map);
         }
     }
@@ -251,42 +279,4 @@ pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
                 .collect::<Tour>(),
         )
     });
-}
-
-pub fn weave_loom<'a>(
-    mut loom: Loom,
-    adj: &'a Adjacency,
-    verts: &'a Verts,
-    vi_map: &VIMap,
-    max_xyz: Point,
-) -> Solution {
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
-    let mut loom = loom
-        .split_off(1)
-        .into_iter()
-        .map(|mut data| data.drain(..).collect())
-        .collect::<Vec<Vec<_>>>();
-    loom.iter_mut().for_each(|other| {
-        let other_edges = weaver.make_edges_for(other);
-        if let Some((m, n)) = (&weaver.get_edges()
-            & &other_edges
-                .iter()
-                .flat_map(|(m, n)| {
-                    create_edges(verts[*m as usize], verts[*n as usize], max_xyz, vi_map)
-                })
-                .collect())
-            .into_iter()
-            .next()
-        {
-            if let Some(weft_e) =
-                (&create_eadjs(verts[m as usize], verts[n as usize], max_xyz, vi_map)
-                    & &other_edges)
-                    .into_iter()
-                    .next()
-            {
-                weaver.join((m, n), weft_e, other);
-            }
-        }
-    });
-    weaver.get_nodes()
 }
