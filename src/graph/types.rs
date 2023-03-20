@@ -5,7 +5,7 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
 };
 
-use super::structs::Weaver;
+use super::weaver::Weaver;
 
 pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;

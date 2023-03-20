@@ -23,6 +23,7 @@ pub mod graph;
 use graph::{
     types::*,
     utils::certify::{self, SequenceID},
+    utils::make::make_graph,
     weave,
 };
 
@@ -40,7 +41,7 @@ pub fn main() -> Result<(), &'static str> {
         .unwrap_or(n_start);
     let repeats: u32 = args.get(3).unwrap_or(&"1".to_string()).parse().unwrap_or(1);
     for level in n_start..=n_end {
-        let graph = graph::make::make_graph(level);
+        let graph = make_graph(level);
         find_solution(graph, repeats)?;
     }
     Ok(())

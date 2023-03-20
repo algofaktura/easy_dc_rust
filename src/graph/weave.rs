@@ -3,7 +3,7 @@ use ndarray;
 use rayon::prelude::*;
 
 use super::{
-    structs::Weaver,
+    weaver::Weaver,
     types::{
         Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
         TourSlice, VIMap, Vert, Verts, Warps, Woven, Yarn, ZOrder,
@@ -37,8 +37,8 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: &Adjacency, z_order: &ZOrd
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
         let warps: Warps = get_warps(*zlevel, *order, &bobbins, &spool, vi_map);
-        let woven: Woven = join_threads(&mut loom, &warps);
-        affix_loose_threads(&mut loom, warps, woven);
+        let woven: Woven = attach_warps_to_loom(&mut loom, &warps);
+        affix_unwoven_to_loom(&mut loom, warps, woven);
         if *zlevel != -1 {
             bobbins = wind_threads(&mut loom, verts, vi_map);
         }
@@ -54,13 +54,13 @@ fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 }
 
 fn spin_yarn(z_adj: &Adjacency, verts: &Verts) -> Yarn {
-    let path: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
+    let tour: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
     let order: Count = z_adj.len();
-    (1..order).for_each(|idx| path.push(next_node(path, z_adj, verts, idx, order)));
-    nodes_to_yarn(path, verts)
+    (1..order).for_each(|idx| tour.push(get_next_node(tour, z_adj, verts, idx, order)));
+    make_yarn_from(tour, verts)
 }
 
-fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
+fn get_next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
     let curr = *path.last().unwrap();
     adj[&curr]
         .iter()
@@ -84,9 +84,9 @@ fn next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
         .0
 }
 
-fn nodes_to_yarn(path: &mut Tour, verts: &Verts) -> Yarn {
+fn make_yarn_from(tour: &mut Tour, verts: &Verts) -> Yarn {
     Yarn::from(
-        path.iter()
+        tour.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
             .collect::<Vec<[Point; 2]>>(),
     )
@@ -195,7 +195,7 @@ pub fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
     subtours
 }
 
-fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
+fn attach_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
     let mut woven: Woven = Woven::new();
     for thread in loom {
         for (idx, warp) in warps.iter().enumerate() {
@@ -219,7 +219,7 @@ fn join_threads(loom: &mut Loom, warps: &Warps) -> Woven {
     woven
 }
 
-pub fn affix_loose_threads(loom: &mut Loom, warps: Warps, woven: Woven) {
+pub fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
     warps
         .iter()
         .enumerate()
@@ -284,5 +284,5 @@ pub fn weave_loom<'a>(
             }
         }
     });
-    weaver.retrieve_nodes()
+    weaver.get_nodes()
 }
