@@ -5,7 +5,7 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
 };
 
-use super::structs::Cycle;
+use super::structs::Weaver;
 
 pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;
@@ -49,8 +49,7 @@ pub type VIMap = HashMap<Vert, Node>;
 pub type VIMixref<'a> = &'a [(Vert, Node)];
 pub type VIMixar = [(Vert, Node)];
 pub type VIMix = Vec<(Vert, Node)>;
-pub type WarpedLoom<'a> = HashMap<usize, RefCell<Cycle<'a>>>;
-pub type WarpedLoomx<'a> = Vec<RefCell<Cycle<'a>>>;
+pub type WarpedLoom<'a> = HashMap<usize, RefCell<Weaver<'a>>>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
 pub type Woven = Vec<usize>;

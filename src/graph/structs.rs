@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::collections::vec_deque::IntoIter;
 
 use super::{
     types::{Adjacency, Edge, Edges, Point, Solution, Tour, Verts, VertsVec, YarnEnds},
@@ -7,7 +6,7 @@ use super::{
 };
 
 #[derive(Clone, Debug)]
-pub struct Cycle<'a> {
+pub struct Weaver<'a> {
     pub data: Tour,
     verts: &'a Verts,
     adj: &'a Adjacency,
@@ -16,16 +15,16 @@ pub struct Cycle<'a> {
     order: u32,
 }
 
-impl<'a> Cycle<'a> {
+impl<'a> Weaver<'a> {
     pub fn new(
         data: YarnEnds,
         adj: &'a Adjacency,
         verts: &'a Verts,
         lead: bool,
         max_xyz: Point,
-    ) -> Cycle<'a> {
-        Cycle {
-            data: data.into_iter().collect_vec(),
+    ) -> Weaver<'a> {
+        Weaver {
+            data: Vec::from(data),
             verts,
             adj,
             lead,
@@ -34,24 +33,7 @@ impl<'a> Cycle<'a> {
         }
     }
 
-    pub fn new_iter(
-        data_iter: IntoIter<u32>,
-        adj: &'a Adjacency,
-        verts: &'a Verts,
-        lead: bool,
-        max_xyz: Point,
-    ) -> Cycle<'a> {
-        Cycle {
-            data: data_iter.collect_vec(),
-            verts,
-            adj,
-            lead,
-            max_xyz,
-            order: verts.len() as u32,
-        }
-    }
-
-    pub fn make_edges(&mut self) -> Edges {
+    pub fn get_edges(&mut self) -> Edges {
         self.data
             .iter()
             .circular_tuple_windows()
@@ -68,18 +50,35 @@ impl<'a> Cycle<'a> {
             .collect()
     }
 
-    pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Cycle) {
-        self.rotate_to_edge(edge.0, edge.1);
+    pub fn make_edges_for(&self, other_data: &Tour) -> Edges {
+        other_data
+            .iter()
+            .circular_tuple_windows()
+            .map(|(a, b)| orient(*a, *b))
+            .filter(|&(m, n)| {
+                is_valid_edge(
+                    self.verts[m as usize],
+                    self.verts[n as usize],
+                    self.max_xyz,
+                    self.order,
+                    false,
+                )
+            })
+            .collect()
+    }
+
+    pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Tour) {
+        self.rotated_to_edge(edge.0, edge.1);
         let reversed = !self.adj[&edge.1].contains(&oedge.0);
-        other.rotate_to_edge(
+        Weaver::rotate_to_edge(
+            other,
             if reversed { oedge.1 } else { oedge.0 },
             if reversed { oedge.0 } else { oedge.1 },
         );
-        self.data.extend(&other.data);
-        other.data = Vec::with_capacity(1);
+        self.data.append(other);
     }
 
-    pub fn rotate_to_edge(&mut self, lhs: u32, rhs: u32) {
+    pub fn rotated_to_edge(&mut self, lhs: u32, rhs: u32) {
         if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
             self.data.reverse();
         } else {
@@ -92,6 +91,24 @@ impl<'a> Cycle<'a> {
                     self.data.reverse()
                 }
                 (idx_lhs, _) => self.data.rotate_left(idx_lhs),
+            }
+        }
+    }
+
+    pub fn rotate_to_edge(other: &mut Tour, lhs: u32, rhs: u32) {
+        // Associated function can only be called by Weaver::rotate_to_edge(...)
+        if lhs == other[other.len() - 1] && rhs == other[0] {
+            other.reverse();
+        } else {
+            match (
+                other.iter().position(|&x| x == lhs).unwrap(),
+                other.iter().position(|&x| x == rhs).unwrap(),
+            ) {
+                (idx_lhs, idx_rhs) if idx_lhs < idx_rhs => {
+                    other.rotate_left(idx_rhs);
+                    other.reverse()
+                }
+                (idx_lhs, _) => other.rotate_left(idx_lhs),
             }
         }
     }
