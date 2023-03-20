@@ -59,7 +59,13 @@ fn spin_yarn(z_adj: &Adjacency, verts: &Verts) -> Yarn {
     make_yarn_from(tour, verts)
 }
 
-fn get_next_node(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
+fn get_next_node(
+    path: TourSlice,
+    adj: &Adjacency,
+    verts: &Verts,
+    idx: usize,
+    order: usize,
+) -> Node {
     let curr = *path.last().unwrap();
     adj[&curr]
         .iter()
