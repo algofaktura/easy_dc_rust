@@ -4,13 +4,88 @@ use std::fmt;
 
 use super::types::{
     Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, Points, SignedIdx,
-    Solution, V2d, V3d, VIMap, Vert, Verts, Weights, ZOrder, ZlevelNodesMap,
+    Solution, V2d, V3d, VIMap, Vert, Verts, VertsVec, Weights, ZOrder, ZlevelNodesMap,
 };
 
+pub mod make {
+    use super::Itertools;
+    use super::arr2;
+    use rayon::prelude::*;
+
+    use super::{Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder};
+    use super::{
+        info::{absumv_v3d, get_max_xyz, get_order_from_n},
+        modify::shift_xyz,
+        shrink::shrink_adjacency,
+    };
+
+    pub fn make_graph(n: u32) -> (u32, u32, VertsVec, VIMap, Adjacency, Adjacency, ZOrder, i16) {
+        let order = get_order_from_n(n);
+        let max_xyz = get_max_xyz(order) as i16;
+        let verts: VertsVec = vertices(max_xyz);
+        let vi_map: VIMap = vi_map(&verts);
+        let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
+        let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
+        (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz)
+    }
+
+    pub fn vertices(max_xyz: Point) -> VertsVec {
+        (-(max_xyz)..=(max_xyz))
+            .step_by(2)
+            .flat_map(|x| {
+                (-max_xyz..=max_xyz)
+                    .step_by(2)
+                    .flat_map(move |y| {
+                        (-max_xyz..=max_xyz)
+                            .step_by(2)
+                            .map(move |z| (x, y, z))
+                            .filter(|&(x, y, z)| absumv_v3d([x, y, z]) < (max_xyz + 4))
+                            .collect::<VertsVec>()
+                    })
+                    .collect::<VertsVec>()
+            })
+            .sorted_by_key(|(x, y, z)| (absumv_v3d([*x, *y, *z]), *x, *y))
+            .collect()
+    }
+
+    fn vi_map(verts: &Verts) -> VIMap {
+        verts
+            .par_iter()
+            .enumerate()
+            .map(|(idx, vert)| (*vert, idx as Node))
+            .collect()
+    }
+
+    fn adjacency_map(verts: &Verts, max_xyz: Point, vi_map: &VIMap) -> Adjacency {
+        verts
+            .par_iter()
+            .enumerate()
+            .map(|(idx, (x, y, z))| {
+                (
+                    idx as Node,
+                    shift_xyz(arr2(&[[*x, *y, *z]]))
+                        .outer_iter()
+                        .filter(|new_vert| {
+                            absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
+                        })
+                        .map(|new_vert| vi_map[&(new_vert[0], new_vert[1], new_vert[2])])
+                        .filter(|&m| m != (idx as Node))
+                        .collect::<Nodes>(),
+                )
+            })
+            .collect()
+    }
+
+}
 // Output is a primitive type scalar.
 pub mod info {
     use super::Itertools;
     use super::{Adjacency, Idx, Point, SignedIdx, Solution, V3d, Vert, Verts};
+
+    pub fn abs(n: i16) -> i16 {
+        let mask = n >> 15;
+        (n + mask) ^ mask
+    }
 
     pub fn absumv((x, y, z): Vert) -> Point {
         let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
@@ -30,15 +105,24 @@ pub mod info {
         (abs_sum ^ sign_bit) - sign_bit
     }
 
-    pub fn get_axis_3d(m_vert: &V3d, n_vert: &V3d) -> Idx {
-        (0..3)
-            .find(|&i| m_vert[i] != n_vert[i])
-            .expect("Something's wrong, the same verts are being compared.")
+    pub fn count_axes(solution: &Solution, vert: &Verts) -> [u32; 3] {
+        solution
+            .iter()
+            .circular_tuple_windows()
+            .fold([0, 0, 0], |mut axes, (m, n)| {
+                let m_vert = vert[*m as usize];
+                let n_vert = vert[*n as usize];
+                axes[get_axis_3d(
+                    &[m_vert.0, m_vert.1, m_vert.2],
+                    &[n_vert.0, n_vert.1, n_vert.2],
+                )] += 1;
+                axes
+            })
     }
 
     pub fn get_axis(
-        (a, b, c): (i16, i16, i16),
-        (x, y, z): (i16, i16, i16),
+        (a, b, c): Vert,
+        (x, y, z): Vert,
     ) -> Result<usize, &'static str> {
         match (a != x, b != y, c != z) {
             (true, _, _edges_adjacency_map_from_adjacency) => Ok(0),
@@ -46,6 +130,12 @@ pub mod info {
             (_, _, true) => Ok(2),
             _ => Err("The nodes aren't adjacent to each other."),
         }
+    }
+
+    pub fn get_axis_3d(m_vert: &V3d, n_vert: &V3d) -> Idx {
+        (0..3)
+            .find(|&i| m_vert[i] != n_vert[i])
+            .expect("Something's wrong, the same verts are being compared.")
     }
 
     pub fn get_max_xyz(order: u32) -> SignedIdx {
@@ -63,24 +153,26 @@ pub mod info {
         ((4.0 / 3.0) * ((n + 2) * (n + 1) * n) as f64).round() as u32
     }
 
+    pub fn sum(numbers: &[i16]) -> i16 {
+        numbers.iter().fold(0, |acc, &num| {
+            let sum = acc ^ num;
+            let carry = (acc & num) << 1;
+            sum + carry
+        })
+    }
+
+    pub fn sum_bits(numbers: &[i16]) -> i16 {
+        numbers
+            .iter()
+            .fold(0, |acc, num| (acc.wrapping_add(num & 0x7FFF)) & 0x7FFF)
+    }
+
     pub fn sum_neighbors(adj: &Adjacency) -> usize {
         adj.values().map(|value| value.len()).sum()
     }
 
-    pub fn count_axes(solution: &Solution, vert: &Verts) -> [u32; 3] {
-        solution
-            .iter()
-            .circular_tuple_windows()
-            .fold([0, 0, 0], |mut axes, (m, n)| {
-                let m_vert = vert[*m as usize];
-                let n_vert = vert[*n as usize];
-                axes[get_axis_3d(
-                    &[m_vert.0, m_vert.1, m_vert.2],
-                    &[n_vert.0, n_vert.1, n_vert.2],
-                )] += 1;
-                axes
-            })
-    }
+
+   
 }
 
 pub mod shrink {
@@ -190,7 +282,7 @@ pub mod xy {
             .expect("Something's wrong, the same verts are being compared.")
     }
 
-    pub fn absumv((x, y, _): (i16, i16, i16)) -> i16 {
+    pub fn absumv((x, y, _): Vert) -> i16 {
         let abs_sum = [x, y].iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
@@ -212,29 +304,6 @@ pub mod xy {
         (0..2)
             .find(|&i| m_vert[i] != n_vert[i])
             .expect("Something's wrong, the same verts are being compared.")
-    }
-}
-
-// Version for eventual changing of type from i16 to i32.
-pub mod version_i16 {
-
-    pub fn abs(n: i16) -> i16 {
-        let mask = n >> 15;
-        (n + mask) ^ mask
-    }
-
-    pub fn sum(numbers: &[i16]) -> i16 {
-        numbers.iter().fold(0, |acc, &num| {
-            let sum = acc ^ num;
-            let carry = (acc & num) << 1;
-            sum + carry
-        })
-    }
-
-    pub fn sumbit(numbers: &[i16]) -> i16 {
-        numbers
-            .iter()
-            .fold(0, |acc, num| (acc.wrapping_add(num & 0x7FFF)) & 0x7FFF)
     }
 }
 
@@ -265,43 +334,6 @@ pub mod check {
     }
 
     pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: Point) -> bool {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest && lowest == z2.abs() {
-            (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
-        } else {
-            x == x2 && x2 == 3 && y == y2 && y2 == 1
-        }
-    }
-}
-
-pub mod check_v3 {
-    use super::Point;
-    use crate::graph::types::V3d;
-
-    pub fn is_valid_edge(v1: V3d, v2: V3d, max_xyz: Point, order: u32, lead: bool) -> bool {
-        if order < 160 {
-            return valid_edgex(v1, v2);
-        }
-        match lead {
-            true => valid_main_edgex(v1, v2, max_xyz),
-            false => valid_other_edgex(v1, v2, max_xyz),
-        }
-    }
-
-    pub fn valid_edgex([x1, y1, _]: V3d, [x2, y2, _]: V3d) -> bool {
-        matches!(x1 + y1 + x2 + y2, 4..=10)
-    }
-
-    pub fn valid_main_edgex([x, y, z]: V3d, [x2, y2, z2]: V3d, max_xyz: Point) -> bool {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest && lowest == z2.abs() {
-            (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
-        } else {
-            x == x2 && x2 == 1 && y == y2 && y2 == 1
-        }
-    }
-
-    pub fn valid_other_edgex([x, y, z]: V3d, [x2, y2, z2]: V3d, max_xyz: Point) -> bool {
         let lowest = max_xyz - 4;
         if z.abs() == lowest && lowest == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
@@ -471,78 +503,11 @@ pub mod maker {
 }
 
 pub mod get_adj_edges {
-    use super::{Edge, Edges, VIMap};
-
-    pub fn create_edges2(
-        (a, b, c): (i16, i16, i16),
-        (x, y, z): (i16, i16, i16),
-        max_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Edges {
-        // 16.710316
-        match (a != x, b != y, c != z) {
-            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
-            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
-            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
-            _ => panic!("NOT A VALID EDGE"),
-        }
-        .iter()
-        .filter_map(|[i, j, k]| {
-            get_valid_edge(
-                (a + i, b + j, c + k),
-                (x + i, y + j, z + k),
-                max_xyz,
-                vi_map,
-            )
-        })
-        .collect()
-    }
-
-    pub fn get_valid_edge(
-        (x, y, z): (i16, i16, i16),
-        (a, b, c): (i16, i16, i16),
-        max_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Option<Edge> {
-        let lowest = max_xyz - 4; // furthest axis value from origin.
-        if z.abs() == lowest
-            && lowest == c.abs()
-            && (x == 1 || x == 3)
-            && y == b
-            && b == 1
-            && (a == 1 || a == 3)
-            || x == a && a == 1 && y == b && b == 1
-        {
-            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
-        } else {
-            None
-        }
-    }
-
-    pub fn get_valid_eadj(
-        (x, y, z): (i16, i16, i16),
-        (a, b, c): (i16, i16, i16),
-        max_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Option<Edge> {
-        let lowest = max_xyz - 4; // furthest axis value from origin.
-        if z.abs() == lowest
-            && lowest == c.abs()
-            && (x == 1 || x == 3)
-            && y == b
-            && b == 3
-            && (a == 1 || a == 3)
-            || x == a && a == 3 && y == b && b == 1
-        {
-            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
-        } else {
-            None
-        }
-    }
+    use super::{Edge, Edges, Vert, VIMap};
 
     pub fn create_eadjs(
-        (a, b, c): (i16, i16, i16),
-        (x, y, z): (i16, i16, i16),
+        (a, b, c): Vert,
+        (x, y, z): Vert,
         max_xyz: i16,
         vi_map: &VIMap,
     ) -> Edges {
@@ -601,8 +566,8 @@ pub mod get_adj_edges {
     }
 
     pub fn create_edges(
-        (a, b, c): (i16, i16, i16),
-        (x, y, z): (i16, i16, i16),
+        (a, b, c): Vert,
+        (x, y, z): Vert,
         max_xyz: i16,
         vi_map: &VIMap,
     ) -> Edges {
@@ -658,5 +623,72 @@ pub mod get_adj_edges {
             _ => {} // The nodes aren't adjacent to each other.
         }
         new_edges
+    }
+
+    pub fn create_edges_shorter_but_takes_longer(
+        (a, b, c): Vert,
+        (x, y, z): Vert,
+        max_xyz: i16,
+        vi_map: &VIMap,
+    ) -> Edges {
+        // 16.710316
+        match (a != x, b != y, c != z) {
+            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
+            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
+            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
+            _ => panic!("NOT A VALID EDGE"),
+        }
+        .iter()
+        .filter_map(|[i, j, k]| {
+            get_valid_edge(
+                (a + i, b + j, c + k),
+                (x + i, y + j, z + k),
+                max_xyz,
+                vi_map,
+            )
+        })
+        .collect()
+    }
+
+    pub fn get_valid_edge(
+        (x, y, z): Vert,
+        (a, b, c): Vert,
+        max_xyz: i16,
+        vi_map: &VIMap,
+    ) -> Option<Edge> {
+        let lowest = max_xyz - 4; // furthest axis value from origin.
+        if z.abs() == lowest
+            && lowest == c.abs()
+            && (x == 1 || x == 3)
+            && y == b
+            && b == 1
+            && (a == 1 || a == 3)
+            || x == a && a == 1 && y == b && b == 1
+        {
+            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
+        } else {
+            None
+        }
+    }
+
+    pub fn get_valid_eadj(
+        (x, y, z): Vert,
+        (a, b, c): Vert,
+        max_xyz: i16,
+        vi_map: &VIMap,
+    ) -> Option<Edge> {
+        let lowest = max_xyz - 4; // furthest axis value from origin.
+        if z.abs() == lowest
+            && lowest == c.abs()
+            && (x == 1 || x == 3)
+            && y == b
+            && b == 3
+            && (a == 1 || a == 3)
+            || x == a && a == 3 && y == b && b == 1
+        {
+            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
+        } else {
+            None
+        }
     }
 }
