@@ -18,7 +18,6 @@ extern crate rayon;
 
 use std::{env, f32::INFINITY, time::Instant};
 
-pub mod aplay;
 pub mod graph;
 
 use graph::{
