@@ -26,13 +26,16 @@ pub fn weave(
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
+    println!("MADE GRAPH");
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
+    println!("PREPARED LOOM");
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
+    println!("START WEAVING...");
     loom.iter_mut().for_each(|other| {
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
@@ -55,6 +58,7 @@ pub fn weave(
             }
         }
     });
+    println!("SENDING WEAVE");
     weaver.get_nodes()
 }
 
@@ -64,7 +68,7 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
         let warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
-        let woven: Woven = attach_warps_to_loom(&mut loom, &warps);
+        let woven: Woven = extend_warps_to_loom(&mut loom, &warps);
         affix_unwoven_to_loom(&mut loom, warps, woven);
         if zlevel != -1 {
             bobbins = wind_threads(&mut loom, verts, vi_map);
@@ -228,7 +232,7 @@ pub fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
     subtours
 }
 
-fn attach_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
+fn extend_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
     let mut woven: Woven = Woven::new();
     for thread in loom {
         for (idx, warp) in warps.iter().enumerate() {

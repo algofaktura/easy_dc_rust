@@ -46,7 +46,9 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
+    println!("MAKING GRAPH....");
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
+    println!("WEAVING SOLUTION FOR GRAPH ⭕️ {order}");
     let start: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, max_xyz);
     let dur = (Instant::now() - start).as_secs_f32();
