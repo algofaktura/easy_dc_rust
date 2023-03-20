@@ -3,10 +3,9 @@ use ndarray;
 use rayon::prelude::*;
 
 use super::{
-    weaver::Weaver,
     types::{
         Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
-        TourSlice, VIMap, Vert, Verts, Warps, Woven, Yarn, ZOrder,
+        TourSlice, VIMap, Vert, Verts, Warps, Weaver, Woven, Yarn, ZOrder,
     },
     utils::{
         get_adj_edges::{create_eadjs, create_edges},
