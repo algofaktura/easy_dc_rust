@@ -150,7 +150,7 @@ impl<'a> Weaver<'a> {
     }
 
     pub fn rotate_to_edge(other: &mut Tour, lhs: u32, rhs: u32) {
-        // Associated function can only be called by Weaver::rotate_to_edge(...)
+        // Associated function so: Weaver::rotate_to_edge(...)
         if lhs == other[other.len() - 1] && rhs == other[0] {
             other.reverse();
         } else {
