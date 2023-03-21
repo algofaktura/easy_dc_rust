@@ -1627,30 +1627,30 @@ ________________________________________________________________________________
 | 🇳  589 | ⭕️  273_837_880 | 🕗    904.4743652 | 📌 HamCycle | 62.1 / 74.5
 | 🇳  590 | ⭕️  275_232_640 | 🕗   1047.4342041 | 📌 HamCycle |
 | 🇳  591 | ⭕️  276_632_128 | 🕗   1068.1927490 | 📌 HamCycle |
-| 🇳  592 | ⭕️  278_036_352 | 🕗   1068.0819092 | 📌 HamCycle |
-Bus error (core dumped)
-
+| 🇳  592 | ⭕️  278_036_352 | 🕗   1068.0819092 | 📌 HamCycle | 
+| 🇳  593 | ⭕️  279_445_320 | 🕗   1085.4078369 | 📌 HamCycle | 62.0 / 76.6
+| 🇳  594 | ⭕️  280_859_040 | 🕗   1087.4641113 | 📌 HamCycle | 
+| 🇳  595 | ⭕️  282_277_520 | 🕗   1064.1060791 | 📌 HamCycle | 62.0 / 77.6
+| 🇳  596 | ⭕️  283_700_768 | 🕗   1065.7447510 | 📌 HamCycle | 
+| 🇳  597 | ⭕️  285_128_792 | 🕗   1075.8626709 | 📌 HamCycle | 
+| 🇳  598 | ⭕️  286_561_600 | 🕗   1125.0163574 | 📌 HamCycle | 
+| 🇳  599 | ⭕️  287_999_200 | 🕗   1105.4565430 | 📌 HamCycle | 61.2 / 79.9
+| 🇳  600 | ⭕️  289_441_600 | 🕗   1137.9167480 | 📌 HamCycle | 
+| 🇳  601 | ⭕️  290_888_808 | 🕗   1183.4355132 | 📌 HamCycle | 
+| 🇳  602 | ⭕️  292_340_832 | 🕗   1202.5359846 | 📌 HamCycle | 
+| 🇳  603 | ⭕️  293_797_680 | 🕗   1240.7123410 | 📌 HamCycle | 
+| 🇳  604 | ⭕️  295_259_360 | 🕗   1256.9564694 | 📌 HamCycle | 
+| 🇳  605 | ⭕️  296_725_880 | 🕗   1243.0841124 | 📌 HamCycle | 
+| 🇳  606 | ⭕️  298_197_248 | 🕗   1273.3368623 | 📌 HamCycle | 
+| 🇳  607 | ⭕️  299_673_472 | 🕗   1264.3157187 | 📌 HamCycle | 
+| 🇳  608 | ⭕️  301_154_560 | 🕗   1310.4387956 | 📌 HamCycle | 
 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.
-
+UPDATE 4: USING INDEXMAP RESULTS IN LONGER TIMES PROBABLY OWING TO HAVING TO ACCESS vertn[n].1 etc... vs. adj[n]
+          | 🇳  100 | ⭕️    1373600 | 🕗      1.3939092 | 📌 HamCycle |
 ```
-
-using indexmap results in times that are longer, and not less memory intensive, if not somehow more.
-
-| 🇳   90 | ⭕️    1004640 | 🕗      0.8707603 | 📌 HamCycle |
-| 🇳   91 | ⭕️    1038128 | 🕗      0.9356786 | 📌 HamCycle |
-| 🇳   92 | ⭕️    1072352 | 🕗      1.1933094 | 📌 HamCycle |
-| 🇳   93 | ⭕️    1107320 | 🕗      1.1849506 | 📌 HamCycle |
-| 🇳   94 | ⭕️    1143040 | 🕗      1.1610720 | 📌 HamCycle |
-| 🇳   95 | ⭕️    1179520 | 🕗      1.1411682 | 📌 HamCycle |
-| 🇳   96 | ⭕️    1216768 | 🕗      1.2048258 | 📌 HamCycle |
-| 🇳   97 | ⭕️    1254792 | 🕗      1.2460364 | 📌 HamCycle |
-| 🇳   98 | ⭕️    1293600 | 🕗      1.3229424 | 📌 HamCycle |
-| 🇳   99 | ⭕️    1333200 | 🕗      1.3375677 | 📌 HamCycle |
-| 🇳  100 | ⭕️    1373600 | 🕗      1.3939092 | 📌 HamCycle |
-
 
 ORDER	VERTS	    TOUR	    VI_MAP	    ADJ	        TOTAL
 200M	7.6 GB	    800 MB	    8.4 GB	    2.4 GB	    18.2 GB

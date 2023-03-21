@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use itertools::Itertools;
 use ndarray;
 use rayon::prelude::*;
@@ -13,11 +15,6 @@ use super::{
     },
 };
 
-pub enum Loomed {
-    Looming(Vec<Vec<u32>>),
-    Weaving(Vec<Vec<u32>>),
-}
-
 pub fn weave(
     adj: &Adjacency,
     vi_map: VIMap,
@@ -26,17 +23,20 @@ pub fn weave(
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    println!("MADE GRAPH");
+    let start: Instant = Instant::now();
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    println!("PREPARED LOOM");
+    println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
-    println!("START WEAVING...");
+    println!("START WEAVING...: {}", (Instant::now() - start).as_secs_f32());
+    let mut count = 0;
     loom.iter_mut().for_each(|other| {
+        println!("WEAVING IN LOOM {count}...: {}", (Instant::now() - start).as_secs_f32());
+        count += 1;
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
             & &other_edges
@@ -58,7 +58,7 @@ pub fn weave(
             }
         }
     });
-    println!("SENDING WEAVE");
+    println!("SENDING WEAVE FOR INSPECTION: {}", (Instant::now() - start).as_secs_f32());
     weaver.get_nodes()
 }
 
@@ -79,15 +79,14 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
 }
 
 fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
-    let natural: Yarn = spin_yarn(z_adj, verts);
+    let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-fn spin_yarn(z_adj: &Adjacency, verts: &Verts) -> Yarn {
-    let tour: &mut Tour = &mut vec![*z_adj.keys().max().unwrap() as Node];
-    let order: Count = z_adj.len();
-    (1..order).for_each(|idx| tour.push(get_next_node(tour, z_adj, verts, idx, order)));
+fn spin_yarn(order_z: Count, z_adj: &Adjacency, verts: &Verts) -> Yarn {
+    let tour: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
+    (1..order_z).for_each(|idx| tour.push(get_next_node(tour, z_adj, verts, idx, order_z)));
     make_yarn_from(tour, verts)
 }
 
@@ -186,7 +185,7 @@ fn prepare_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> 
         .collect()
 }
 
-pub fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
+fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
     let mut subtours: Subtours = Vec::new();
     let last_ix: Idx = tour.len() - 1;
     let last_idx: Idx = subset.len() - 1;
@@ -256,7 +255,7 @@ fn extend_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
     woven
 }
 
-pub fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
+fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
     warps
         .iter()
         .enumerate()
@@ -270,7 +269,7 @@ pub fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
         .for_each(|seq| loom.extend(vec![seq.clone().into_iter().collect()]));
 }
 
-pub fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
+fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
     loom.par_iter_mut().for_each(|thread| {
         thread.extend(
             thread
