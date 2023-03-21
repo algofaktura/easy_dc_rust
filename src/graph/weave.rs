@@ -140,25 +140,6 @@ fn color_yarn(a: &Yarn) -> Yarn {
     a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
-fn prepare_bobbins(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
-    loom.iter_mut()
-        .flat_map(|thread| {
-            let (left, right) = get_upper_nodes(
-                verts[thread[0] as usize],
-                verts[thread[thread.len() - 1] as usize],
-                vi_map,
-            );
-            thread.push_front(left);
-            thread.push_back(right);
-            vec![left, right]
-        })
-        .collect()
-}
-
-fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
-    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
-}
-
 fn get_warps(
     zlevel: Point,
     order: Count,
@@ -237,6 +218,25 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
         }
     }
     subtours
+}
+
+fn prepare_bobbins(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
+    loom.iter_mut()
+        .flat_map(|thread| {
+            let (left, right) = get_upper_nodes(
+                verts[thread[0] as usize],
+                verts[thread[thread.len() - 1] as usize],
+                vi_map,
+            );
+            thread.push_front(left);
+            thread.push_back(right);
+            vec![left, right]
+        })
+        .collect()
+}
+
+fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
 fn wrap_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
