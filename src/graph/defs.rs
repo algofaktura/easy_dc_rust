@@ -53,14 +53,14 @@ pub struct Weaver<'a> {
 
 impl<'a> Weaver<'a> {
     pub fn new(
-        data: YarnEnds,
+        mut data: YarnEnds,
         adj: &'a Adjacency,
         verts: &'a Verts,
         lead: bool,
         max_xyz: Point,
     ) -> Weaver<'a> {
         Weaver {
-            data: Vec::from(data),
+            data: data.drain(..).collect(),
             verts,
             adj,
             lead,
