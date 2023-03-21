@@ -47,7 +47,7 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
-    println!("MAKE GRAPH | SOLVE GRAPH | CERTIFY SOLUTION");
+    println!("MAKE ▦   GRAPH ➤ ⌘ SOLVE ✌ GRAPH ➤ CERTIFY ☑ SOLUTION");
     println!("MAKING GRAPH....");
     let start: Instant = Instant::now();
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
