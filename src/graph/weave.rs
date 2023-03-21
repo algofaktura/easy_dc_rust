@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, time::Instant};
+use std::collections::VecDeque;
 
 use itertools::Itertools;
 use ndarray;
@@ -23,19 +23,13 @@ pub fn weave(
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    let start: Instant = Instant::now();
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
-    println!(
-        "START WEAVING...: {}",
-        (Instant::now() - start).as_secs_f32()
-    );
     loom.iter_mut().for_each(|other| {
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
@@ -58,10 +52,6 @@ pub fn weave(
             }
         }
     });
-    println!(
-        "SENDING WEAVE FOR INSPECTION: {}",
-        (Instant::now() - start).as_secs_f32()
-    );
     weaver.get_nodes()
 }
 
