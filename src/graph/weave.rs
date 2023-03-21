@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::{time::Instant, collections::VecDeque};
 
 use itertools::Itertools;
 use ndarray;
@@ -23,20 +23,20 @@ pub fn weave(
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    let start: Instant = Instant::now();
+    // let start: Instant = Instant::now();
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
+    // println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
-    println!("START WEAVING...: {}", (Instant::now() - start).as_secs_f32());
-    let mut count = 0;
+    // println!("START WEAVING...: {}", (Instant::now() - start).as_secs_f32());
+    // let mut count = 0;
     loom.iter_mut().for_each(|other| {
-        println!("WEAVING IN LOOM {count}...: {}", (Instant::now() - start).as_secs_f32());
-        count += 1;
+        // println!("WEAVING IN LOOM {count}...: {}", (Instant::now() - start).as_secs_f32());
+        // count += 1;
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
             & &other_edges
@@ -58,7 +58,7 @@ pub fn weave(
             }
         }
     });
-    println!("SENDING WEAVE FOR INSPECTION: {}", (Instant::now() - start).as_secs_f32());
+    // println!("SENDING WEAVE FOR INSPECTION: {}", (Instant::now() - start).as_secs_f32());
     weaver.get_nodes()
 }
 
@@ -100,8 +100,9 @@ fn get_next_node(
     let curr = *path.last().unwrap();
     adj[&curr]
         .iter()
-        .filter(|n| !path.contains(*n))
+        // .filter(|n| !path.contains(*n))
         .filter_map(|&n| {
+            if !path.contains(&n){
             if idx < order - 5 {
                 Some((n, absumv(verts[n as usize])))
             } else {
@@ -113,7 +114,7 @@ fn get_next_node(
                 } else {
                     Some((n, absumv(verts[n as usize])))
                 }
-            }
+            }} else {None}
         })
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
@@ -255,9 +256,9 @@ fn extend_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
     woven
 }
 
-fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
+fn affix_unwoven_to_loom(loom: &mut Loom, mut warps: Warps, woven: Woven) {
     warps
-        .iter()
+        .iter_mut() // iterate over mutable references to sequences
         .enumerate()
         .filter_map(|(idx, seq)| {
             if woven.contains(&idx) {
@@ -266,7 +267,9 @@ fn affix_unwoven_to_loom(loom: &mut Loom, warps: Warps, woven: Woven) {
                 Some(seq)
             }
         })
-        .for_each(|seq| loom.extend(vec![seq.clone().into_iter().collect()]));
+        .for_each(|seq| {
+            loom.extend(vec![seq.drain(..).collect::<VecDeque<_>>()]);
+        });
 }
 
 fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
