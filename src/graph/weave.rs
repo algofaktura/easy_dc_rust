@@ -56,7 +56,7 @@ pub fn weave(
 }
 
 fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder) -> Loom {
-    let spool: Spool = spin_and_color_yarn(&z_adj, verts);
+    let spool: Spool = spin_and_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
@@ -72,15 +72,15 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     loom
 }
 
-fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
+fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
     let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-fn spin_yarn(order_z: Count, z_adj: &Adjacency, verts: &Verts) -> Yarn {
+fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    (1..order_z).for_each(|idx| spindle.push(get_fibre(spindle, z_adj, verts, idx, order_z)));
+    (1..order_z).for_each(|idx| spindle.push(get_fibre(spindle, &z_adj, verts, idx, order_z)));
     shape_yarn(spindle, verts)
 }
 
