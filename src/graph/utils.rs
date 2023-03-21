@@ -4,7 +4,7 @@ use ndarray::{arr2, Array2};
 use rayon;
 use std::fmt;
 
-use super::types::{
+use super::defs::{
     Adjacency, Edge, EdgeAdjacency, Edges, Idx, Neighbors, Node, Nodes, Point, Points, SignedIdx,
     Solution, V2d, V3d, VIMap, Vert, Verts, VertsVec, Weights, ZOrder, ZlevelNodesMap,
 };
@@ -61,18 +61,65 @@ pub mod make {
             .par_iter()
             .enumerate()
             .map(|(idx, (x, y, z))| {
+                let ix = idx as Node;
                 (
-                    idx as Node,
+                    ix,
                     shift_xyz(arr2(&[[*x, *y, *z]]))
                         .outer_iter()
                         .filter(|new_vert| {
                             absumv_v3d([new_vert[0], new_vert[1], new_vert[2]]) <= max_xyz + 2
                         })
                         .map(|new_vert| vi_map[&(new_vert[0], new_vert[1], new_vert[2])])
-                        .filter(|&m| m != (idx as Node))
+                        .filter(|&m| m != ix)
                         .collect::<Nodes>(),
                 )
             })
+            .collect()
+    }
+}
+
+pub mod shrink {
+    use super::{Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
+
+    pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
+        let stratified: ZlevelNodesMap = stratify_nodes(verts);
+        (
+            filter_adjacency(adj, stratified[&(-1 as Point)].clone()),
+            get_zlevel_order(&stratified),
+        )
+    }
+
+    fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
+        verts
+            .iter()
+            .map(|v| v.2)
+            .filter(|&z| z < 0)
+            .collect::<Points>()
+            .into_iter()
+            .map(|z| {
+                let nodes = verts
+                    .iter()
+                    .enumerate()
+                    .filter(|&(_, v)| v.2 as Point == z)
+                    .map(|(i, _)| i as u32)
+                    .collect::<Nodes>();
+                (z, nodes)
+            })
+            .collect()
+    }
+
+    fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
+        adj.iter()
+            .filter(|(k, _)| nodes.contains(k))
+            .map(|(k, v)| (*k, v.intersection(&nodes).copied().collect()))
+            .collect()
+    }
+
+    fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
+        stratified
+            .iter()
+            .map(|(&level, nodes)| (level, nodes.len()))
+            .sorted_by_key(|&(level, _)| level)
             .collect()
     }
 }
@@ -167,53 +214,6 @@ pub mod info {
     }
 }
 
-pub mod shrink {
-    use super::{Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
-
-    pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
-        let stratified: ZlevelNodesMap = stratify_nodes(verts);
-        (
-            filter_adjacency(adj, stratified[&(-1 as Point)].clone()),
-            get_zlevel_order(&stratified),
-        )
-    }
-
-    fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
-        verts
-            .iter()
-            .map(|v| v.2)
-            .filter(|&z| z < 0)
-            .collect::<Points>()
-            .into_iter()
-            .map(|z| {
-                let nodes = verts
-                    .iter()
-                    .enumerate()
-                    .filter(|&(_, v)| v.2 as Point == z)
-                    .map(|(i, _)| i as u32)
-                    .collect::<Nodes>();
-                (z, nodes)
-            })
-            .collect()
-    }
-
-    fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
-        adj.iter()
-            .filter(|(k, _)| nodes.contains(k))
-            .map(|(k, v)| (*k, v.intersection(&nodes).copied().collect()))
-            .collect()
-    }
-
-    fn get_zlevel_order(stratified: &ZlevelNodesMap) -> ZOrder {
-        stratified
-            .iter()
-            .map(|(&level, nodes)| (level, nodes.len()))
-            .sorted_by_key(|&(level, _)| level)
-            .collect()
-    }
-}
-
-// Input and output are the same.
 pub mod modify {
     use super::{arr2, Array2, Point};
 

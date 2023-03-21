@@ -21,7 +21,7 @@ use std::{env, time::Instant};
 pub mod graph;
 
 use graph::{
-    types::*,
+    defs::*,
     utils::certify::{self, SequenceID},
     utils::make::make_graph,
     weave,
@@ -47,15 +47,16 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
+    println!("MAKE GRAPH | SOLVE GRAPH | CERTIFY SOLUTION");
     println!("MAKING GRAPH....");
     let start: Instant = Instant::now();
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
     let dur_graph = Instant::now() - start;
-    println!("WEAVING SOLUTION FOR GRAPH ⭕️ {order}");
+    println!("MADE GRAPH: 🕗 {:?}. SOLVING GRAPH ⭕️ {order}", dur_graph);
     let start: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, max_xyz);
     let dur = Instant::now() - start;
-    println!("FINISHED WEAVE. NOW CERTIFYING... {}", dur.as_secs_f32());
+    println!("FINISHED WEAVE. NOW CERTIFYING... 🕗 {}", dur.as_secs_f32());
     let start: Instant = Instant::now();
     let seq_id = certify::id_seq(&solution, &adj);
     let dur_certify = Instant::now() - start;

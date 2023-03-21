@@ -5,7 +5,7 @@ use ndarray;
 use rayon::prelude::*;
 
 use super::{
-    types::{
+    defs::{
         Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
         TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
@@ -74,10 +74,11 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
         let mut warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
+        // change so that wrap warps takes ownership of warps and does affix. 
         wrap_warps_onto_loom(&mut loom, &mut warps);
         affix_loose_warps_onto_loom(&mut loom, warps);
         if zlevel != -1 {
-            bobbins = wind_threads(&mut loom, verts, vi_map);
+            bobbins = prepare_bobbins(&mut loom, verts, vi_map);
         }
     }
     reflect_loom(&mut loom, verts, vi_map);
@@ -96,18 +97,24 @@ fn spin_yarn(order_z: Count, z_adj: &Adjacency, verts: &Verts) -> Yarn {
     shape_yarn(spindle, verts)
 }
 
-fn get_fibre(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
-    let curr = *path.last().unwrap();
-    adj[&curr]
+fn get_fibre(
+    spindle: TourSlice,
+    z_adj: &Adjacency,
+    verts: &Verts,
+    idx: usize,
+    order_z: usize,
+) -> Node {
+    let curr = *spindle.last().unwrap();
+    z_adj[&curr]
         .iter()
-        .filter_map(|&n| {
-            if !path.contains(&n) {
+        .filter_map(|&n| 
+            if !spindle.contains(&n) {
                 let next_vert = verts[n as usize];
-                if idx < order - 5 {
+                if idx < order_z - 5 {
                     Some((n, absumv(next_vert)))
                 } else {
                     let curr_vert = &verts[curr as usize];
-                    if axis(&verts[path[path.len() - 2] as usize], curr_vert)
+                    if axis(&verts[spindle[spindle.len() - 2] as usize], curr_vert)
                         == axis(curr_vert, &next_vert)
                     {
                         None
@@ -118,7 +125,7 @@ fn get_fibre(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order:
             } else {
                 None
             }
-        })
+        )
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
@@ -136,7 +143,7 @@ fn color_yarn(a: &Yarn) -> Yarn {
     a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
-fn wind_threads(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
+fn prepare_bobbins(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
             let (left, right) = get_upper_nodes(
@@ -256,10 +263,8 @@ fn wrap_warps_onto_loom(loom: &mut Loom, warps: &mut Warps) {
 }
 
 fn affix_loose_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
-    warps.iter_mut().for_each(|seq| {
-        if !seq.is_empty() {
-            loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
-        }
+    warps.iter_mut().filter(|s| !s.is_empty()).for_each(|seq| {
+        loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
     });
 }
 
