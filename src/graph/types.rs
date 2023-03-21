@@ -1,9 +1,7 @@
 use fxhash::FxBuildHasher;
 use itertools::Itertools;
 use ndarray::Array2;
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use super::utils::{check::is_valid_edge, modify::orient};
 
@@ -38,7 +36,6 @@ pub type VertsVec = Vec<Vert>;
 pub type VIMap = HashMap<Vert, Node>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
-pub type Woven = Vec<usize>;
 pub type SignedIdx = i32;
 pub type Yarn = Array2<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;

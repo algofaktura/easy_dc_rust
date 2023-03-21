@@ -1,5 +1,7 @@
+use itertools;
 use itertools::Itertools;
 use ndarray::{arr2, Array2};
+use rayon;
 use std::fmt;
 
 use super::types::{
@@ -8,15 +10,13 @@ use super::types::{
 };
 
 pub mod make {
-    use rayon::prelude::*;
-
     use super::{
         arr2,
         info::{absumv_v3d, get_max_xyz, get_order_from_n},
-        Itertools,
         modify::shift_xyz,
+        rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder
+        Adjacency, Itertools, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder,
     };
 
     pub fn make_graph(n: u32) -> (u32, u32, VertsVec, VIMap, Adjacency, Adjacency, ZOrder, i16) {
@@ -77,12 +77,8 @@ pub mod make {
     }
 }
 
-// Output is a primitive type scalar.
 pub mod info {
-    use super::{
-        Itertools,
-        Adjacency, Idx, Point, SignedIdx, Solution, V3d, Vert, Verts
-    };
+    use super::{Adjacency, Idx, Itertools, Point, SignedIdx, Solution, V3d, Vert, Verts};
 
     pub fn abs(n: i16) -> i16 {
         let mask = n >> 15;
@@ -172,9 +168,7 @@ pub mod info {
 }
 
 pub mod shrink {
-    use super::{
-        Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap
-    };
+    use super::{Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
     pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
@@ -221,10 +215,7 @@ pub mod shrink {
 
 // Input and output are the same.
 pub mod modify {
-    use super::{
-        arr2, Array2, 
-        Point
-    };
+    use super::{arr2, Array2, Point};
 
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
         if m < n {
@@ -265,9 +256,7 @@ pub mod iters {
 
 // Versions in which only xy where otherwise xyz is considered.
 pub mod xy {
-    use super::{
-        Idx, V2d, V3d, Vert
-    };
+    use super::{Idx, V2d, V3d, Vert};
 
     pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
         (0..2)
@@ -307,9 +296,7 @@ pub mod xy {
 }
 
 pub mod check {
-    use super::{
-        Point, Vert
-    };
+    use super::{Point, Vert};
 
     pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: Point, order: u32, lead: bool) -> bool {
         if order < 160 {
@@ -345,9 +332,7 @@ pub mod check {
 }
 
 pub mod debug {
-    use super::{
-        Edge, Vert
-    };
+    use super::{Edge, Vert};
 
     pub fn show_edge_vectors(
         (m, n): Edge,
@@ -370,11 +355,7 @@ pub mod debug {
 }
 
 pub mod certify {
-    use super::{
-        fmt, 
-        Itertools,
-        Adjacency, Solution
-    };
+    use super::{fmt, Adjacency, Itertools, Solution};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
@@ -506,9 +487,7 @@ pub mod maker {
 }
 
 pub mod get_adj_edges {
-    use super::{
-        Edge, Edges, VIMap, Vert
-    };
+    use super::{Edge, Edges, VIMap, Vert};
 
     pub fn create_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
         // 11.868491

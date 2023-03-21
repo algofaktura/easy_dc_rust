@@ -1,4 +1,4 @@
-use std::{time::Instant, collections::VecDeque};
+use std::{collections::VecDeque, time::Instant};
 
 use itertools::Itertools;
 use ndarray;
@@ -7,7 +7,7 @@ use rayon::prelude::*;
 use super::{
     types::{
         Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
-        TourSlice, VIMap, Vert, Verts, Warps, Weaver, Woven, Yarn, ZOrder,
+        TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
         get_adj_edges::{create_eadjs, create_edges},
@@ -23,16 +23,19 @@ pub fn weave(
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    // let start: Instant = Instant::now();
+    let start: Instant = Instant::now();
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    // println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
+    println!("PREPARED LOOM: {}", (Instant::now() - start).as_secs_f32());
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
-    // println!("START WEAVING...: {}", (Instant::now() - start).as_secs_f32());
+    println!(
+        "START WEAVING...: {}",
+        (Instant::now() - start).as_secs_f32()
+    );
     // let mut count = 0;
     loom.iter_mut().for_each(|other| {
         // println!("WEAVING IN LOOM {count}...: {}", (Instant::now() - start).as_secs_f32());
@@ -48,17 +51,20 @@ pub fn weave(
             .into_iter()
             .next()
         {
-            if let Some(weft_e) =
+            if let Some(warp_e) =
                 (&create_eadjs(verts[m as usize], verts[n as usize], max_xyz, &vi_map)
                     & &other_edges)
                     .into_iter()
                     .next()
             {
-                weaver.join((m, n), weft_e, other);
+                weaver.join((m, n), warp_e, other);
             }
         }
     });
-    // println!("SENDING WEAVE FOR INSPECTION: {}", (Instant::now() - start).as_secs_f32());
+    println!(
+        "SENDING WEAVE FOR INSPECTION: {}",
+        (Instant::now() - start).as_secs_f32()
+    );
     weaver.get_nodes()
 }
 
@@ -67,9 +73,9 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
-        let warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
-        let woven: Woven = extend_warps_to_loom(&mut loom, &warps);
-        affix_unwoven_to_loom(&mut loom, warps, woven);
+        let mut warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
+        wrap_warps_onto_loom(&mut loom, &mut warps);
+        affix_loose_warps_onto_loom(&mut loom, warps);
         if zlevel != -1 {
             bobbins = wind_threads(&mut loom, verts, vi_map);
         }
@@ -85,43 +91,40 @@ fn spin_and_color_yarn(z_adj: &Adjacency, verts: &Verts) -> Spool {
 }
 
 fn spin_yarn(order_z: Count, z_adj: &Adjacency, verts: &Verts) -> Yarn {
-    let tour: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    (1..order_z).for_each(|idx| tour.push(get_next_node(tour, z_adj, verts, idx, order_z)));
-    make_yarn_from(tour, verts)
+    let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
+    (1..order_z).for_each(|idx| spindle.push(get_fibre(spindle, z_adj, verts, idx, order_z)));
+    shape_yarn(spindle, verts)
 }
 
-fn get_next_node(
-    path: TourSlice,
-    adj: &Adjacency,
-    verts: &Verts,
-    idx: usize,
-    order: usize,
-) -> Node {
+fn get_fibre(path: TourSlice, adj: &Adjacency, verts: &Verts, idx: usize, order: usize) -> Node {
     let curr = *path.last().unwrap();
     adj[&curr]
         .iter()
-        // .filter(|n| !path.contains(*n))
         .filter_map(|&n| {
-            if !path.contains(&n){
-            if idx < order - 5 {
-                Some((n, absumv(verts[n as usize])))
-            } else {
-                let curr_vert = &verts[curr as usize];
-                if axis(&verts[path[path.len() - 2] as usize], curr_vert)
-                    == axis(curr_vert, &verts[n as usize])
-                {
-                    None
+            if !path.contains(&n) {
+                let next_vert = verts[n as usize];
+                if idx < order - 5 {
+                    Some((n, absumv(next_vert)))
                 } else {
-                    Some((n, absumv(verts[n as usize])))
+                    let curr_vert = &verts[curr as usize];
+                    if axis(&verts[path[path.len() - 2] as usize], curr_vert)
+                        == axis(curr_vert, &next_vert)
+                    {
+                        None
+                    } else {
+                        Some((n, absumv(next_vert)))
+                    }
                 }
-            }} else {None}
+            } else {
+                None
+            }
         })
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
 }
 
-fn make_yarn_from(tour: &mut Tour, verts: &Verts) -> Yarn {
+fn shape_yarn(tour: &mut Tour, verts: &Verts) -> Yarn {
     Yarn::from(
         tour.iter()
             .map(|&n| [verts[n as usize].0, verts[n as usize].1])
@@ -186,30 +189,30 @@ fn prepare_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> 
         .collect()
 }
 
-fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
+fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
     let mut subtours: Subtours = Vec::new();
-    let last_ix: Idx = tour.len() - 1;
-    let last_idx: Idx = subset.len() - 1;
+    let last_ix: Idx = yarn.len() - 1;
+    let last_idx: Idx = cuts.len() - 1;
     let mut prev: i32 = -1_i32;
-    for (e, idx) in subset
+    for (e, idx) in cuts
         .iter()
-        .filter_map(|node| tour.iter().position(|&x| x == *node))
+        .filter_map(|node| yarn.iter().position(|&x| x == *node))
         .sorted()
         .enumerate()
     {
         if e == last_idx && idx != last_ix {
-            if let Some(first_slice) = tour.get(prev as usize + 1..idx) {
+            if let Some(first_slice) = yarn.get(prev as usize + 1..idx) {
                 if !first_slice.is_empty() {
-                    subtours.push(if subset.contains(&first_slice[0]) {
+                    subtours.push(if cuts.contains(&first_slice[0]) {
                         first_slice.to_vec()
                     } else {
                         first_slice.iter().rev().cloned().collect()
                     });
                 }
             }
-            if let Some(first_slice) = tour.get(idx..) {
+            if let Some(first_slice) = yarn.get(idx..) {
                 if !first_slice.is_empty() {
-                    subtours.push(if subset.contains(&first_slice[0]) {
+                    subtours.push(if cuts.contains(&first_slice[0]) {
                         first_slice.to_vec()
                     } else {
                         first_slice.iter().rev().cloned().collect()
@@ -217,9 +220,9 @@ fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
                 }
             }
         } else {
-            if let Some(first_slice) = tour.get(prev as usize + 1..=idx) {
+            if let Some(first_slice) = yarn.get(prev as usize + 1..=idx) {
                 if !first_slice.is_empty() {
-                    subtours.push(if subset.contains(&first_slice[0]) {
+                    subtours.push(if cuts.contains(&first_slice[0]) {
                         first_slice.to_vec()
                     } else {
                         first_slice.iter().rev().cloned().collect()
@@ -232,44 +235,32 @@ fn cut_yarn(tour: Tour, subset: &Bobbins) -> Subtours {
     subtours
 }
 
-fn extend_warps_to_loom(loom: &mut Loom, warps: &Warps) -> Woven {
-    let mut woven: Woven = Woven::new();
+fn wrap_warps_onto_loom(loom: &mut Loom, warps: &mut Warps) {
     for thread in loom {
-        for (idx, warp) in warps.iter().enumerate() {
-            if !woven.contains(&idx) {
-                match (thread.front(), thread.back()) {
-                    (Some(front), _) if *front == warp[0] => {
-                        *thread = warp[1..]
-                            .iter()
-                            .rev()
-                            .chain(thread.iter())
-                            .cloned()
-                            .collect()
-                    }
-                    (_, Some(back)) if *back == warp[0] => thread.extend(warp.iter().skip(1)),
-                    _ => continue,
+        for warp in warps.iter_mut().filter(|w| !w.is_empty()) {
+            match (thread.front(), thread.back()) {
+                (Some(front), _) if *front == warp[0] => {
+                    *thread = warp
+                        .drain(..)
+                        .rev()
+                        .chain(std::mem::take(thread).drain(1..))
+                        .collect();
                 }
-                woven.extend([idx])
+                (_, Some(back)) if *back == warp[0] => {
+                    thread.extend(warp.drain(..).skip(1));
+                }
+                _ => continue,
             }
         }
     }
-    woven
 }
 
-fn affix_unwoven_to_loom(loom: &mut Loom, mut warps: Warps, woven: Woven) {
-    warps
-        .iter_mut() // iterate over mutable references to sequences
-        .enumerate()
-        .filter_map(|(idx, seq)| {
-            if woven.contains(&idx) {
-                None
-            } else {
-                Some(seq)
-            }
-        })
-        .for_each(|seq| {
-            loom.extend(vec![seq.drain(..).collect::<VecDeque<_>>()]);
-        });
+fn affix_loose_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
+    warps.iter_mut().for_each(|seq| {
+        if !seq.is_empty() {
+            loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
+        }
+    });
 }
 
 fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
