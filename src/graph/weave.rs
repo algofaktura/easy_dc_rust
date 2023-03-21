@@ -36,10 +36,7 @@ pub fn weave(
         "START WEAVING...: {}",
         (Instant::now() - start).as_secs_f32()
     );
-    // let mut count = 0;
     loom.iter_mut().for_each(|other| {
-        // println!("WEAVING IN LOOM {count}...: {}", (Instant::now() - start).as_secs_f32());
-        // count += 1;
         let other_edges = weaver.make_edges_for(other);
         if let Some((m, n)) = (&weaver.get_edges()
             & &other_edges
@@ -73,10 +70,10 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
-        let mut warps: Warps = get_warps(zlevel, order, &bobbins, &spool, vi_map);
-        // change so that wrap warps takes ownership of warps and does affix. 
-        wrap_warps_onto_loom(&mut loom, &mut warps);
-        affix_loose_warps_onto_loom(&mut loom, warps);
+        wrap_warps_onto_loom(
+            &mut loom,
+            get_warps(zlevel, order, &bobbins, &spool, vi_map),
+        );
         if zlevel != -1 {
             bobbins = prepare_bobbins(&mut loom, verts, vi_map);
         }
@@ -107,7 +104,7 @@ fn get_fibre(
     let curr = *spindle.last().unwrap();
     z_adj[&curr]
         .iter()
-        .filter_map(|&n| 
+        .filter_map(|&n| {
             if !spindle.contains(&n) {
                 let next_vert = verts[n as usize];
                 if idx < order_z - 5 {
@@ -125,7 +122,7 @@ fn get_fibre(
             } else {
                 None
             }
-        )
+        })
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
@@ -242,8 +239,8 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
     subtours
 }
 
-fn wrap_warps_onto_loom(loom: &mut Loom, warps: &mut Warps) {
-    for thread in loom {
+fn wrap_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
+    for thread in &mut *loom {
         for warp in warps.iter_mut().filter(|w| !w.is_empty()) {
             match (thread.front(), thread.back()) {
                 (Some(front), _) if *front == warp[0] => {
@@ -260,9 +257,6 @@ fn wrap_warps_onto_loom(loom: &mut Loom, warps: &mut Warps) {
             }
         }
     }
-}
-
-fn affix_loose_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
     warps.iter_mut().filter(|s| !s.is_empty()).for_each(|seq| {
         loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
     });
