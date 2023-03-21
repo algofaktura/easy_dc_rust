@@ -63,25 +63,66 @@ The other algorithms I spoke of earlier accomplish this task.
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
 ```
-cargo run --release [N] [N_UPPER_INCLUSIVE] [REPEATS]
-// Graph start instance | Graph end instance | Repeats
+cargo run --release [N] [N_UPPER_INCLUSIVE]
+// Graph start instance | Graph end instance
 ```
 ```
-// run each graph 10 tens from the first instance to the 100th (32-1,373600)
-cargo run --release 1 100 10
+// make each graph instance, solve it, certify it from the first instance to the 100th (32-1,373,600)
+cargo run --release 1 100
 ```
 
 ## Running times
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_68085920.png?raw=true "Runtimes up to 68 million")
 8_to_68085920.png
 
-### PYTHON VS. RUST:
+### Solving the graph takes only a little longer than certifying the solution.
+ I wonder if this could be a goal. Reduce the algorithm until it is as fast as the algorithm that certifies the graph.
+```
+| 🇳  100 | ⭕️    1373600 | 🕗 TO SOLVE: 0.53748536 | 📌 HamCycle | 🕗 TO CERTIFY: 0.33031258 
 
-### solve python profile 5,061,680 vertices:
-![Profile of solve_np](imgs/profile_solve_np5.png?raw=true "Profile of solve_np")
-### solve rust speed 5,061,680 vertices:
-![Profile of solve_np](imgs/rust_speed_graph_5061680_verts.png?raw=true "Profile of solve_np")
+// mod used to certify if the sequence is Hamiltonian.
 
+pub mod certify {
+    use super::{
+        fmt, 
+        Itertools,
+        Adjacency, Solution
+    };
+
+    #[derive(PartialEq)]
+    pub enum SequenceID {
+        Broken,
+        HamChain,
+        HamCycle,
+    }
+
+    impl fmt::Display for SequenceID {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                SequenceID::Broken => write!(f, "Broken"),
+                SequenceID::HamChain => write!(f, "HamChain"),
+                SequenceID::HamCycle => write!(f, "HamCycle"),
+            }
+        }
+    }
+
+    pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
+        if seq.iter().duplicates().count() > 0 || seq.len() != adj.len() {
+            return SequenceID::Broken;
+        }
+        match seq
+            .windows(2)
+            .all(|window| adj[&window[0]].contains(&window[1]))
+        {
+            true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
+            true => SequenceID::HamChain,
+            false => SequenceID::Broken,
+        }
+    }
+}
+
+
+```
 #### Running times for the first 500 instances: graphs with 8 to 167_668_000 vertices (to be continued until 1000th order (over 1 billion)):
 ```
 | 🇳    1 | ⭕️            8 | 🕗      0.0000010 | 📌 HamCycle |
