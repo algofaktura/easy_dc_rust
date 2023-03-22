@@ -1,6 +1,10 @@
 # easy dc solver
-An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs which are:
+An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for up to 350 million vertices). Discocube graphs are
 3-dimensional grid graphs derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit...
+or the set of points in a 3-dimensional square grid graph contained within an octahedron.
+This algorithm is an artist's rendering of a graph object using programming as a language (versus painting or singing about a mountain) as a means by which to describe the contours of his muse. There are no while loops, and will terminate after a series of steps have been performed. 
+This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
+
 
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
 *Planar embedding of a cube and a discocube. from the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
@@ -53,20 +57,18 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 ![Discocube 3640 view](imgs/icy_cube3.png?raw=true "confetti cube")
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
-### ps...
 Please note: the hamiltonian cycle produced by this algorithm is the base form, without a high mutation rate. The polished versions available have no nonturns and all their edges are distributed evenly across the three axes.
 The other algorithms I spoke of earlier accomplish this task.
 
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
 ```
-cargo run --release [N] [N_UPPER_INCLUSIVE]
-// Graph start instance | Graph end instance
+cargo run --release [Graph start instance] [Graph end instance]
 ```
 ```
-// make each graph instance, solve it, certify it from the first instance to the 100th (32-1,373,600)
 cargo run --release 1 100
 ```
+build > run > make > solve > certify > for each graph starting from 32 to 1.373 million vertices.
 
 ## Running times
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_68085920.png?raw=true "Runtimes up to 68 million")
