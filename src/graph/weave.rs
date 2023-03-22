@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 
 use itertools::Itertools;
-use ndarray;
+use ndarray::arr2;
 use rayon::prelude::*;
 
 use super::{
@@ -58,12 +58,9 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let spool: Spool = spin_and_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
-    for (zlevel, length) in z_order {
-        wrap_warps_onto_loom(
-            get_warps(zlevel, length, &bobbins, &spool, vi_map),
-            &mut loom,
-        );
-        if zlevel == -1 {
+    for (z, length) in z_order {
+        wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool, vi_map), &mut loom);
+        if z == -1 {
             loom.par_iter_mut().for_each(|thread| {
                 thread.extend(
                     thread
@@ -84,17 +81,16 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
 }
 
 fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
-    let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
-    let colored: Yarn =
-        natural.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]]);
-    Spool::from([(3, natural), (1, colored)])
+    let natur: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
+    let color: Yarn = natur.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
+    Spool::from([(3, natur), (1, color)])
 }
 
 fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
-    let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    let order_z_minus_5 = order_z - 5;
-    (1..order_z)
-        .for_each(|idx| spindle.push(get_unspun_fiber(spindle, &z_adj, verts, idx, order_z_minus_5)));
+    let spindle: &mut Tour = &mut Vec::with_capacity(order_z);
+    spindle.push(*z_adj.keys().max().unwrap());
+    let tail = order_z - 5;
+    (1..order_z).for_each(|idx| spindle.push(get_unspun(spindle, &z_adj, verts, idx, tail)));
     Yarn::from(
         spindle
             .iter()
@@ -106,12 +102,12 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     )
 }
 
-fn get_unspun_fiber(
+fn get_unspun(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
     idx: usize,
-    order_z_minus_5: usize,
+    tail: usize,
 ) -> Node {
     let curr = *spindle.last().unwrap();
     z_adj[&curr]
@@ -119,7 +115,7 @@ fn get_unspun_fiber(
         .filter_map(|&n| match (spindle.contains(&n), verts.get(n as usize)) {
             (true, _) => None,
             (false, Some(next_vert))
-                if idx < order_z_minus_5
+                if idx < tail
                     || axis2d(
                         &verts[spindle[spindle.len() - 2] as usize],
                         &verts[curr as usize],
@@ -141,18 +137,7 @@ fn get_warps(
     spool: &Spool,
     vi_map: &VIMap,
 ) -> Warps {
-    match preallocate_yarn(
-        spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
-        zlevel,
-        length,
-        vi_map,
-    ) {
-        node_yarn if bobbins.is_empty() => vec![node_yarn],
-        node_yarn => cut_yarn(node_yarn, bobbins),
-    }
-}
-
-fn preallocate_yarn(mut yarn: Yarn, zlevel: Point, length: usize, vi_map: &VIMap) -> Tour {
+    let mut yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
@@ -161,9 +146,14 @@ fn preallocate_yarn(mut yarn: Yarn, zlevel: Point, length: usize, vi_map: &VIMap
             1,
         ),
     );
-    yarn.outer_iter()
+    match yarn
+        .outer_iter()
         .map(|row| vi_map[&(row[0], row[1], zlevel)])
         .collect()
+    {
+        node_yarn if bobbins.is_empty() => vec![node_yarn],
+        node_yarn => cut_yarn(node_yarn, bobbins),
+    }
 }
 
 fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
