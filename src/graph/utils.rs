@@ -5,8 +5,8 @@ use rayon;
 use std::fmt;
 
 use super::defs::{
-    Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap, Vert,
-    Verts, ZOrder, ZlevelNodesMap,
+    Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap,
+    Vert, Verts, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -17,7 +17,7 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Node, Neighbors, Point, VIMap, Verts, ZOrder,
+        Adjacency, Neighbors, Node, Point, VIMap, Verts, ZOrder,
     };
 
     pub fn make_graph(n: u32) -> (u32, u32, Verts, VIMap, Adjacency, Adjacency, ZOrder, i16) {
