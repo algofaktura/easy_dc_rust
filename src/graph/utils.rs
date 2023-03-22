@@ -6,7 +6,7 @@ use std::fmt;
 
 use super::defs::{
     Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap,
-    Vert, Verts, ZOrder, ZlevelNodesMap,
+    VecVert, Vert, Verts, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -17,20 +17,20 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Neighbors, Node, Point, VIMap, Verts, ZOrder,
+        Adjacency, Neighbors, Node, Point, VecVert, VIMap, Verts, ZOrder,
     };
 
-    pub fn make_graph(n: u32) -> (u32, u32, Verts, VIMap, Adjacency, Adjacency, ZOrder, i16) {
+    pub fn make_graph(n: u32) -> (u32, u32, VecVert, VIMap, Adjacency, Adjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
-        let verts: Verts = vertices(max_xyz);
+        let verts: VecVert = vertices(max_xyz);
         let vi_map: VIMap = vi_map(&verts);
         let adj: Adjacency = adjacency_map(&verts, max_xyz + 2, &vi_map);
         let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
         (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz - 4)
     }
 
-    pub fn vertices(max_xyz: Point) -> Verts {
+    pub fn vertices(max_xyz: Point) -> VecVert {
         let max_xyz_plus_4 = max_xyz + 4;
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
@@ -39,7 +39,7 @@ pub mod make {
         )
         .filter(|&vert| absumv(vert) < max_xyz_plus_4)
         .sorted_by_key(|&vert| (absumv(vert), vert.0, vert.1))
-        .collect::<Verts>()
+        .collect::<VecVert>()
     }
 
     fn vi_map(verts: &Verts) -> VIMap {
@@ -130,18 +130,16 @@ pub mod shrink {
 }
 
 pub mod modify {
-    use crate::graph::defs::Verts;
-
-    use super::{arr2, Array2, Point};
+    use super::{arr2, Array2, Point, VecVert};
 
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
         match m < n {
             true => (m, n),
-            false => (n, m)
+            false => (n, m),
         }
     }
 
-    pub fn shift_xyz(vert: Array2<Point>) -> Verts {
+    pub fn shift_xyz(vert: Array2<Point>) -> VecVert {
         (vert
             + arr2(&[
                 [2, 0, 0],

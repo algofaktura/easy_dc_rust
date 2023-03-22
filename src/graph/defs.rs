@@ -23,7 +23,8 @@ pub type Tour = Vec<Node>;
 pub type TourSlice<'a> = &'a [Node];
 pub type YarnEnds = VecDeque<Node>;
 pub type Vert = (Point, Point, Point);
-pub type Verts = Vec<Vert>;
+pub type Verts = [Vert];
+pub type VecVert = Vec<Vert>;
 pub type VIMap = HashMap<Vert, Node>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
@@ -139,7 +140,7 @@ impl<'a> Weaver<'a> {
         self.data.to_vec()
     }
 
-    pub fn get_vectors(&self) -> Verts {
+    pub fn get_vectors(&self) -> VecVert {
         self.data
             .to_vec()
             .iter()
