@@ -53,18 +53,18 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 <table style="border-collapse: collapse;">
   <tr>
     <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube.png" alt="icy cube" style="width: 100%; height: 100%; object-fit: cover;">
+        <img src="imgs/icy_cube.png" alt="icy cube" style="width: auto; height: 100%; object-fit: cover;">
     </td>
     <td style="padding: 0; width: 50%;">
-        <img src="imgs/always_turning_9120.png" alt="Always Turning Discocube 9120 view" style="width: 100%; height: 100%; object-fit: cover;">
+        <img src="imgs/always_turning_9120.png" alt="Always Turning Discocube 9120 view" style="width: auto; height: 100%; object-fit: cover;">
     </td>
   </tr>
   <tr>
     <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube2.png" alt="icy cube another view" style="width: 100%; height: 100%; object-fit: cover;">
+        <img src="imgs/icy_cube2.png" alt="icy cube another view" style="width: auto; height: 100%; object-fit: cover;">
     </td>
     <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube3.png" alt="confetti cube" style="width: 100%; height: 100%; object-fit: cover;">
+        <img src="imgs/icy_cube3.png" alt="confetti cube" style="width: auto; height: 100%; object-fit: cover;">
     </td>
   </tr>
 </table>
