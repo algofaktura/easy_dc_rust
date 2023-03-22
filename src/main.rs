@@ -56,7 +56,10 @@ pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
     let start: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, max_xyz);
     let dur = Instant::now() - start;
-    println!("FINISHED WEAVE. NOW CERTIFYING... 🕗 {}", dur.as_secs_f32());
+    println!(
+        "🇳 {n:>4} FINISHED WEAVE. NOW CERTIFYING... 🕗 {}",
+        dur.as_secs_f32()
+    );
     let start: Instant = Instant::now();
     let seq_id = certify::id_seq(&solution, &adj);
     let dur_certify = Instant::now() - start;
