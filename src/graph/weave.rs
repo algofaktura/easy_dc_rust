@@ -31,9 +31,9 @@ pub fn weave(
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
     loom.iter_mut().for_each(|warp| {
-        let other_edges = weaver.make_edges_for(warp);
+        let warp_edges = weaver.make_edges_for(warp);
         if let Some((m, n)) = (&weaver.get_edges()
-            & &other_edges
+            & &warp_edges
                 .iter()
                 .flat_map(|(m, n)| {
                     make_edges(verts[*m as usize], verts[*n as usize], min_xyz, &vi_map)
@@ -43,7 +43,7 @@ pub fn weave(
             .next()
         {
             if let Some(warp_e) =
-                (&make_eadjs(verts[m as usize], verts[n as usize], min_xyz, &vi_map) & &other_edges)
+                (&make_eadjs(verts[m as usize], verts[n as usize], min_xyz, &vi_map) & &warp_edges)
                     .into_iter()
                     .next()
             {
