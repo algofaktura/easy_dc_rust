@@ -6,8 +6,8 @@ use rayon::prelude::*;
 
 use super::{
     defs::{
-        Adjacency, Bobbins, Count, Loom, Node, Point, Solution, Spool, Subtours, Tour,
-        TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
+        Adjacency, Bobbins, Count, Loom, Node, Point, Solution, Spool, Subtours, Tour, TourSlice,
+        VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
         make_edges_eadjs::{make_eadjs, make_edges},

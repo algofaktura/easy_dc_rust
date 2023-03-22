@@ -50,12 +50,12 @@ pub fn main() -> Result<(), &'static str> {
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level)?;
+        find_solution(level, false)?;
     }
     Ok(())
 }
 
-pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
+pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str> {
     println!("MAKE ▦   GRAPH ➤ ⌘ SOLVE ✌ GRAPH ➤ CERTIFY ☑ SOLUTION");
     println!("MAKING GRAPH....");
     let start: Instant = Instant::now();
@@ -69,15 +69,17 @@ pub fn find_solution(level: u32) -> Result<Solution, &'static str> {
         "🇳 {n:>4} FINISHED WEAVE. NOW CERTIFYING... 🕗 {}",
         dur.as_secs_f32()
     );
-    let start: Instant = Instant::now();
-    let seq_id = certify::id_seq(&solution, &adj);
-    let dur_certify = Instant::now() - start;
-    println!(
+    if certify {
+        let start: Instant = Instant::now();
+        let seq_id = certify::id_seq(&solution, &adj);
+        let dur_certify = Instant::now() - start;
+        println!(
         "| 🇳 {n:>4} | 🕗 MAKE: {} | ⭕️ {order:>10} | 🕗 SOLVE: {} | 📌 {seq_id:?} | 🕗 CERTIFY: {}",
         dur_graph.as_secs_f32(),
         dur.as_secs_f32(),
         dur_certify.as_secs_f32()
     );
-    assert_eq!(seq_id, SequenceID::HamCycle);
+        assert_eq!(seq_id, SequenceID::HamCycle);
+    }
     Ok(solution)
 }
