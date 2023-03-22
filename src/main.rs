@@ -61,7 +61,7 @@ pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str
 
     println!("🛠️ MAKING GRAPH....");
     let mut start: Instant = Instant::now();
-    let (n, order, verts, vi_map, adj, z_adj, z_order,  min_xyz) = make_graph(level);
+    let (n, order, verts, vi_map, adj, z_adj, z_order, min_xyz) = make_graph(level);
     let dur_make = Instant::now() - start;
 
     println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
