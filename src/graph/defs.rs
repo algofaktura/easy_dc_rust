@@ -3,7 +3,7 @@ use itertools::Itertools;
 use ndarray::Array2;
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use super::utils::{check::is_valid_edge, modify::orient};
+use super::utils::{check_edge::is_valid_edge, modify::orient};
 
 pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
 pub type Adjacency = HashMap<Node, Nodes>;
