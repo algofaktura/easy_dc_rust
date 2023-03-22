@@ -25,18 +25,19 @@ pub mod make {
         let max_xyz = get_max_xyz(order) as i16;
         let verts: Verts = vertices(max_xyz);
         let vi_map: VIMap = vi_map(&verts);
-        let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
+        let adj: Adjacency = adjacency_map(&verts, max_xyz + 2, &vi_map);
         let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
         (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz - 4)
     }
 
     pub fn vertices(max_xyz: Point) -> Verts {
+        let max_xyz_plus_4 = max_xyz + 4;
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2)
         )
-        .filter(|&vert| absumv(vert) < (max_xyz + 4))
+        .filter(|&vert| absumv(vert) < max_xyz_plus_4)
         .sorted_by_key(|&vert| (absumv(vert), vert.0, vert.1))
         .collect::<Verts>()
     }
@@ -49,7 +50,7 @@ pub mod make {
             .collect()
     }
 
-    fn adjacency_map(verts: &Verts, max_xyz: Point, vi_map: &VIMap) -> Adjacency {
+    fn adjacency_map(verts: &Verts, max_xyz_plus_2: Point, vi_map: &VIMap) -> Adjacency {
         verts
             .par_iter()
             .enumerate()
@@ -61,7 +62,7 @@ pub mod make {
                         .into_iter()
                         .filter_map(|new_neighbor_vert| match vi_map.get(&new_neighbor_vert) {
                             Some(&node)
-                                if node != ix && absumv(new_neighbor_vert) <= max_xyz + 2 =>
+                                if node != ix && absumv(new_neighbor_vert) <= max_xyz_plus_2 =>
                             {
                                 Some(node)
                             }
@@ -134,10 +135,9 @@ pub mod modify {
     use super::{arr2, Array2, Point};
 
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
-        if m < n {
-            (m, n)
-        } else {
-            (n, m)
+        match m < n {
+            true => (m, n),
+            false => (n, m)
         }
     }
 
@@ -157,30 +157,17 @@ pub mod modify {
     }
 }
 
-pub mod xy {
-    use super::Vert;
-
-    pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
-        (0..2)
-            .find(|&i| [x, y][i] != [x1, y1][i])
-            .expect("Something's wrong, the same verts are being compared.")
-    }
-
-    pub fn absumv((x, y, _): Vert) -> i16 {
-        let abs_sum = [x, y].iter().fold(0, |acc, x| {
-            let mask = x >> 15;
-            acc + (x ^ mask) - mask
-        });
-        let sign_bit = abs_sum >> 15;
-        (abs_sum ^ sign_bit) - sign_bit
-    }
-}
-
 pub mod info {
     use super::{Point, SignedIdx, Vert};
 
-    pub fn absumvar(v: [Point; 3]) -> Point {
-        let abs_sum = v.iter().fold(0, |acc, x| {
+    pub fn axis2d((x, y, _): &Vert, (a, b, _): &Vert) -> usize {
+        (0..2)
+            .find(|&i| [x, y][i] != [a, b][i])
+            .expect("Something's wrong, the same verts are being compared.")
+    }
+
+    pub fn absumv2d((x, y, _): Vert) -> i16 {
+        let abs_sum = [x, y].iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
@@ -195,15 +182,6 @@ pub mod info {
         });
         let sign_bit = abs_sum >> 15;
         (abs_sum ^ sign_bit) - sign_bit
-    }
-
-    pub fn get_axis((a, b, c): Vert, (x, y, z): Vert) -> Result<usize, &'static str> {
-        match (a != x, b != y, c != z) {
-            (true, _, _edges_adjacency_map_from_adjacency) => Ok(0),
-            (_, true, _) => Ok(1),
-            (_, _, true) => Ok(2),
-            _ => Err("The nodes aren't adjacent to each other."),
-        }
     }
 
     pub fn get_max_xyz(order: u32) -> SignedIdx {
@@ -266,64 +244,6 @@ pub mod check_edge {
             (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
         } else {
             x == x2 && x2 == 3 && y == y2 && y2 == 1
-        }
-    }
-}
-
-pub mod debug {
-    use super::{Edge, Vert};
-
-    pub fn show_edge_vectors(
-        (m, n): Edge,
-        (o, p): Edge,
-        verts: &[Vert],
-    ) -> Vec<(String, Vert, Vert)> {
-        vec![
-            (
-                "main_edge".to_string(),
-                verts[m as usize],
-                verts[n as usize],
-            ),
-            (
-                "other_edge".to_string(),
-                verts[o as usize],
-                verts[p as usize],
-            ),
-        ]
-    }
-}
-
-pub mod certify {
-    use super::{fmt, Adjacency, Itertools, Solution};
-
-    #[derive(Debug, PartialEq)]
-    pub enum SequenceID {
-        Broken,
-        HamChain,
-        HamCycle,
-    }
-
-    impl fmt::Display for SequenceID {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                SequenceID::Broken => write!(f, "Broken"),
-                SequenceID::HamChain => write!(f, "HamChain"),
-                SequenceID::HamCycle => write!(f, "HamCycle"),
-            }
-        }
-    }
-
-    pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
-        if seq.iter().duplicates().count() > 0 || seq.len() != adj.len() {
-            return SequenceID::Broken;
-        }
-        match seq
-            .windows(2)
-            .all(|window| adj[&window[0]].contains(&window[1]))
-        {
-            true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
-            true => SequenceID::HamChain,
-            false => SequenceID::Broken,
         }
     }
 }
@@ -405,6 +325,41 @@ pub mod make_edges_eadjs {
         {
             true => Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)])),
             false => None,
+        }
+    }
+}
+
+pub mod certify {
+    use super::{fmt, Adjacency, Itertools, Solution};
+
+    #[derive(Debug, PartialEq)]
+    pub enum SequenceID {
+        Broken,
+        HamChain,
+        HamCycle,
+    }
+
+    impl fmt::Display for SequenceID {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            match self {
+                SequenceID::Broken => write!(f, "Broken"),
+                SequenceID::HamChain => write!(f, "HamChain"),
+                SequenceID::HamCycle => write!(f, "HamCycle"),
+            }
+        }
+    }
+
+    pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
+        if seq.iter().duplicates().count() > 0 || seq.len() != adj.len() {
+            return SequenceID::Broken;
+        }
+        match seq
+            .windows(2)
+            .all(|window| adj[&window[0]].contains(&window[1]))
+        {
+            true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
+            true => SequenceID::HamChain,
+            false => SequenceID::Broken,
         }
     }
 }

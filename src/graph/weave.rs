@@ -11,7 +11,7 @@ use super::{
     },
     utils::{
         make_edges_eadjs::{make_eadjs, make_edges},
-        xy::{absumv, axis},
+        info::{absumv2d, axis2d},
     },
 };
 
@@ -80,7 +80,8 @@ fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
 
 fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z)));
+    let order_z_minus_5 = order_z - 5;
+    (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z_minus_5)));
     Yarn::from(
         spindle
             .iter()
@@ -94,7 +95,7 @@ fn add_fibre(
     z_adj: &Adjacency,
     verts: &Verts,
     idx: usize,
-    order_z: usize,
+    order_z_minus_5: usize,
 ) -> Node {
     let curr = *spindle.last().unwrap();
     z_adj[&curr]
@@ -102,13 +103,13 @@ fn add_fibre(
         .filter_map(|&n| match (spindle.contains(&n), verts.get(n as usize)) {
             (true, _) => None,
             (false, Some(next_vert))
-                if idx < order_z - 5
-                    || axis(
+                if idx < order_z_minus_5
+                    || axis2d(
                         &verts[spindle[spindle.len() - 2] as usize],
                         &verts[curr as usize],
-                    ) != axis(&verts[curr as usize], next_vert) =>
+                    ) != axis2d(&verts[curr as usize], next_vert) =>
             {
-                Some((n, absumv(*next_vert)))
+                Some((n, absumv2d(*next_vert)))
             }
             _ => None,
         })
