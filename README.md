@@ -49,6 +49,7 @@ Execution time of each order (in millions):
 ### digital discocubes
 As each solution is as unique as a fingerprint, or a diamond it allows one to have their own digital version of a discocube, which is also an instruction for building your own.
 
+<html>
 <style>
   table {
     width: 100%;
@@ -87,7 +88,7 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
     </td>
   </tr>
 </table>
-
+</html>
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
 ### ps...
