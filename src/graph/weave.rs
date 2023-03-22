@@ -64,7 +64,18 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
             &mut loom,
         );
         if zlevel == -1 {
-            reflect_loom(&mut loom, verts, vi_map);
+            loom.par_iter_mut().for_each(|thread| {
+                thread.extend(
+                    thread
+                        .iter()
+                        .rev()
+                        .map(|&node| {
+                            let (x, y, z) = verts[node as usize];
+                            vi_map[&(x, y, -z)]
+                        })
+                        .collect::<Tour>(),
+                )
+            });
             break;
         }
         bobbins = pin_ends(&mut loom, verts, vi_map)
@@ -74,7 +85,8 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
 
 fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
     let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
-    let colored: Yarn = natural.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]]);
+    let colored: Yarn =
+        natural.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]]);
     Spool::from([(3, natural), (1, colored)])
 }
 
@@ -203,7 +215,7 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
 fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
-            let (left, right) = get_pins(
+            let (left, right) = get_upper_pins(
                 verts[thread[0] as usize],
                 verts[thread[thread.len() - 1] as usize],
                 vi_map,
@@ -215,7 +227,7 @@ fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-fn get_pins((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+fn get_upper_pins((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
@@ -239,20 +251,5 @@ fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
     }
     warps.iter_mut().filter(|s| !s.is_empty()).for_each(|seq| {
         loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
-    });
-}
-
-fn reflect_loom(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) {
-    loom.par_iter_mut().for_each(|thread| {
-        thread.extend(
-            thread
-                .iter()
-                .rev()
-                .map(|&node| {
-                    let (x, y, z) = verts[node as usize];
-                    vi_map[&(x, y, -z)]
-                })
-                .collect::<Tour>(),
-        )
     });
 }

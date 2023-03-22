@@ -29,14 +29,26 @@ pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = match args.get(1) {
         Some(arg) => match arg.parse::<u32>() {
-            Ok(parsed) => if parsed == 0 { 1 } else { parsed },
+            Ok(parsed) => {
+                if parsed == 0 {
+                    1
+                } else {
+                    parsed
+                }
+            }
             Err(_) => 100,
         },
         None => 100,
     };
     let n_end: u32 = match args.get(2) {
         Some(arg) => match arg.parse::<u32>() {
-            Ok(parsed) => if parsed < n_start { n_start } else { parsed },
+            Ok(parsed) => {
+                if parsed < n_start {
+                    n_start
+                } else {
+                    parsed
+                }
+            }
             Err(_) => n_start,
         },
         None => n_start,
