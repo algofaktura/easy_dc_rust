@@ -36,8 +36,8 @@ pub mod make {
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2)
         )
-        .filter(|&(x, y, z)| absumv([x, y, z]) < (max_xyz + 4))
-        .sorted_by_key(|&(x, y, z)| (absumv([x, y, z]), x, y))
+        .filter(|&vert| absumv(vert) < (max_xyz + 4))
+        .sorted_by_key(|&vert| (absumv(vert), vert.0, vert.1))
         .collect::<Verts>()
     }
 
@@ -58,12 +58,12 @@ pub mod make {
                 (
                     ix,
                     shift_xyz(arr2(&[[*x, *y, *z]]))
-                        .outer_iter()
-                        .filter_map(|new_vert| {
-                            match vi_map.get(&(new_vert[0], new_vert[1], new_vert[2])) {
+                        .into_iter()
+                        .filter_map(|new_neighbor_vert| {
+                            match vi_map.get(&new_neighbor_vert) {
                                 Some(&node)
                                     if node != ix
-                                        && absumv([new_vert[0], new_vert[1], new_vert[2]])
+                                        && absumv(new_neighbor_vert)
                                             <= max_xyz + 2 =>
                                 {
                                     Some(node)
@@ -137,6 +137,8 @@ pub mod shrink {
 }
 
 pub mod modify {
+    use crate::graph::defs::Verts;
+
     use super::{arr2, Array2, Point};
 
     pub fn orient(m: u32, n: u32) -> (u32, u32) {
@@ -147,15 +149,18 @@ pub mod modify {
         }
     }
 
-    pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
-        vert + arr2(&[
+    pub fn shift_xyz(vert: Array2<Point>) -> Verts {
+        (vert + arr2(&[
             [2, 0, 0],
             [-2, 0, 0],
             [0, 2, 0],
             [0, -2, 0],
             [0, 0, 2],
             [0, 0, -2],
-        ])
+        ]))
+        .outer_iter()
+        .map(|point| (point[0], point[1], point[2]))
+        .collect()
     }
 }
 
@@ -181,8 +186,17 @@ pub mod xy {
 pub mod info {
     use super::{Point, SignedIdx, Vert};
 
-    pub fn absumv(v: [Point; 3]) -> Point {
+    pub fn absumvar(v: [Point; 3]) -> Point {
         let abs_sum = v.iter().fold(0, |acc, x| {
+            let mask = x >> 15;
+            acc + (x ^ mask) - mask
+        });
+        let sign_bit = abs_sum >> 15;
+        (abs_sum ^ sign_bit) - sign_bit
+    }
+
+    pub fn absumv((x, y, z): Vert) -> Point {
+        let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
         });

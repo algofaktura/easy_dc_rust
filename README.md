@@ -49,11 +49,45 @@ Execution time of each order (in millions):
 ### digital discocubes
 As each solution is as unique as a fingerprint, or a diamond it allows one to have their own digital version of a discocube, which is also an instruction for building your own.
 
-![Discocube 3640 view](imgs/icy_cube.png?raw=true "icy cube") 
-![Discocube 3640 view](imgs/icy_cube5.png?raw=true "icy cube")
-![Discocube 3640 view](imgs/icy_cube3.png?raw=true "icy cube another view")
-![Discocube 3640 view](imgs/icy_cube2.png?raw=true "icy cube another view")
-![Always Turning Discocube 9120 view](imgs/always_turning_9120.png?raw=true "Always Turning Discocube 9120 view")
+<style>
+  table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+  td {
+    width: 50%;
+    padding: 0;
+    border: none;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>
+
+<table>
+  <tr>
+    <td>
+        <img src="imgs/icy_cube.png" alt="icy cube">
+    </td>
+    <td>
+        <img src="imgs/always_turning_9120.png" alt="Always Turning Discocube 9120 view">
+    </td>
+  </tr>
+  <tr>
+    <td>
+        <img src="imgs/icy_cube2.png" alt="icy cube another view">
+    </td>
+    <td>
+        <img src="imgs/icy_cube3.png" alt="confetti cube">
+    </td>
+  </tr>
+</table>
+
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
 ### ps...
@@ -770,7 +804,7 @@ ________________________________________________________________________________
 | 🇳  612 | ⭕️  307_127_712 | 🕗   1283.9041247 | 📌 HamCycle | 
 | 🇳  613 | ⭕️  308_633_240 | 🕗   1316.5825417 | 📌 HamCycle | 
 | 🇳  614 | ⭕️  310_143_680 | 🕗   1335.3164145 | 📌 HamCycle | 
-| 🇳  615 | ⭕️  311_659_040 | 🕗   1283.9041247 | 📌 HamCycle | 
+| 🇳  615 | ⭕️  311_659_040 | 🕗   1283.9041247 | 📌 HamCycle | 57.9 / 79.3
 
 | 🇳  616 | ⭕️  313_179_328 | 🕗   1356.7494135 | 📌 HamCycle | 
 | 🇳  617 | ⭕️  314_704_552 | 🕗   1349.0923216 | 📌 HamCycle | 
