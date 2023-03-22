@@ -21,10 +21,10 @@ pub fn weave(
     verts: Verts,
     z_adj: Adjacency,
     z_order: ZOrder,
-    max_xyz: Point,
+    min_xyz: Point,
 ) -> Solution {
     let mut loom = prepare_loom(&vi_map, &verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, &verts, true, max_xyz);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, &verts, true, min_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
@@ -36,14 +36,14 @@ pub fn weave(
             & &other_edges
                 .iter()
                 .flat_map(|(m, n)| {
-                    make_edges(verts[*m as usize], verts[*n as usize], max_xyz, &vi_map)
+                    make_edges(verts[*m as usize], verts[*n as usize], min_xyz, &vi_map)
                 })
                 .collect())
             .into_iter()
             .next()
         {
             if let Some(warp_e) =
-                (&make_eadjs(verts[m as usize], verts[n as usize], max_xyz, &vi_map) & &other_edges)
+                (&make_eadjs(verts[m as usize], verts[n as usize], min_xyz, &vi_map) & &other_edges)
                     .into_iter()
                     .next()
             {
