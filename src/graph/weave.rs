@@ -18,13 +18,13 @@ use super::{
 pub fn weave(
     adj: &Adjacency,
     vi_map: VIMap,
-    verts: &Verts,
+    verts: Verts,
     z_adj: Adjacency,
     z_order: ZOrder,
     max_xyz: Point,
 ) -> Solution {
-    let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
+    let mut loom = prepare_loom(&vi_map, &verts, z_adj, z_order);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, &verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()

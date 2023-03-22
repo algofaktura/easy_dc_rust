@@ -779,7 +779,8 @@ UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.
 UPDATE 4: USING INDEXMAP RESULTS IN LONGER TIMES PROBABLY OWING TO HAVING TO ACCESS vertn[n].1 etc... vs. adj[n]
           | 🇳  100 | ⭕️    1373600 | 🕗      1.3939092 | 📌 HamCycle |
-
+UPDATE 5: Reached heights never before imagined by myself! Also the possibility of using a distributed graph engine on a memory cloud:
+https://www.graphengine.io/downloads/papers/Trinity.pdf 
 ```
 
 
