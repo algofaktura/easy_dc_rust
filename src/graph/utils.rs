@@ -232,7 +232,7 @@ pub mod xy {
     }
 }
 
-pub mod check {
+pub mod check_edge {
     use super::{Point, Vert};
 
     pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: Point, order: u32, lead: bool) -> bool {
@@ -326,123 +326,47 @@ pub mod certify {
     }
 }
 
-pub mod get_adj_edges {
+pub mod make_edges_eadjs {
+    use rayon::prelude::*;
     use super::{Edge, Edges, VIMap, Vert};
 
-    pub fn create_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
-        let mut new_edges = Edges::new();
-        match (a != x, b != y, c != z) {
-            (true, false, false) => {
-                if let Some(edge) = get_valid_eadj((a, b + 2, c), (x, y + 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b - 2, c), (x, y - 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b, c + 2), (x, y, z + 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b, c - 2), (x, y, z - 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            (false, true, false) => {
-                if let Some(edge) = get_valid_eadj((a + 2, b, c), (x + 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a - 2, b, c), (x - 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b, c + 2), (x, y, z + 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b, c - 2), (x, y, z - 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            (false, false, true) => {
-                if let Some(edge) = get_valid_eadj((a + 2, b, c), (x + 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a - 2, b, c), (x - 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b + 2, c), (x, y + 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_eadj((a, b - 2, c), (x, y - 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            _ => {}
-        }
-        new_edges
-    }
-
-    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
-        let mut new_edges = Edges::new();
-        match (a != x, b != y, c != z) {
-            (true, false, false) => {
-                if let Some(edge) = get_valid_edge((a, b + 2, c), (x, y + 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b - 2, c), (x, y - 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b, c + 2), (x, y, z + 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b, c - 2), (x, y, z - 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            (false, true, false) => {
-                if let Some(edge) = get_valid_edge((a + 2, b, c), (x + 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a - 2, b, c), (x - 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b, c + 2), (x, y, z + 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b, c - 2), (x, y, z - 2), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            (false, false, true) => {
-                if let Some(edge) = get_valid_edge((a + 2, b, c), (x + 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a - 2, b, c), (x - 2, y, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b + 2, c), (x, y + 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-                if let Some(edge) = get_valid_edge((a, b - 2, c), (x, y - 2, z), max_xyz, vi_map) {
-                    new_edges.insert(edge);
-                }
-            }
-            _ => {} // The nodes aren't adjacent to each other.
-        }
-        new_edges
-    }
-
-    pub fn create_edges_shorter_but_takes_longer(
+    pub fn create_eadjs(
         (a, b, c): Vert,
         (x, y, z): Vert,
         max_xyz: i16,
         vi_map: &VIMap,
     ) -> Edges {
-        // 16.710316
         match (a != x, b != y, c != z) {
-            (true, false, false) => &[[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
-            (false, true, false) => &[[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
-            (false, false, true) => &[[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
+            (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
+            (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
+            (false, false, true) => [[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
             _ => panic!("NOT A VALID EDGE"),
         }
-        .iter()
+        .par_iter()
+        .filter_map(|[i, j, k]| {
+            get_valid_eadj(
+                (a + i, b + j, c + k),
+                (x + i, y + j, z + k),
+                max_xyz,
+                vi_map,
+            )
+        })
+        .collect()
+    }
+
+    pub fn create_edges(
+        (a, b, c): Vert,
+        (x, y, z): Vert,
+        max_xyz: i16,
+        vi_map: &VIMap,
+    ) -> Edges {
+        match (a != x, b != y, c != z) {
+            (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
+            (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
+            (false, false, true) => [[2, 0, 0], [-2, 0, 0], [0, 2, 0], [0, -2, 0]],
+            _ => panic!("NOT A VALID EDGE"),
+        }
+        .par_iter()
         .filter_map(|[i, j, k]| {
             get_valid_edge(
                 (a + i, b + j, c + k),
@@ -460,7 +384,7 @@ pub mod get_adj_edges {
         max_xyz: i16,
         vi_map: &VIMap,
     ) -> Option<Edge> {
-        let lowest = max_xyz - 4; // furthest axis value from origin.
+        let lowest = max_xyz - 4;
         if z.abs() == lowest
             && lowest == c.abs()
             && (x == 1 || x == 3)
@@ -481,7 +405,7 @@ pub mod get_adj_edges {
         max_xyz: i16,
         vi_map: &VIMap,
     ) -> Option<Edge> {
-        let lowest = max_xyz - 4; // furthest axis value from origin.
+        let lowest = max_xyz - 4;
         if z.abs() == lowest
             && lowest == c.abs()
             && (x == 1 || x == 3)

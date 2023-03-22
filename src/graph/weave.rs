@@ -10,7 +10,7 @@ use super::{
         TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
-        get_adj_edges::{create_eadjs, create_edges},
+        make_edges_eadjs::{create_eadjs, create_edges},
         xy::{absumv, axis},
     },
 };
@@ -61,8 +61,9 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
         wrap_warps_onto_loom(
-            &mut loom,
             get_warps(zlevel, order, &bobbins, &spool, vi_map),
+            &mut loom
+            
         );
         if zlevel != -1 {
             bobbins = prepare_bobbins(&mut loom, verts, vi_map);
@@ -222,7 +223,7 @@ fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32,
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
-fn wrap_warps_onto_loom(loom: &mut Loom, mut warps: Warps) {
+fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
     for thread in &mut *loom {
         for warp in warps.iter_mut().filter(|w| !w.is_empty()) {
             match (thread.front(), thread.back()) {
