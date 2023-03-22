@@ -7,7 +7,7 @@ the set of points in a 3-dimensional square grid graph contained within an octah
 *Planar embedding of a cube and a discocube. from the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
 This algorithm is an artist's rendering of a graph object using programming as a language (versus painting or singing about a mountain) and means by which to describe the body of his muse (a graph object) as an endless contour drawing (Hamiltonian cycle). 
-After thousands of studies, drawings, and a little math: this is a story of how moving towards specific aethetic goals also yields results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own?
+After thousands of studies, drawings, and a little math: this is a story of how solving specific aethetic goals can yield results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own?
  Art studies forms, the curvature of the neck as it disappears into the back, the color in the foreground, so luminous, relegating all things beyond to irrelevance. So in this project, I studied the discocube as a body, where each turn was conceptualized not as a discrete math object but as movement of the body, resulting in more doodles and sketches than pages of equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repo is the simplest and most descriptive.
 
 ![Hauy's wooden crystal models](imgs/hauyCabinett.png?raw=true "Hauy's wooden crystal models")
@@ -40,10 +40,9 @@ To paraphrase Hauy:
 *When solving problems that involve analyzing how nature progresses, we are led by very rapid methods to results that are not immediately obvious. These results may appear paradoxical and surprising. However, if we take the time to carefully examine the steps we took to reach these results, we will begin to understand the underlying principles that led to these outcomes. By going back over the process step by step, we can better understand the logic behind the final results.*
 
 The result of this creative process is a family of algorithms developed specifically to solve various graph problems on the disoocube graph, 3d grid graph and hexprism honeycomb diamond graphs. 
-The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (seconds vs. years), while others take longer but also have other objectives, like forming an always turning cycle with even edge distribution across all axes. But that's giving too much away... 
+The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while others take longer but also have other objectives, like forming an always turning cycle with even edge distribution across all axes. But that's giving too much away... 
 
 Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs, addressing some open issues raised in the graph theory research literature.
-Execution time of each order (in millions):
 
 ![Hexprism Honeycomb Diamond](imgs/hexhoneydiamond.png?raw=true "Hexprism Honeycomb Diamond")
 *Hexprism Honeycomb Diamond*
