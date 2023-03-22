@@ -56,17 +56,17 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str> {
-    println!("MAKE ▦   GRAPH ➤ ⌘ SOLVE ✌ GRAPH ➤ CERTIFY ☑ SOLUTION");
-    println!("MAKING GRAPH....");
+    println!("🍳 MAKE GRAPH ➤ ⌘ 🔀 SOLVE GRAPH ➤ 🔬 CERTIFY SOLUTION");
+    println!("🍳 MAKING GRAPH....");
     let start: Instant = Instant::now();
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
     let dur_graph = Instant::now() - start;
-    println!("MADE GRAPH: 🕗 {dur_graph:?}. SOLVING GRAPH ⭕️ {order}");
+    println!("MADE GRAPH: 🕗 {dur_graph:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
     let start: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, verts, z_adj, z_order, max_xyz);
     let dur = Instant::now() - start;
     println!(
-        "🇳 {n:>4} FINISHED WEAVE. NOW CERTIFYING... 🕗 {}",
+        "🇳 {n:>4} FINISHED WEAVE. 🔬 CERTIFYING SOLUTION... 🕗 {}",
         dur.as_secs_f32()
     );
     if certify {
