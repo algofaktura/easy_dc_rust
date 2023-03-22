@@ -17,7 +17,7 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Neighbors, Node, Point, VecVert, VIMap, Verts, ZOrder,
+        Adjacency, Neighbors, Node, Point, VIMap, VecVert, Verts, ZOrder,
     };
 
     pub fn make_graph(n: u32) -> (u32, u32, VecVert, VIMap, Adjacency, Adjacency, ZOrder, i16) {
