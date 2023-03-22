@@ -36,7 +36,7 @@ pub fn main() -> Result<(), &'static str> {
             } else {
                 parsed
             }
-        },
+        }
         None => 100,
     };
     let n_end: u32 = match args.get(2) {
@@ -47,7 +47,7 @@ pub fn main() -> Result<(), &'static str> {
             } else {
                 parsed
             }
-        },
+        }
         None => n_start,
     };
     for level in n_start..=n_end {
