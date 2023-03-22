@@ -766,13 +766,12 @@ ________________________________________________________________________________
 | 🇳  611 | ⭕️  305_627_088 | 🕗   1309.5391812 | 📌 HamCycle | 
 | 🇳  612 | ⭕️  307_127_712 | 🕗   1283.9041247 | 📌 HamCycle | 
 | 🇳  613 | ⭕️  308_633_240 | 🕗   1316.5825417 | 📌 HamCycle | 
-| 🇳  614 | ⭕️  310_143_680 | 🕗   1335.3164145 | 📌 HamCycle | 
-| 🇳  615 | ⭕️  311_659_040 | 🕗   1283.9041247 | 📌 HamCycle | 57.9 / 79.3
-
+| 🇳  614 | ⭕️  310_143_680 | 🕗   1335.3164145 | 📌 HamCycle | 57.9 / 79.3
+| 🇳  615 | ⭕️  311_659_040 | 🕗   1339.8711837 | 📌 HamCycle | 58.6 / 81.7
 | 🇳  616 | ⭕️  313_179_328 | 🕗   1356.7494135 | 📌 HamCycle | 
 | 🇳  617 | ⭕️  314_704_552 | 🕗   1349.0923216 | 📌 HamCycle | 
 | 🇳  618 | ⭕️  316_234_720 | 🕗   1816.2991972 | 📌 HamCycle |
-| 🇳  619 | ⭕️  317_769_840 | 🕗   1919.4341435 | 📌 HamCycle |
+| 🇳  619 | ⭕️  317_769_840 | 🕗   1919.4341435 | 📌 HamCycle | 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.

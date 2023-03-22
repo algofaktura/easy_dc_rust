@@ -26,32 +26,23 @@ use graph::{
 };
 
 pub fn main() -> Result<(), &'static str> {
-    // operf ./target/release/hamcycle
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = match args.get(1) {
-        Some(arg) => {
-            let parsed = arg.parse().unwrap_or(100);
-            if parsed == 0 {
-                1
-            } else {
-                parsed
-            }
-        }
+        Some(arg) => match arg.parse::<u32>() {
+            Ok(parsed) => if parsed == 0 { 1 } else { parsed },
+            Err(_) => 100,
+        },
         None => 100,
     };
     let n_end: u32 = match args.get(2) {
-        Some(arg) => {
-            let parsed = arg.parse().unwrap_or(n_start);
-            if parsed < n_start {
-                n_start
-            } else {
-                parsed
-            }
-        }
+        Some(arg) => match arg.parse::<u32>() {
+            Ok(parsed) => if parsed < n_start { n_start } else { parsed },
+            Err(_) => n_start,
+        },
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level, true)?;
+        find_solution(level, false)?;
     }
     Ok(())
 }
@@ -64,7 +55,7 @@ pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str
     let (n, order, verts, vi_map, adj, z_adj, z_order, min_xyz) = make_graph(level);
     let dur_make = Instant::now() - start;
     println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
-    
+
     start = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, min_xyz);
     let dur_solve = Instant::now() - start;
