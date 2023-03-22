@@ -10,7 +10,7 @@ use super::{
         TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
-        make_edges_eadjs::{create_eadjs, create_edges},
+        make_edges_eadjs::{make_eadjs, make_edges},
         xy::{absumv, axis},
     },
 };
@@ -36,14 +36,14 @@ pub fn weave(
             & &other_edges
                 .iter()
                 .flat_map(|(m, n)| {
-                    create_edges(verts[*m as usize], verts[*n as usize], max_xyz, &vi_map)
+                    make_edges(verts[*m as usize], verts[*n as usize], max_xyz, &vi_map)
                 })
                 .collect())
             .into_iter()
             .next()
         {
             if let Some(warp_e) =
-                (&create_eadjs(verts[m as usize], verts[n as usize], max_xyz, &vi_map)
+                (&make_eadjs(verts[m as usize], verts[n as usize], max_xyz, &vi_map)
                     & &other_edges)
                     .into_iter()
                     .next()
@@ -56,7 +56,7 @@ pub fn weave(
 }
 
 fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder) -> Loom {
-    let spool: Spool = spin_shape_color_yarn(z_adj, verts);
+    let spool: Spool = spin_and_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
@@ -72,16 +72,20 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     loom
 }
 
-fn spin_shape_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
-    let natural: Yarn = spin_shape_yarn(z_adj.len(), z_adj, verts);
+fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
+    let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-fn spin_shape_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
+fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
     (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z)));
-    shape_yarn(spindle, verts)
+    Yarn::from(spindle
+        .iter()
+        .map(|&n| [verts[n as usize].0, verts[n as usize].1])
+        .collect::<Vec<[Point; 2]>>(),
+    )
 }
 
 fn add_fibre(
@@ -112,14 +116,6 @@ fn add_fibre(
         .0
 }
 
-fn shape_yarn(tour: &mut Tour, verts: &Verts) -> Yarn {
-    Yarn::from(
-        tour.iter()
-            .map(|&n| [verts[n as usize].0, verts[n as usize].1])
-            .collect::<Vec<[Point; 2]>>(),
-    )
-}
-
 fn color_yarn(a: &Yarn) -> Yarn {
     a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
@@ -131,7 +127,7 @@ fn get_warps(
     spool: &Spool,
     vi_map: &VIMap,
 ) -> Warps {
-    match prepare_yarn(
+    match pretrim_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
         order,
@@ -142,7 +138,7 @@ fn get_warps(
     }
 }
 
-fn prepare_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+fn pretrim_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
@@ -205,7 +201,7 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
 fn prepare_bobbins(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
-            let (left, right) = get_upper_nodes(
+            let (left, right) = get_upper_fibres(
                 verts[thread[0] as usize],
                 verts[thread[thread.len() - 1] as usize],
                 vi_map,
@@ -217,7 +213,7 @@ fn prepare_bobbins(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-fn get_upper_nodes((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+fn get_upper_fibres((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
