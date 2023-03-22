@@ -75,8 +75,9 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
  I wonder if this could be a goal. Reduce the algorithm until it is as fast as the algorithm that certifies the graph.
 ```
 | 🇳  100 | ⭕️    1373600 | 🕗 TO SOLVE: 0.53748536 | 📌 HamCycle | 🕗 TO CERTIFY: 0.33031258 
-
-// mod used to certify if the sequence is Hamiltonian.
+```
+```
+// mod used to certify if the sequence is a Hamiltonian cycle, chain or broken.
 
 pub mod certify {
     use super::{
