@@ -56,7 +56,7 @@ pub fn weave(
 }
 
 fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder) -> Loom {
-    let spool: Spool = spin_and_color_yarn(z_adj, verts);
+    let spool: Spool = spin_shape_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (zlevel, order) in z_order {
@@ -64,27 +64,27 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
             get_warps(zlevel, order, &bobbins, &spool, vi_map),
             &mut loom,
         );
-        if zlevel != -1 {
-            bobbins = prepare_bobbins(&mut loom, verts, vi_map);
+        match zlevel != -1 {
+            true => bobbins = prepare_bobbins(&mut loom, verts, vi_map),
+            _ => reflect_loom(&mut loom, verts, vi_map)
         }
     }
-    reflect_loom(&mut loom, verts, vi_map);
     loom
 }
 
-fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
-    let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
+fn spin_shape_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
+    let natural: Yarn = spin_shape_yarn(z_adj.len(), z_adj, verts);
     let colored: Yarn = color_yarn(&natural);
     Spool::from([(3, natural), (1, colored)])
 }
 
-fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
+fn spin_shape_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    (1..order_z).for_each(|idx| spindle.push(get_fibre(spindle, &z_adj, verts, idx, order_z)));
+    (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z)));
     shape_yarn(spindle, verts)
 }
 
-fn get_fibre(
+fn add_fibre(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
@@ -131,15 +131,14 @@ fn get_warps(
     spool: &Spool,
     vi_map: &VIMap,
 ) -> Warps {
-    let node_yarn: Tour = prepare_yarn(
+    match prepare_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
         order,
         vi_map,
-    );
-    match bobbins.is_empty() {
-        true => vec![node_yarn],
-        false => cut_yarn(node_yarn, bobbins),
+    ) {
+        node_yarn if bobbins.is_empty() => vec![node_yarn],
+        node_yarn => cut_yarn(node_yarn, bobbins),
     }
 }
 
