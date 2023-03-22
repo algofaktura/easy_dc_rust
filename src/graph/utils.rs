@@ -330,7 +330,7 @@ pub mod make_edges_eadjs {
     use super::{Edge, Edges, VIMap, Vert};
     use rayon::prelude::*;
 
-    pub fn create_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
@@ -349,7 +349,7 @@ pub mod make_edges_eadjs {
         .collect()
     }
 
-    pub fn create_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],

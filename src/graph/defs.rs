@@ -69,23 +69,6 @@ impl<'a> Weaver<'a> {
         }
     }
 
-    pub fn get_edges(&mut self) -> Edges {
-        self.data
-            .iter()
-            .circular_tuple_windows()
-            .map(|(a, b)| orient(*a, *b))
-            .filter(|&(m, n)| {
-                is_valid_edge(
-                    self.verts[m as usize],
-                    self.verts[n as usize],
-                    self.max_xyz,
-                    self.order,
-                    self.lead,
-                )
-            })
-            .collect()
-    }
-
     pub fn make_edges_for(&self, other_data: &Tour) -> Edges {
         other_data
             .iter()
@@ -132,7 +115,6 @@ impl<'a> Weaver<'a> {
     }
 
     pub fn rotate_to_edge(other: &mut Tour, lhs: u32, rhs: u32) {
-        // Associated function so: Weaver::rotate_to_edge(...)
         if lhs == other[other.len() - 1] && rhs == other[0] {
             other.reverse();
         } else {
@@ -147,6 +129,23 @@ impl<'a> Weaver<'a> {
                 (idx_lhs, _) => other.rotate_left(idx_lhs),
             }
         }
+    }
+    
+    pub fn get_edges(&mut self) -> Edges {
+        self.data
+            .iter()
+            .circular_tuple_windows()
+            .map(|(a, b)| orient(*a, *b))
+            .filter(|&(m, n)| {
+                is_valid_edge(
+                    self.verts[m as usize],
+                    self.verts[n as usize],
+                    self.max_xyz,
+                    self.order,
+                    self.lead,
+                )
+            })
+            .collect()
     }
 
     pub fn get_nodes(&self) -> Solution {
