@@ -1,18 +1,14 @@
-use fxhash::FxBuildHasher;
 use itertools::Itertools;
 use ndarray::Array2;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use super::utils::{check_edge::is_valid_edge, modify::orient};
 
-pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
-pub type Adjacency = HashMap<Node, Nodes>;
+pub type Adjacency = HashMap<Node, Neighbors>;
 pub type Bobbins = Vec<Node>;
 pub type Count = usize;
 pub type Edge = (Node, Node);
 pub type Edges = HashSet<Edge>;
-pub type EdgeAdjacency = HashMap<Edge, HashSet<Edge>>;
-pub type Idx = Count;
 pub type Loom = Vec<YarnEnds>;
 pub type Neighbors = HashSet<Node>;
 pub type Node = u32;
@@ -26,14 +22,8 @@ pub type Subtours = Vec<Tour>;
 pub type Tour = Vec<Node>;
 pub type TourSlice<'a> = &'a [Node];
 pub type YarnEnds = VecDeque<Node>;
-pub type V2d = [Point; 2];
-pub type V2Slice<'a> = &'a [V2d];
-pub type V3d = [Point; 3];
-pub type Varr = Vec<[Point; 2]>;
 pub type Vert = (Point, Point, Point);
-// pub type Verts = [Vert];
 pub type Verts = Vec<Vert>;
-pub type VertsVec = Vec<Vert>;
 pub type VIMap = HashMap<Vert, Node>;
 pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
@@ -153,7 +143,7 @@ impl<'a> Weaver<'a> {
         self.data.to_vec()
     }
 
-    pub fn get_vectors(&self) -> VertsVec {
+    pub fn get_vectors(&self) -> Verts {
         self.data
             .to_vec()
             .iter()

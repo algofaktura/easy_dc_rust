@@ -5,8 +5,8 @@ use rayon;
 use std::fmt;
 
 use super::defs::{
-    Adjacency, Edge, Edges, Node, Nodes, Point, Points, SignedIdx, Solution, V3d, VIMap, Vert,
-    Verts, VertsVec, ZOrder, ZlevelNodesMap,
+    Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap, Vert,
+    Verts, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -17,20 +17,20 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Node, Nodes, Point, VIMap, Verts, VertsVec, ZOrder,
+        Adjacency, Node, Neighbors, Point, VIMap, Verts, ZOrder,
     };
 
-    pub fn make_graph(n: u32) -> (u32, u32, VertsVec, VIMap, Adjacency, Adjacency, ZOrder, i16) {
+    pub fn make_graph(n: u32) -> (u32, u32, Verts, VIMap, Adjacency, Adjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
-        let verts: VertsVec = vertices(max_xyz);
+        let verts: Verts = vertices(max_xyz);
         let vi_map: VIMap = vi_map(&verts);
         let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
         let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
         (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz)
     }
 
-    pub fn vertices(max_xyz: Point) -> VertsVec {
+    pub fn vertices(max_xyz: Point) -> Verts {
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2),
@@ -38,7 +38,7 @@ pub mod make {
         )
         .filter(|&(x, y, z)| absumv([x, y, z]) < (max_xyz + 4))
         .sorted_by_key(|&(x, y, z)| (absumv([x, y, z]), x, y))
-        .collect::<VertsVec>()
+        .collect::<Verts>()
     }
 
     fn vi_map(verts: &Verts) -> VIMap {
@@ -71,7 +71,7 @@ pub mod make {
                                 _ => None,
                             }
                         })
-                        .collect::<Nodes>(),
+                        .collect::<Neighbors>(),
                 )
             })
             .collect()
@@ -179,9 +179,9 @@ pub mod xy {
 }
 
 pub mod info {
-    use super::{Point, SignedIdx, V3d, Vert};
+    use super::{Point, SignedIdx, Vert};
 
-    pub fn absumv(v: V3d) -> Point {
+    pub fn absumv(v: [Point; 3]) -> Point {
         let abs_sum = v.iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask

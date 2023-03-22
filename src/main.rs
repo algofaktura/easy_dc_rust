@@ -12,7 +12,6 @@
 /// makes graph, solves it
 /// 1 (start with order 8 end at order 1,373,600) 100
 /////////////////////////////////////////////////////////////////////////////
-extern crate fxhash;
 extern crate rayon;
 
 use std::{env, time::Instant};
