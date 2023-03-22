@@ -38,7 +38,7 @@ pub struct Weaver<'a> {
     verts: &'a Verts,
     adj: &'a Adjacency,
     lead: bool,
-    max_xyz: Point,
+    min_xyz: Point,
     order: u32,
 }
 
@@ -48,14 +48,14 @@ impl<'a> Weaver<'a> {
         adj: &'a Adjacency,
         verts: &'a Verts,
         lead: bool,
-        max_xyz: Point,
+        min_xyz: Point,
     ) -> Weaver<'a> {
         Weaver {
             data: data.drain(..).collect(),
             verts,
             adj,
             lead,
-            max_xyz,
+            min_xyz,
             order: verts.len() as u32,
         }
     }
@@ -69,7 +69,7 @@ impl<'a> Weaver<'a> {
                 is_valid_edge(
                     self.verts[m as usize],
                     self.verts[n as usize],
-                    self.max_xyz,
+                    self.min_xyz,
                     self.order,
                     false,
                 )
@@ -127,7 +127,7 @@ impl<'a> Weaver<'a> {
                 is_valid_edge(
                     self.verts[m as usize],
                     self.verts[n as usize],
-                    self.max_xyz,
+                    self.min_xyz,
                     self.order,
                     self.lead,
                 )

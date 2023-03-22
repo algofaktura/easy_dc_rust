@@ -27,7 +27,7 @@ pub mod make {
         let vi_map: VIMap = vi_map(&verts);
         let adj: Adjacency = adjacency_map(&verts, max_xyz, &vi_map);
         let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
-        (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz)
+        (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz - 4)
     }
 
     pub fn vertices(max_xyz: Point) -> Verts {
@@ -59,17 +59,13 @@ pub mod make {
                     ix,
                     shift_xyz(arr2(&[[*x, *y, *z]]))
                         .into_iter()
-                        .filter_map(|new_neighbor_vert| {
-                            match vi_map.get(&new_neighbor_vert) {
-                                Some(&node)
-                                    if node != ix
-                                        && absumv(new_neighbor_vert)
-                                            <= max_xyz + 2 =>
-                                {
-                                    Some(node)
-                                }
-                                _ => None,
+                        .filter_map(|new_neighbor_vert| match vi_map.get(&new_neighbor_vert) {
+                            Some(&node)
+                                if node != ix && absumv(new_neighbor_vert) <= max_xyz + 2 =>
+                            {
+                                Some(node)
                             }
+                            _ => None,
                         })
                         .collect::<Neighbors>(),
                 )
@@ -94,7 +90,7 @@ pub mod shrink {
             .iter()
             .filter_map(|&(_, _, z)| match z < 0 {
                 true => Some(z),
-                false => None
+                false => None,
             })
             .collect::<Points>()
             .into_iter()
@@ -106,7 +102,7 @@ pub mod shrink {
                         .enumerate()
                         .filter_map(|(i, v)| match v.2 as Point == z {
                             true => Some(i as u32),
-                            false => None
+                            false => None,
                         })
                         .collect::<Nodes>(),
                 )
@@ -118,7 +114,7 @@ pub mod shrink {
         adj.iter()
             .filter_map(|(k, v)| match nodes.contains(k) {
                 true => Some((*k, v.intersection(&nodes).copied().collect())),
-                false => None
+                false => None,
             })
             .collect()
     }
@@ -146,14 +142,15 @@ pub mod modify {
     }
 
     pub fn shift_xyz(vert: Array2<Point>) -> Verts {
-        (vert + arr2(&[
-            [2, 0, 0],
-            [-2, 0, 0],
-            [0, 2, 0],
-            [0, -2, 0],
-            [0, 0, 2],
-            [0, 0, -2],
-        ]))
+        (vert
+            + arr2(&[
+                [2, 0, 0],
+                [-2, 0, 0],
+                [0, 2, 0],
+                [0, -2, 0],
+                [0, 0, 2],
+                [0, 0, -2],
+            ]))
         .outer_iter()
         .map(|point| (point[0], point[1], point[2]))
         .collect()
@@ -210,18 +207,15 @@ pub mod info {
     }
 
     pub fn get_max_xyz(order: u32) -> SignedIdx {
-        ((0..order)
-            .map(|n| (n, get_order_from_n(n)))
-            .filter(|(_, sum)| *sum == order)
-            .map(|(n, _)| n)
-            .next()
-            .unwrap()
-            * 2
-            - 1) as i32
+        (get_n_from_order(order) * 2 - 1) as i32
     }
 
     pub fn get_order_from_n(n: u32) -> u32 {
         ((4.0 / 3.0) * ((n + 2) * (n + 1) * n) as f64).round() as u32
+    }
+
+    pub fn get_n_from_order(order: u32) -> u32 {
+        (((3.0 / 4.0) * order as f64).powf(1.0 / 3.0) - 2.0 / 3.0).round() as u32
     }
 }
 
@@ -245,13 +239,13 @@ pub mod iters {
 pub mod check_edge {
     use super::{Point, Vert};
 
-    pub fn is_valid_edge(v1: Vert, v2: Vert, max_xyz: Point, order: u32, lead: bool) -> bool {
+    pub fn is_valid_edge(v1: Vert, v2: Vert, min_xyz: Point, order: u32, lead: bool) -> bool {
         if order < 160 {
             return valid_edge(v1, v2);
         }
         match lead {
-            true => valid_main_edge(v1, v2, max_xyz),
-            false => valid_other_edge(v1, v2, max_xyz),
+            true => valid_main_edge(v1, v2, min_xyz),
+            false => valid_other_edge(v1, v2, min_xyz),
         }
     }
 
@@ -259,18 +253,16 @@ pub mod check_edge {
         matches!(x1 + y1 + x2 + y2, 4..=10)
     }
 
-    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: Point) -> bool {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest && lowest == z2.abs() {
+    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, min_xyz: Point) -> bool {
+        if z.abs() == min_xyz && min_xyz == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
         } else {
             x == x2 && x2 == 1 && y == y2 && y2 == 1
         }
     }
 
-    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, max_xyz: Point) -> bool {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest && lowest == z2.abs() {
+    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, min_xyz: Point) -> bool {
+        if z.abs() == min_xyz && min_xyz == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
         } else {
             x == x2 && x2 == 3 && y == y2 && y2 == 1
@@ -340,7 +332,7 @@ pub mod make_edges_eadjs {
     use super::{Edge, Edges, VIMap, Vert};
     use rayon::prelude::*;
 
-    pub fn make_eadjs((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_eadjs((a, b, c): Vert, (x, y, z): Vert, min_xyz: i16, vi_map: &VIMap) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
@@ -352,14 +344,14 @@ pub mod make_edges_eadjs {
             get_valid_eadj(
                 (a + i, b + j, c + k),
                 (x + i, y + j, z + k),
-                max_xyz,
+                min_xyz,
                 vi_map,
             )
         })
         .collect()
     }
 
-    pub fn make_edges((a, b, c): Vert, (x, y, z): Vert, max_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_edges((a, b, c): Vert, (x, y, z): Vert, min_xyz: i16, vi_map: &VIMap) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
@@ -371,7 +363,7 @@ pub mod make_edges_eadjs {
             get_valid_edge(
                 (a + i, b + j, c + k),
                 (x + i, y + j, z + k),
-                max_xyz,
+                min_xyz,
                 vi_map,
             )
         })
@@ -381,42 +373,38 @@ pub mod make_edges_eadjs {
     pub fn get_valid_edge(
         (x, y, z): Vert,
         (a, b, c): Vert,
-        max_xyz: i16,
+        min_xyz: i16,
         vi_map: &VIMap,
     ) -> Option<Edge> {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest
-            && lowest == c.abs()
+        match z.abs() == min_xyz
+            && min_xyz == c.abs()
             && (x == 1 || x == 3)
             && y == b
             && b == 1
             && (a == 1 || a == 3)
             || x == a && a == 1 && y == b && b == 1
         {
-            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
-        } else {
-            None
+            true => Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)])),
+            false => None,
         }
     }
 
     pub fn get_valid_eadj(
         (x, y, z): Vert,
         (a, b, c): Vert,
-        max_xyz: i16,
+        min_xyz: i16,
         vi_map: &VIMap,
     ) -> Option<Edge> {
-        let lowest = max_xyz - 4;
-        if z.abs() == lowest
-            && lowest == c.abs()
+        match z.abs() == min_xyz
+            && min_xyz == c.abs()
             && (x == 1 || x == 3)
             && y == b
             && b == 3
             && (a == 1 || a == 3)
             || x == a && a == 3 && y == b && b == 1
         {
-            Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)]))
-        } else {
-            None
+            true => Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)])),
+            false => None,
         }
     }
 }
