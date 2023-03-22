@@ -5,8 +5,8 @@ use rayon;
 use std::fmt;
 
 use super::defs::{
-    Adjacency, Edge, Edges, Node, Nodes, Point, Points, SignedIdx,
-    Solution, V3d, VIMap, Vert, Verts, VertsVec, ZOrder, ZlevelNodesMap,
+    Adjacency, Edge, Edges, Node, Nodes, Point, Points, SignedIdx, Solution, V3d, VIMap, Vert,
+    Verts, VertsVec, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -325,8 +325,6 @@ pub mod certify {
         }
     }
 }
-
-
 
 pub mod get_adj_edges {
     use super::{Edge, Edges, VIMap, Vert};

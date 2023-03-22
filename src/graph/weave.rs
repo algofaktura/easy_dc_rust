@@ -24,7 +24,7 @@ pub fn weave(
     max_xyz: Point,
 ) -> Solution {
     let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, max_xyz);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), &adj, verts, true, max_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
@@ -94,24 +94,18 @@ fn get_fibre(
     let curr = *spindle.last().unwrap();
     z_adj[&curr]
         .iter()
-        .filter_map(|&n| {
-            if !spindle.contains(&n) {
-                let next_vert = verts[n as usize];
-                if idx < order_z - 5 {
-                    Some((n, absumv(next_vert)))
-                } else {
-                    let curr_vert = &verts[curr as usize];
-                    if axis(&verts[spindle[spindle.len() - 2] as usize], curr_vert)
-                        == axis(curr_vert, &next_vert)
-                    {
-                        None
-                    } else {
-                        Some((n, absumv(next_vert)))
-                    }
-                }
-            } else {
-                None
+        .filter_map(|&n| match (spindle.contains(&n), verts.get(n as usize)) {
+            (true, _) => None,
+            (false, Some(next_vert))
+                if idx < order_z - 5
+                    || axis(
+                        &verts[spindle[spindle.len() - 2] as usize],
+                        &verts[curr as usize],
+                    ) != axis(&verts[curr as usize], next_vert) =>
+            {
+                Some((n, absumv(*next_vert)))
             }
+            _ => None,
         })
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
@@ -143,10 +137,9 @@ fn get_warps(
         order,
         vi_map,
     );
-    if bobbins.is_empty() {
-        vec![node_yarn]
-    } else {
-        cut_yarn(node_yarn, bobbins)
+    match bobbins.is_empty() {
+        true => vec![node_yarn],
+        false => cut_yarn(node_yarn, bobbins),
     }
 }
 

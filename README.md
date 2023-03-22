@@ -765,8 +765,8 @@ ________________________________________________________________________________
 | 🇳  607 | ⭕️  299_673_472 | 🕗   1264.3157187 | 📌 HamCycle | 
 | 🇳  608 | ⭕️  301_154_560 | 🕗   1310.4387956 | 📌 HamCycle |
 | 🇳  609 | ⭕️  302_640_520 | 🕗   1231.1969285 | 📌 HamCycle | 60.4 / 79.6
-| 🇳  616 | ⭕️  313_179_328 | 🕗   1356.7494135 | 📌 HamCycle | 60.4 / 79.6
-| 🇳  617 | ⭕️  314_704_552 | 🕗   1349.0923216 | 📌 HamCycle | 60.4 / 79.6
+| 🇳  616 | ⭕️  313_179_328 | 🕗   1356.7494135 | 📌 HamCycle | 
+| 🇳  617 | ⭕️  314_704_552 | 🕗   1349.0923216 | 📌 HamCycle | 
 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
 UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
