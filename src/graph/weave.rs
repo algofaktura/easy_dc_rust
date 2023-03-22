@@ -10,15 +10,15 @@ use super::{
         VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
-        make_edges_eadjs::{make_eadjs, make_edges},
         info::{absumv2d, axis2d},
+        make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
 
 pub fn weave(
     adj: &Adjacency,
     vi_map: VIMap,
-    verts: Verts,
+    verts: &Verts,
     z_adj: Adjacency,
     z_order: ZOrder,
     min_xyz: Point,
@@ -30,8 +30,8 @@ pub fn weave(
         .into_iter()
         .map(|mut data| data.drain(..).collect())
         .collect::<Vec<Vec<_>>>();
-    loom.iter_mut().for_each(|other| {
-        let other_edges = weaver.make_edges_for(other);
+    loom.iter_mut().for_each(|warp| {
+        let other_edges = weaver.make_edges_for(warp);
         if let Some((m, n)) = (&weaver.get_edges()
             & &other_edges
                 .iter()
@@ -47,7 +47,7 @@ pub fn weave(
                     .into_iter()
                     .next()
             {
-                weaver.join((m, n), warp_e, other);
+                weaver.join((m, n), warp_e, warp);
             }
         }
     });
@@ -74,23 +74,27 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
 
 fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
     let natural: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
-    let colored: Yarn = color_yarn(&natural);
+    let colored: Yarn = natural.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]]);
     Spool::from([(3, natural), (1, colored)])
 }
 
 fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
     let order_z_minus_5 = order_z - 5;
-    (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z_minus_5)));
+    (1..order_z)
+        .for_each(|idx| spindle.push(unspun_fiber(spindle, &z_adj, verts, idx, order_z_minus_5)));
     Yarn::from(
         spindle
             .iter()
-            .map(|&n| [verts[n as usize].0, verts[n as usize].1])
-            .collect::<Vec<[Point; 2]>>(),
+            .map(|&n| {
+                let (x, y, _) = verts[n as usize];
+                [x, y]
+            })
+            .collect::<Vec<_>>(),
     )
 }
 
-fn add_fibre(
+fn unspun_fiber(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
@@ -116,10 +120,6 @@ fn add_fibre(
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
-}
-
-fn color_yarn(a: &Yarn) -> Yarn {
-    a.clone().dot(&ndarray::arr2(&[[-1, 0], [0, -1]])) + ndarray::arr2(&[[0, 2]])
 }
 
 fn get_warps(
