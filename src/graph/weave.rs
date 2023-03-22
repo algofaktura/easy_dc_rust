@@ -32,7 +32,7 @@ pub fn weave(
         .collect::<Vec<Vec<_>>>();
     loom.iter_mut().for_each(|warp| {
         let warp_edges = weaver.make_edges_for(warp);
-        if let Some((m, n)) = (&weaver.get_edges()
+        if let Some((m, n)) = (&weaver.edges()
             & &warp_edges
                 .iter()
                 .flat_map(|(m, n)| {
