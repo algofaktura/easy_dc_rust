@@ -50,7 +50,7 @@ pub fn main() -> Result<(), &'static str> {
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level, false)?;
+        find_solution(level, true)?;
     }
     Ok(())
 }
