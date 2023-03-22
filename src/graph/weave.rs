@@ -63,7 +63,6 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
         wrap_warps_onto_loom(
             get_warps(zlevel, order, &bobbins, &spool, vi_map),
             &mut loom
-            
         );
         if zlevel != -1 {
             bobbins = prepare_bobbins(&mut loom, verts, vi_map);
