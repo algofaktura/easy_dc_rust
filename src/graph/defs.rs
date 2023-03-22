@@ -119,7 +119,7 @@ impl<'a> Weaver<'a> {
         }
     }
 
-    pub fn get_edges(&mut self) -> Edges {
+    pub fn edges(&mut self) -> Edges {
         self.data
             .iter()
             .circular_tuple_windows()
