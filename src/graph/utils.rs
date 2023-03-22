@@ -92,8 +92,10 @@ pub mod shrink {
     fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
         verts
             .iter()
-            .map(|v| v.2)
-            .filter(|&z| z < 0)
+            .filter_map(|&(_, _, z)| match z < 0 {
+                true => Some(z),
+                false => None
+            })
             .collect::<Points>()
             .into_iter()
             .map(|z| {
@@ -102,12 +104,9 @@ pub mod shrink {
                     verts
                         .iter()
                         .enumerate()
-                        .filter_map(|(i, v)| {
-                            if v.2 as Point == z {
-                                Some(i as u32)
-                            } else {
-                                None
-                            }
+                        .filter_map(|(i, v)| match v.2 as Point == z {
+                            true => Some(i as u32),
+                            false => None
                         })
                         .collect::<Nodes>(),
                 )
@@ -117,12 +116,9 @@ pub mod shrink {
 
     fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
         adj.iter()
-            .filter_map(|(k, v)| {
-                if nodes.contains(k) {
-                    Some((*k, v.intersection(&nodes).copied().collect()))
-                } else {
-                    None
-                }
+            .filter_map(|(k, v)| match nodes.contains(k) {
+                true => Some((*k, v.intersection(&nodes).copied().collect())),
+                false => None
             })
             .collect()
     }

@@ -56,27 +56,28 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str> {
-    println!("🍳 MAKE GRAPH ➤ ⌘ 🔀 SOLVE GRAPH ➤ 🔬 CERTIFY SOLUTION");
-    println!("🍳 MAKING GRAPH....");
-    let start: Instant = Instant::now();
+    println!("🏗️ MAKE GRAPH ➤ 🔀 SOLVE GRAPH ➤ 🔎 CERTIFY SOLUTION");
+
+    println!("🏗️ MAKING GRAPH....");
+    let start_make: Instant = Instant::now();
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
-    let dur_graph = Instant::now() - start;
-    println!("MADE GRAPH: 🕗 {dur_graph:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
-    let start: Instant = Instant::now();
+    let dur_make = Instant::now() - start_make;
+
+    println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
+    let start_solve: Instant = Instant::now();
     let solution = weave::weave(&adj, vi_map, verts, z_adj, z_order, max_xyz);
-    let dur = Instant::now() - start;
-    println!(
-        "🇳 {n:>4} FINISHED WEAVE. 🔬 CERTIFYING SOLUTION... 🕗 {}",
-        dur.as_secs_f32()
-    );
+    let dur_solve = Instant::now() - start_solve;
+    println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 SOLVE: {} |", dur_solve.as_secs_f32());
+
     if certify {
-        let start: Instant = Instant::now();
+        println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
+        let start_check: Instant = Instant::now();
         let seq_id = certify::id_seq(&solution, &adj);
-        let dur_certify = Instant::now() - start;
+        let dur_certify = Instant::now() - start_check;
         println!(
         "| 🇳 {n:>4} | 🕗 MAKE: {} | ⭕️ {order:>10} | 🕗 SOLVE: {} | 📌 {seq_id:?} | 🕗 CERTIFY: {}",
-        dur_graph.as_secs_f32(),
-        dur.as_secs_f32(),
+        dur_make.as_secs_f32(),
+        dur_solve.as_secs_f32(),
         dur_certify.as_secs_f32()
     );
         assert_eq!(seq_id, SequenceID::HamCycle);
