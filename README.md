@@ -65,8 +65,8 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 
   img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
+    object-fit: cover;
   }
 </style>
 
