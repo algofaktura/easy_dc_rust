@@ -94,7 +94,7 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
     let order_z_minus_5 = order_z - 5;
     (1..order_z)
-        .for_each(|idx| spindle.push(unspun_fiber(spindle, &z_adj, verts, idx, order_z_minus_5)));
+        .for_each(|idx| spindle.push(get_unspun_fiber(spindle, &z_adj, verts, idx, order_z_minus_5)));
     Yarn::from(
         spindle
             .iter()
@@ -106,7 +106,7 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     )
 }
 
-fn unspun_fiber(
+fn get_unspun_fiber(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
