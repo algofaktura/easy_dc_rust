@@ -49,25 +49,8 @@ Execution time of each order (in millions):
 ### digital discocubes
 As each solution is as unique as a fingerprint, or a diamond it allows one to have their own digital version of a discocube, which is also an instruction for building your own.
 
-
-<table style="border-collapse: collapse;">
-  <tr>
-    <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube.png" alt="icy cube" style="width: auto; height: 100%; object-fit: cover;">
-    </td>
-    <td style="padding: 0; width: 50%;">
-        <img src="imgs/always_turning_9120.png" alt="Always Turning Discocube 9120 view" style="width: auto; height: 100%; object-fit: cover;">
-    </td>
-  </tr>
-  <tr>
-    <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube2.png" alt="icy cube another view" style="width: auto; height: 100%; object-fit: cover;">
-    </td>
-    <td style="padding: 0; width: 50%;">
-        <img src="imgs/icy_cube3.png" alt="confetti cube" style="width: auto; height: 100%; object-fit: cover;">
-    </td>
-  </tr>
-</table>
+![Discocube 3640 view](imgs/icy_cube.png?raw=true "icy cube") 
+![Discocube 3640 view](imgs/icy_cube3.png?raw=true "confetti cube")
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
 ### ps...
