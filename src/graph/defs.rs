@@ -130,7 +130,7 @@ impl<'a> Weaver<'a> {
             }
         }
     }
-    
+
     pub fn get_edges(&mut self) -> Edges {
         self.data
             .iter()
