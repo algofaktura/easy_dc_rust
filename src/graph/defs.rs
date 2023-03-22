@@ -78,11 +78,11 @@ impl<'a> Weaver<'a> {
             .collect()
     }
 
-    pub fn join(&mut self, edge: Edge, oedge: Edge, other: &mut Tour) {
+    pub fn join(&mut self, edge: Edge, wedge: Edge, warp: &mut Tour) {
         self.rotated_to_edge(edge);
-        let reversed = !self.adj[&edge.1].contains(&oedge.0);
-        Weaver::rotate_to_edge(other, if reversed { (oedge.1, oedge.0) } else { oedge });
-        self.data.append(other);
+        let reversed = !self.adj[&edge.1].contains(&wedge.0);
+        Weaver::rotate_to_edge(warp, if reversed { (wedge.1, wedge.0) } else { wedge });
+        self.data.append(warp);
     }
 
     pub fn rotated_to_edge(&mut self, (lhs, rhs): (u32, u32)) {
