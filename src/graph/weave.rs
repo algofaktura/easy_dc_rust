@@ -6,7 +6,7 @@ use rayon::prelude::*;
 
 use super::{
     defs::{
-        Adjacency, Bobbins, Count, Idx, Loom, Node, Point, Solution, Spool, Subtours, Tour,
+        Adjacency, Bobbins, Count, Loom, Node, Point, Solution, Spool, Subtours, Tour,
         TourSlice, VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
     },
     utils::{
@@ -58,9 +58,9 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
     let spool: Spool = spin_and_color_yarn(z_adj, verts);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
-    for (zlevel, order) in z_order {
+    for (zlevel, length) in z_order {
         wrap_warps_onto_loom(
-            get_warps(zlevel, order, &bobbins, &spool, vi_map),
+            get_warps(zlevel, length, &bobbins, &spool, vi_map),
             &mut loom,
         );
         if zlevel == -1 {
@@ -123,7 +123,7 @@ fn color_yarn(a: &Yarn) -> Yarn {
 
 fn get_warps(
     zlevel: Point,
-    order: Count,
+    length: Count,
     bobbins: &Bobbins,
     spool: &Spool,
     vi_map: &VIMap,
@@ -131,7 +131,7 @@ fn get_warps(
     match preallocate_yarn(
         spool[&(zlevel % 4 + 4).try_into().unwrap()].clone(),
         zlevel,
-        order,
+        length,
         vi_map,
     ) {
         node_yarn if bobbins.is_empty() => vec![node_yarn],
@@ -139,11 +139,11 @@ fn get_warps(
     }
 }
 
-fn preallocate_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap) -> Tour {
+fn preallocate_yarn(mut yarn: Yarn, zlevel: Point, length: usize, vi_map: &VIMap) -> Tour {
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
-            (yarn.len_of(ndarray::Axis(0)) - order).try_into().unwrap(),
+            (yarn.len_of(ndarray::Axis(0)) - length).try_into().unwrap(),
             None,
             1,
         ),
@@ -155,8 +155,8 @@ fn preallocate_yarn(mut yarn: Yarn, zlevel: Point, order: Count, vi_map: &VIMap)
 
 fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
     let mut subtours: Subtours = Vec::new();
-    let last_ix: Idx = yarn.len() - 1;
-    let last_idx: Idx = cuts.len() - 1;
+    let last_ix: usize = yarn.len() - 1;
+    let last_idx: usize = cuts.len() - 1;
     let mut prev: i32 = -1_i32;
     for (e, idx) in cuts
         .iter()
@@ -202,7 +202,7 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
 fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
-            let (left, right) = get_upper_fibres(
+            let (left, right) = get_pins(
                 verts[thread[0] as usize],
                 verts[thread[thread.len() - 1] as usize],
                 vi_map,
@@ -214,7 +214,7 @@ fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
         .collect()
 }
 
-fn get_upper_fibres((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
+fn get_pins((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
     (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
