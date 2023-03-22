@@ -136,6 +136,48 @@ pub mod shrink {
     }
 }
 
+pub mod modify {
+    use super::{arr2, Array2, Point};
+
+    pub fn orient(m: u32, n: u32) -> (u32, u32) {
+        if m < n {
+            (m, n)
+        } else {
+            (n, m)
+        }
+    }
+
+    pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
+        vert + arr2(&[
+            [2, 0, 0],
+            [-2, 0, 0],
+            [0, 2, 0],
+            [0, -2, 0],
+            [0, 0, 2],
+            [0, 0, -2],
+        ])
+    }
+}
+
+pub mod xy {
+    use super::Vert;
+
+    pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
+        (0..2)
+            .find(|&i| [x, y][i] != [x1, y1][i])
+            .expect("Something's wrong, the same verts are being compared.")
+    }
+
+    pub fn absumv((x, y, _): Vert) -> i16 {
+        let abs_sum = [x, y].iter().fold(0, |acc, x| {
+            let mask = x >> 15;
+            acc + (x ^ mask) - mask
+        });
+        let sign_bit = abs_sum >> 15;
+        (abs_sum ^ sign_bit) - sign_bit
+    }
+}
+
 pub mod info {
     use super::{Point, SignedIdx, V3d, Vert};
 
@@ -173,29 +215,6 @@ pub mod info {
     }
 }
 
-pub mod modify {
-    use super::{arr2, Array2, Point};
-
-    pub fn orient(m: u32, n: u32) -> (u32, u32) {
-        if m < n {
-            (m, n)
-        } else {
-            (n, m)
-        }
-    }
-
-    pub fn shift_xyz(vert: Array2<Point>) -> Array2<Point> {
-        vert + arr2(&[
-            [2, 0, 0],
-            [-2, 0, 0],
-            [0, 2, 0],
-            [0, -2, 0],
-            [0, 0, 2],
-            [0, 0, -2],
-        ])
-    }
-}
-
 pub mod iters {
     pub fn uon(start: usize, end: usize, max_n: usize) -> impl Iterator<Item = usize> {
         (0..max_n + 2).filter_map(move |i| {
@@ -210,25 +229,6 @@ pub mod iters {
                 None
             }
         })
-    }
-}
-
-pub mod xy {
-    use super::Vert;
-
-    pub fn axis((x, y, _): &Vert, (x1, y1, _): &Vert) -> usize {
-        (0..2)
-            .find(|&i| [x, y][i] != [x1, y1][i])
-            .expect("Something's wrong, the same verts are being compared.")
-    }
-
-    pub fn absumv((x, y, _): Vert) -> i16 {
-        let abs_sum = [x, y].iter().fold(0, |acc, x| {
-            let mask = x >> 15;
-            acc + (x ^ mask) - mask
-        });
-        let sign_bit = abs_sum >> 15;
-        (abs_sum ^ sign_bit) - sign_bit
     }
 }
 
