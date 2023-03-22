@@ -26,6 +26,7 @@ use graph::{
 };
 
 pub fn main() -> Result<(), &'static str> {
+    // operf ./target/release/hamcycle
     let args: Vec<String> = env::args().collect();
     let n_start: u32 = match args.get(1) {
         Some(arg) => {
@@ -56,30 +57,33 @@ pub fn main() -> Result<(), &'static str> {
 }
 
 pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str> {
-    println!("🏗️ MAKE GRAPH ➤ 🔀 SOLVE GRAPH ➤ 🔎 CERTIFY SOLUTION");
+    println!("👷 MAKE GRAPH ➤ 🔀 SOLVE GRAPH ➤ 🔎 CERTIFY SOLUTION");
 
-    println!("🏗️ MAKING GRAPH....");
-    let start_make: Instant = Instant::now();
+    println!("🛠️ MAKING GRAPH....");
+    let mut start: Instant = Instant::now();
     let (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz) = make_graph(level);
-    let dur_make = Instant::now() - start_make;
+    let dur_make = Instant::now() - start;
 
     println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
-    let start_solve: Instant = Instant::now();
+    start = Instant::now();
     let solution = weave::weave(&adj, vi_map, verts, z_adj, z_order, max_xyz);
-    let dur_solve = Instant::now() - start_solve;
-    println!("| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 SOLVE: {} |", dur_solve.as_secs_f32());
+    let dur_solve = Instant::now() - start;
+    println!(
+        "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 SOLVE: {} |",
+        dur_solve.as_secs_f32()
+    );
 
     if certify {
         println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
-        let start_check: Instant = Instant::now();
+        start = Instant::now();
         let seq_id = certify::id_seq(&solution, &adj);
-        let dur_certify = Instant::now() - start_check;
+        let dur_certify = Instant::now() - start;
         println!(
         "| 🇳 {n:>4} | 🕗 MAKE: {} | ⭕️ {order:>10} | 🕗 SOLVE: {} | 📌 {seq_id:?} | 🕗 CERTIFY: {}",
         dur_make.as_secs_f32(),
         dur_solve.as_secs_f32(),
         dur_certify.as_secs_f32()
-    );
+        );
         assert_eq!(seq_id, SequenceID::HamCycle);
     }
     Ok(solution)

@@ -80,7 +80,7 @@ fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
 
 fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut vec![*z_adj.keys().max().unwrap()];
-    (1..order_z).for_each(|idx| spindle.push(get_fibre(spindle, &z_adj, verts, idx, order_z)));
+    (1..order_z).for_each(|idx| spindle.push(add_fibre(spindle, &z_adj, verts, idx, order_z)));
     Yarn::from(
         spindle
             .iter()
@@ -89,7 +89,7 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     )
 }
 
-fn get_fibre(
+fn add_fibre(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
