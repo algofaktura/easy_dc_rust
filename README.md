@@ -26,9 +26,9 @@ I hope that I've shared some insights (through code) I've gained by solving this
 
 Goal:
 Optimize the algorithm so that it is able to solve instances of over a billion vertices:
-``
+```
 TO BE CONTINUED TO: | 🇳  1000 | ⭕️  1_337_336_000 | 
-``
+```
 
 ![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
 *Discocubes 8 - 1760*
