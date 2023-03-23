@@ -5,26 +5,20 @@ use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::{
-    defs::{
-        Adjacency, Bobbins, Count, Loom, Point, Solution, Spool, Subtours, Tour, TourSliceThick,
-        VIMap, Vert, Verts, Warps, Weaver, Yarn, ZAdjacency, ZOrder,
-    },
+    defs::{Count, Point, Solution, Spool, TourSliceThick, Weaver, Yarn, ZAdjacency, ZOrder},
     utils::{
         info::absumv2dc,
         make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
 
-pub fn weave(
-    adj: &Adjacency,
-    vi_map: VIMap,
-    verts: &Verts,
-    z_adj: ZAdjacency,
-    z_order: ZOrder,
-    min_xyz: Point,
-) -> Solution {
-    let mut loom = wrap_and_reflect_loom(&vi_map, verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), verts, true, min_xyz);
+pub type Loom = Vec<VecDeque<[i16; 3]>>;
+pub type Tour = Vec<[i16; 3]>;
+pub type Warps = Vec<Vec<[i16; 3]>>;
+
+pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> Solution {
+    let mut loom = wrap_and_reflect_loom(z_adj, z_order);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), true, min_xyz, order);
     let mut loom = loom
         .split_off(1)
         .into_iter()
@@ -35,33 +29,42 @@ pub fn weave(
         if let Some((m, n)) = (&weaver.edges()
             & &warp_edges
                 .iter()
-                .flat_map(|(m, n)| {
-                    make_edges(verts[*m as usize], verts[*n as usize], min_xyz, &vi_map)
-                })
+                .flat_map(|(m, n)| make_edges(*m, *n, min_xyz))
                 .collect())
             .into_iter()
             .next()
         {
-            if let Some((o, p)) =
-                (&make_eadjs(verts[m as usize], verts[n as usize], min_xyz, &vi_map) & &warp_edges)
-                    .into_iter()
-                    .next()
+            if let Some((o, p)) = (&make_eadjs(m, n, min_xyz) & &warp_edges)
+                .into_iter()
+                .next()
             {
-                weaver.join((m, n), if adj[&n].contains(&o){(o, p)} else {(p, o)}, warp);
+                weaver.join(
+                    (m, n),
+                    if {
+                        let [a, b, c] = n;
+                        let [x, y, z] = o;
+                        ((a + b + c) - (x + y + z)).abs() == 2
+                    } {
+                        (o, p)
+                    } else {
+                        (p, o)
+                    },
+                    warp,
+                );
             }
         }
     });
     weaver.get_nodes()
 }
 
-fn wrap_and_reflect_loom(vi_map: &VIMap, verts: &Verts, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
+fn wrap_and_reflect_loom(z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
-    let mut bobbins: Bobbins = Vec::new();
+    let mut bobbins: Vec<[i16; 3]> = Vec::new();
     let mut loom: Loom = Loom::new();
     for (z, length) in z_order {
-        wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool, vi_map), &mut loom);
+        wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
         if z != -1 {
-            bobbins = pin_ends(&mut loom, verts, vi_map);
+            bobbins = pin_ends(&mut loom);
         }
     }
     loom.par_iter_mut().for_each(|thread| {
@@ -70,8 +73,8 @@ fn wrap_and_reflect_loom(vi_map: &VIMap, verts: &Verts, z_adj: ZAdjacency, z_ord
                 .iter()
                 .rev()
                 .map(|&node| {
-                    let (x, y, z) = verts[node as usize];
-                    vi_map[&(x, y, -z)]
+                    let [x, y, z] = node;
+                    [x, y, -z]
                 })
                 .collect::<Tour>(),
         )
@@ -122,10 +125,9 @@ fn get_unspun(
 fn get_warps(
     zlevel: Point,
     length: Count,
-    bobbins: &Bobbins,
+    bobbins: &Vec<[i16; 3]>,
     spool: &Spool,
-    vi_map: &VIMap,
-) -> Warps {
+) -> Vec<Vec<[i16; 3]>> {
     let mut yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
@@ -137,19 +139,19 @@ fn get_warps(
     );
     match yarn
         .outer_iter()
-        .map(|row| vi_map[&(row[0], row[1], zlevel)])
-        .collect()
+        .map(|row| [row[0], row[1], zlevel])
+        .collect::<Vec<_>>()
     {
         node_yarn if bobbins.is_empty() => vec![node_yarn],
         node_yarn => cut_yarn(node_yarn, bobbins),
     }
 }
 
-fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
-    let mut subtours: Subtours = Vec::new();
+fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Vec<Vec<[i16; 3]>> {
+    let mut subtours: Vec<Vec<[i16; 3]>> = Vec::new();
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
-    let mut prev: i32 = -1_i32;
+    let mut prev = -1_i32;
     for (e, idx) in cuts
         .iter()
         .filter_map(|node| yarn.iter().position(|&x| x == *node))
@@ -191,23 +193,18 @@ fn cut_yarn(yarn: Tour, cuts: &Bobbins) -> Subtours {
     subtours
 }
 
-fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
+fn pin_ends(loom: &mut Vec<VecDeque<[i16; 3]>>) -> Vec<[i16; 3]> {
     loom.iter_mut()
         .flat_map(|thread| {
-            let (left, right) = get_upper_pins(
-                verts[thread[0] as usize],
-                verts[thread[thread.len() - 1] as usize],
-                vi_map,
-            );
+            let [x, y, z] = thread[0];
+            let [i, j, k] = thread[thread.len() - 1];
+            let left = [x, y, z + 2];
+            let right = [i, j, k + 2];
             thread.push_front(left);
             thread.push_back(right);
             [left, right]
         })
         .collect()
-}
-
-fn get_upper_pins((x, y, z): Vert, (x1, y1, z1): Vert, vi_map: &VIMap) -> (u32, u32) {
-    (vi_map[&(x, y, z + 2)], vi_map[&(x1, y1, z1 + 2)])
 }
 
 fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
