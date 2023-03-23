@@ -1,4 +1,8 @@
 # easy dc solver
+*"It would be a mistake to think that solving problems is a purely intellectual affair; determination and emotions play an important role."*
+*"“The worst may happen if the student embarks upon computations or constructions without having understood the problem.”"*
+― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
+
 An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for up to 350 million vertices). Discocube graphs are
 3-dimensional grid graphs derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
 the set of points in a 3-dimensional square grid graph contained within an octahedron...
@@ -21,8 +25,13 @@ There are no while loops, and will terminate after a series of steps have been p
 This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
 Not thinking it could be done until I actually did it: Learning to draw with my mind, using code to draw the object..
 
+I'll close with this:
 
-I hope that I've shared some insights (through code) I've gained by solving this problem having taken an approach similar to that of sculpting the human body...
+*“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
+― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
+
+
+
 
 Goal:
 Optimize the algorithm so that it is able to solve instances of over a billion vertices:
@@ -40,9 +49,9 @@ To paraphrase Hauy:
 *When solving problems that involve analyzing how nature progresses, we are led by very rapid methods to results that are not immediately obvious. These results may appear paradoxical and surprising. However, if we take the time to carefully examine the steps we took to reach these results, we will begin to understand the underlying principles that led to these outcomes. By going back over the process step by step, we can better understand the logic behind the final results.*
 
 The result of this creative process is a family of algorithms developed specifically to solve various graph problems on the disoocube graph, 3d grid graph and hexprism honeycomb diamond graphs. 
-The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while others take longer but also have other objectives, like forming an always turning cycle with even edge distribution across all axes. But that's giving too much away... 
+The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while other algorithms in the family take longer but they also have other objectives; like forming an always turning cycle with even edge distribution across all axes. But that's beyond the scope of this repo.
 
-Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs, addressing some open issues raised in the graph theory research literature.
+Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs (a side-effect of the research), addressing some open issues raised in the graph theory research literature. 
 
 ![Hexprism Honeycomb Diamond](imgs/hexhoneydiamond.png?raw=true "Hexprism Honeycomb Diamond")
 *Hexprism Honeycomb Diamond*
@@ -54,8 +63,7 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 ![Discocube 3640 view](imgs/icy_cube3.png?raw=true "confetti cube")
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
-Please note: the hamiltonian cycle produced by this algorithm is the base form, without a high mutation rate. The polished versions available have no nonturns and all their edges are distributed evenly across the three axes.
-The other algorithms I spoke of earlier accomplish this task.
+The always turning hamiltonian cycle digital discocubes are not produced by the algorithm in this repo, but by another polynomial-time algorithm.
 
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
@@ -678,32 +686,32 @@ pub mod certify {
 | 🇳  541 | ⭕️  212_292_728 | 🕗    563.1724243 | 📌 HamCycle |
 | 🇳  542 | ⭕️  213_469_952 | 🕗    572.6234131 | 📌 HamCycle |
 | 🇳  543 | ⭕️  214_651_520 | 🕗    595.1621094 | 📌 HamCycle |
-| 🇳  544 | ⭕️  215_837_440 | 🕗    595.5155029 | 📌 HamCycle | 55.8 GB
-| 🇳  545 | ⭕️  217_027_720 | 🕗    614.3336182 | 📌 HamCycle | 56.8 GB
+| 🇳  544 | ⭕️  215_837_440 | 🕗    595.5155029 | 📌 HamCycle | 55.8
+| 🇳  545 | ⭕️  217_027_720 | 🕗    614.3336182 | 📌 HamCycle | 56.8
 | 🇳  546 | ⭕️  218_222_368 | 🕗    676.3571167 | 📌 HamCycle |
 | 🇳  547 | ⭕️  219_421_392 | 🕗    706.4018555 | 📌 HamCycle |
 | 🇳  548 | ⭕️  220_624_800 | 🕗    707.0447388 | 📌 HamCycle |
 | 🇳  549 | ⭕️  221_832_600 | 🕗    690.8361206 | 📌 HamCycle |
-| 🇳  550 | ⭕️  223_044_800 | 🕗    601.1645508 | 📌 HamCycle | 51.6 GB
-| 🇳  551 | ⭕️  224_261_408 | 🕗    666.2920532 | 📌 HamCycle | 53.5 GB
+| 🇳  550 | ⭕️  223_044_800 | 🕗    601.1645508 | 📌 HamCycle | 51.6
+| 🇳  551 | ⭕️  224_261_408 | 🕗    666.2920532 | 📌 HamCycle | 53.5
 | 🇳  552 | ⭕️  225_482_432 | 🕗    707.9029541 | 📌 HamCycle |
 | 🇳  553 | ⭕️  226_707_880 | 🕗    748.0688477 | 📌 HamCycle |
 | 🇳  554 | ⭕️  227_937_760 | 🕗    676.2214966 | 📌 HamCycle |
 | 🇳  555 | ⭕️  229_172_080 | 🕗    712.5463867 | 📌 HamCycle |
-| 🇳  556 | ⭕️  230_410_848 | 🕗    714.9957275 | 📌 HamCycle | 56.1 GB Memory
-| 🇳  557 | ⭕️  231_654_072 | 🕗    714.2865601 | 📌 HamCycle | 53.5 GB Memory
-| 🇳  558 | ⭕️  232_901_760 | 🕗    738.4812622 | 📌 HamCycle | 53.1 GB Memory
-| 🇳  559 | ⭕️  234_153_920 | 🕗    678.1728516 | 📌 HamCycle | 61.1 GB Memory
-| 🇳  560 | ⭕️  235_410_560 | 🕗    741.5216064 | 📌 HamCycle | 58.2 GB Memory | i32 to i16
-| 🇳  561 | ⭕️  235_410_560 | 🕗    739.4226074 | 📌 HamCycle | 60.3 GB Memory
-| 🇳  562 | ⭕️  237_937_312 | 🕗    751.3547363 | 📌 HamCycle | 60.3 GB Memory
-| 🇳  563 | ⭕️  239_207_440 | 🕗    751.3547363 | 📌 HamCycle | 58.6 GB Memory | 71.4 Virtual
+| 🇳  556 | ⭕️  230_410_848 | 🕗    714.9957275 | 📌 HamCycle | 56.1 
+| 🇳  557 | ⭕️  231_654_072 | 🕗    714.2865601 | 📌 HamCycle | 53.5 
+| 🇳  558 | ⭕️  232_901_760 | 🕗    738.4812622 | 📌 HamCycle | 53.1 
+| 🇳  559 | ⭕️  234_153_920 | 🕗    678.1728516 | 📌 HamCycle | 61.1 
+| 🇳  560 | ⭕️  235_410_560 | 🕗    741.5216064 | 📌 HamCycle | 58.2 / i32 to i16
+| 🇳  561 | ⭕️  235_410_560 | 🕗    739.4226074 | 📌 HamCycle | 60.3 
+| 🇳  562 | ⭕️  237_937_312 | 🕗    751.3547363 | 📌 HamCycle | 60.3 
+| 🇳  563 | ⭕️  239_207_440 | 🕗    751.3547363 | 📌 HamCycle | 58.6 / 71.4
 | 🇳  563 | ⭕️  239_207_440 | 🕗    807.9031982 | 📌 HamCycle |
 | 🇳  564 | ⭕️  240_482_080 | 🕗    800.5877686 | 📌 HamCycle |
 | 🇳  565 | ⭕️  241_761_240 | 🕗    803.6581421 | 📌 HamCycle |
 | 🇳  566 | ⭕️  243_044_928 | 🕗    814.1091919 | 📌 HamCycle |
 | 🇳  567 | ⭕️  244_333_152 | 🕗    862.6309204 | 📌 HamCycle |
-| 🇳  568 | ⭕️  245_625_920 | 🕗    827.5814819 | 📌 HamCycle | 63.7 GB
+| 🇳  568 | ⭕️  245_625_920 | 🕗    827.5814819 | 📌 HamCycle | 63.7 
 | 🇳  569 | ⭕️  246_923_240 | 🕗    795.9773560 | 📌 HamCycle | 
 | 🇳  570 | ⭕️  248_225_120 | 🕗    830.3286133 | 📌 HamCycle | 60.2 / 73.2 
 | 🇳  571 | ⭕️  249_531_568 | 🕗    **** killed | 📌 ???????? | 60.7 / 69.8    
@@ -759,22 +767,18 @@ pub mod certify {
 | 🇳  621 | ⭕️  320_854_968 | 🕗   1267.0729675 | 📌 HamCycle | 
 | 🇳  622 | ⭕️  322_404_992 | 🕗   1312.5234320 | 📌 HamCycle | 
 | 🇳  623 | ⭕️  323_960_000 | 🕗   1315.1709561 | 📌 HamCycle | 60.5 / 83.7
-
-
-
+| 🇳  624 | ⭕️  325_520_000 | 🕗   1331.8412612 | 📌 HamCycle | 60.5 / 83.7
 
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
-UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK. I ONLY HAVE 64 GB OF RAM 😢.
+UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK..
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.
 UPDATE 4: USING INDEXMAP RESULTS IN LONGER TIMES PROBABLY OWING TO HAVING TO ACCESS vertn[n].1 etc... vs. adj[n]
           | 🇳  100 | ⭕️    1373600 | 🕗      1.3939092 | 📌 HamCycle |
-UPDATE 5: Reached heights never before imagined by myself! Also the possibility of using a distributed graph engine on a memory cloud:
+UPDATE 5: Also the possibility of using a distributed graph engine on a memory cloud:
 https://www.graphengine.io/downloads/papers/Trinity.pdf 
 ```
 
-
 #### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
-
 
 | ORDER  |   VERTS    |   TOUR   |    VI_MAP |   ADJ     |   TOTAL     |
 | ------:| ----------:| --------:|----------:| ---------:| -----------:|
@@ -800,5 +804,5 @@ https://www.graphengine.io/downloads/papers/Trinity.pdf
 ## Licensing:
 
 This package is licensed under the MIT license.
-
+ 
 Thanks for making it this far!
