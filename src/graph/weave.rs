@@ -23,8 +23,8 @@ pub fn weave(
     z_order: ZOrder,
     min_xyz: Point,
 ) -> Solution {
-    let mut loom = prepare_loom(&vi_map, &verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, &verts, true, min_xyz);
+    let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, min_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
@@ -82,7 +82,7 @@ fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder
 
 fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
     let natur: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
-    let color: Yarn = natur.clone().dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
+    let color: Yarn = natur.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
     Spool::from([(3, natur), (1, color)])
 }
 
@@ -109,7 +109,7 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     )
 }
 
-fn get_unspun<'a>(
+fn get_unspun(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
