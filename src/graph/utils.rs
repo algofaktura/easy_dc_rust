@@ -5,8 +5,8 @@ use rayon;
 use std::fmt;
 
 use super::defs::{
-    Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap,
-    VecVert, Vert, Verts, ZAdjacency, ZOrder, ZlevelNodesMap,
+    Adjacency, Edge, Edges, Neighbors, Nodes, Point, Points, SignedIdx, Solution, Vert, Verts,
+    ZAdjacency, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -17,56 +17,45 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Neighbors, Node, Point, VIMap, VecVert, Verts, ZAdjacency, ZOrder,
+        Adjacency, Neighbors, Point, Verts, ZAdjacency, ZOrder,
     };
 
-    pub fn make_graph(n: u32) -> (u32, u32, VecVert, VIMap, Adjacency, ZAdjacency, ZOrder, i16) {
+    pub fn make_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
-        let verts: VecVert = vertices(max_xyz);
-        let vi_map: VIMap = vi_map(&verts);
-        let adj: Adjacency = adjacency_map(&verts, max_xyz + 2, &vi_map);
+        let verts: Vec<[i16; 3]> = vertices(max_xyz);
+        let adj: Adjacency = adjacency_map(&verts, max_xyz + 2);
         let (z_adj, z_order) = shrink_adjacency(&verts, &adj);
-        (n, order, verts, vi_map, adj, z_adj, z_order, max_xyz - 4)
+        (n, order, z_adj, z_order, max_xyz - 4)
     }
 
-    pub fn vertices(max_xyz: Point) -> VecVert {
+    pub fn vertices(max_xyz: Point) -> Vec<[i16; 3]> {
         let max_xyz_plus_4 = max_xyz + 4;
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2),
             (-max_xyz..=max_xyz).step_by(2)
         )
-        .filter(|&vert| absumv(vert) < max_xyz_plus_4)
-        .sorted_by_key(|&vert| (absumv(vert), vert.0, vert.1))
-        .collect::<VecVert>()
+        .filter(|&(x, y, z)| absumv([x, y, z]) < max_xyz_plus_4)
+        .sorted_by_key(|&(x, y, z)| (absumv([x, y, z]), x, y))
+        .map(|(x, y, z)| [x, y, z])
+        .collect::<Vec<_>>()
     }
 
-    fn vi_map(verts: &Verts) -> VIMap {
+    fn adjacency_map(verts: &Verts, max_xyz_plus_2: Point) -> Adjacency {
         verts
             .par_iter()
-            .enumerate()
-            .map(|(idx, vert)| (*vert, idx as Node))
-            .collect()
-    }
-
-    fn adjacency_map(verts: &Verts, max_xyz_plus_2: Point, vi_map: &VIMap) -> Adjacency {
-        verts
-            .par_iter()
-            .enumerate()
-            .map(|(idx, (x, y, z))| {
-                let ix = idx as Node;
+            .map(|vert| {
                 (
-                    ix,
-                    shift_xyz(arr2(&[[*x, *y, *z]]))
+                    *vert,
+                    shift_xyz(arr2(&[*vert]))
                         .into_iter()
-                        .filter_map(|new_neighbor_vert| match vi_map.get(&new_neighbor_vert) {
-                            Some(&node)
-                                if node != ix && absumv(new_neighbor_vert) <= max_xyz_plus_2 =>
-                            {
-                                Some(node)
+                        .filter_map(|neigh| {
+                            if neigh != *vert && absumv(neigh) <= max_xyz_plus_2 {
+                                Some(neigh)
+                            } else {
+                                None
                             }
-                            _ => None,
                         })
                         .collect::<Neighbors>(),
                 )
@@ -83,7 +72,7 @@ pub mod shrink {
     pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (ZAdjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
         (
-            filter_adjacency(adj, verts, stratified[&(-1 as Point)].clone()),
+            filter_adjacency(adj, stratified[&(-1 as Point)].clone()),
             get_zlevel_order(&stratified),
         )
     }
@@ -91,7 +80,7 @@ pub mod shrink {
     fn stratify_nodes(verts: &Verts) -> ZlevelNodesMap {
         verts
             .iter()
-            .filter_map(|&(_, _, z)| match z < 0 {
+            .filter_map(|&[_, _, z]| match z < 0 {
                 true => Some(z),
                 false => None,
             })
@@ -102,9 +91,8 @@ pub mod shrink {
                     z,
                     verts
                         .iter()
-                        .enumerate()
-                        .filter_map(|(i, v)| match v.2 as Point == z {
-                            true => Some(i as u32),
+                        .filter_map(|v| match v[2] as Point == z {
+                            true => Some(*v),
                             false => None,
                         })
                         .collect::<Nodes>(),
@@ -113,17 +101,17 @@ pub mod shrink {
             .collect()
     }
 
-    fn filter_adjacency(adj: &Adjacency, verts: &Verts, nodes: Nodes) -> ZAdjacency {
+    fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> ZAdjacency {
         adj.iter()
             .filter_map(|(k, v)| match nodes.contains(k) {
                 true => Some((
                     {
-                        let (x, y, _) = verts[*k as usize];
+                        let [x, y, _] = *k;
                         [x, y]
                     },
                     v.intersection(&nodes)
                         .map(|node| {
-                            let (x, y, _) = verts[*node as usize];
+                            let [x, y, _] = *node;
                             [x, y]
                         })
                         .collect(),
@@ -143,16 +131,16 @@ pub mod shrink {
 }
 
 pub mod modify {
-    use super::{arr2, Array2, Point, VecVert};
+    use super::{arr2, Array2, Point};
 
-    pub fn orient(m: u32, n: u32) -> (u32, u32) {
+    pub fn orient(m: [i16; 3], n: [i16; 3]) -> ([i16; 3], [i16; 3]) {
         match m < n {
             true => (m, n),
             false => (n, m),
         }
     }
 
-    pub fn shift_xyz(vert: Array2<Point>) -> VecVert {
+    pub fn shift_xyz(vert: Array2<Point>) -> Vec<[i16; 3]> {
         (vert
             + arr2(&[
                 [2, 0, 0],
@@ -163,7 +151,7 @@ pub mod modify {
                 [0, 0, -2],
             ]))
         .outer_iter()
-        .map(|point| (point[0], point[1], point[2]))
+        .map(|point| [point[0], point[1], point[2]])
         .collect()
     }
 }
@@ -195,8 +183,8 @@ pub mod info {
         (abs_sum ^ sign_bit) - sign_bit
     }
 
-    pub fn absumv((x, y, z): Vert) -> Point {
-        let abs_sum = [x, y, z].iter().fold(0, |acc, x| {
+    pub fn absumv(vert: [i16; 3]) -> Point {
+        let abs_sum = vert.iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
@@ -235,9 +223,15 @@ pub mod iters {
 }
 
 pub mod check_edge {
-    use super::{Point, Vert};
+    use super::Point;
 
-    pub fn is_valid_edge(v1: Vert, v2: Vert, min_xyz: Point, order: u32, lead: bool) -> bool {
+    pub fn is_valid_edge(
+        v1: [i16; 3],
+        v2: [i16; 3],
+        min_xyz: Point,
+        order: u32,
+        lead: bool,
+    ) -> bool {
         if order < 160 {
             return valid_edge(v1, v2);
         }
@@ -247,11 +241,11 @@ pub mod check_edge {
         }
     }
 
-    pub fn valid_edge((x1, y1, _): Vert, (x2, y2, _): Vert) -> bool {
+    pub fn valid_edge([x1, y1, _]: [i16; 3], [x2, y2, _]: [i16; 3]) -> bool {
         matches!(x1 + y1 + x2 + y2, 4..=10)
     }
 
-    pub fn valid_main_edge((x, y, z): Vert, (x2, y2, z2): Vert, min_xyz: Point) -> bool {
+    pub fn valid_main_edge([x, y, z]: [i16; 3], [x2, y2, z2]: [i16; 3], min_xyz: Point) -> bool {
         if z.abs() == min_xyz && min_xyz == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 1 && (x2 == 1 || x2 == 3)
         } else {
@@ -259,7 +253,7 @@ pub mod check_edge {
         }
     }
 
-    pub fn valid_other_edge((x, y, z): Vert, (x2, y2, z2): Vert, min_xyz: Point) -> bool {
+    pub fn valid_other_edge([x, y, z]: [i16; 3], [x2, y2, z2]: [i16; 3], min_xyz: Point) -> bool {
         if z.abs() == min_xyz && min_xyz == z2.abs() {
             (x == 1 || x == 3) && y == y2 && y2 == 3 && (x2 == 1 || x2 == 3)
         } else {
@@ -269,10 +263,10 @@ pub mod check_edge {
 }
 
 pub mod make_edges_eadjs {
-    use super::{Edge, Edges, VIMap, Vert};
+    use super::{Edge, Edges};
     use rayon::prelude::*;
 
-    pub fn make_eadjs((a, b, c): Vert, (x, y, z): Vert, min_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_eadjs([a, b, c]: [i16; 3], [x, y, z]: [i16; 3], min_xyz: i16) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
@@ -281,17 +275,12 @@ pub mod make_edges_eadjs {
         }
         .par_iter()
         .filter_map(|[i, j, k]| {
-            get_valid_eadj(
-                (a + i, b + j, c + k),
-                (x + i, y + j, z + k),
-                min_xyz,
-                vi_map,
-            )
+            get_valid_eadj([a + i, b + j, c + k], [x + i, y + j, z + k], min_xyz)
         })
         .collect()
     }
 
-    pub fn make_edges((a, b, c): Vert, (x, y, z): Vert, min_xyz: i16, vi_map: &VIMap) -> Edges {
+    pub fn make_edges([a, b, c]: [i16; 3], [x, y, z]: [i16; 3], min_xyz: i16) -> Edges {
         match (a != x, b != y, c != z) {
             (true, false, false) => [[0, 2, 0], [0, -2, 0], [0, 0, 2], [0, 0, -2]],
             (false, true, false) => [[2, 0, 0], [-2, 0, 0], [0, 0, 2], [0, 0, -2]],
@@ -300,22 +289,12 @@ pub mod make_edges_eadjs {
         }
         .par_iter()
         .filter_map(|[i, j, k]| {
-            get_valid_edge(
-                (a + i, b + j, c + k),
-                (x + i, y + j, z + k),
-                min_xyz,
-                vi_map,
-            )
+            get_valid_edge([a + i, b + j, c + k], [x + i, y + j, z + k], min_xyz)
         })
         .collect()
     }
 
-    pub fn get_valid_edge(
-        (x, y, z): Vert,
-        (a, b, c): Vert,
-        min_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Option<Edge> {
+    pub fn get_valid_edge([x, y, z]: [i16; 3], [a, b, c]: [i16; 3], min_xyz: i16) -> Option<Edge> {
         match z.abs() == min_xyz
             && min_xyz == c.abs()
             && (x == 1 || x == 3)
@@ -324,17 +303,12 @@ pub mod make_edges_eadjs {
             && (a == 1 || a == 3)
             || x == a && a == 1 && y == b && b == 1
         {
-            true => Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)])),
+            true => Some(([x, y, z], [a, b, c])),
             false => None,
         }
     }
 
-    pub fn get_valid_eadj(
-        (x, y, z): Vert,
-        (a, b, c): Vert,
-        min_xyz: i16,
-        vi_map: &VIMap,
-    ) -> Option<Edge> {
+    pub fn get_valid_eadj([x, y, z]: [i16; 3], [a, b, c]: [i16; 3], min_xyz: i16) -> Option<Edge> {
         match z.abs() == min_xyz
             && min_xyz == c.abs()
             && (x == 1 || x == 3)
@@ -343,7 +317,7 @@ pub mod make_edges_eadjs {
             && (a == 1 || a == 3)
             || x == a && a == 3 && y == b && b == 1
         {
-            true => Some((vi_map[&(x, y, z)], vi_map[&(a, b, c)])),
+            true => Some(([x, y, z], [a, b, c])),
             false => None,
         }
     }
@@ -381,29 +355,5 @@ pub mod certify {
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
-    }
-}
-
-pub mod translate {
-    use super::{Adjacency, Verts, ZAdjacency};
-
-    pub fn adj_to_adjvc(adj: &Adjacency, verts: &Verts) -> ZAdjacency {
-        // turn every key and every value in value into a [Point;2]
-        adj.iter()
-            .map(|(k, val)| {
-                (
-                    {
-                        let (x, y, _) = verts[*k as usize];
-                        [x, y]
-                    },
-                    val.iter()
-                        .map(|node| {
-                            let (x, y, _) = verts[*node as usize];
-                            [x, y]
-                        })
-                        .collect::<Vec<[i16; 2]>>(),
-                )
-            })
-            .collect()
     }
 }

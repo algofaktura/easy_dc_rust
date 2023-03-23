@@ -10,9 +10,8 @@ pub type Bobbins = Vec<Node>;
 pub type Count = usize;
 pub type Edge = (Node, Node);
 pub type Edges = HashSet<Edge>;
-pub type Loom = Vec<YarnEnds>;
-pub type Neighbors = HashSet<Node>;
-pub type Node = u32;
+pub type Neighbors = HashSet<[i16; 3]>;
+pub type Node = [i16; 3];
 pub type Nodes = HashSet<Node>;
 pub type Order = u32;
 pub type Point = i16;
@@ -20,43 +19,38 @@ pub type Points = HashSet<Point>;
 pub type Solution = Tour;
 pub type Spool = HashMap<u32, Yarn>;
 pub type Subtours = Vec<Tour>;
-pub type Tour = Vec<Node>;
 pub type TourSlice<'a> = &'a [Node];
 pub type TourSliceThick<'a> = &'a [[i16; 2]];
 pub type YarnEnds = VecDeque<Node>;
 pub type Vert = (Point, Point, Point);
-pub type Verts = [Vert];
+pub type Verts = [[i16; 3]];
 pub type VecVert = Vec<Vert>;
 pub type VIMap = HashMap<Vert, Node>;
-pub type Warps = Subtours;
 pub type Weights = HashMap<Node, Point>;
 pub type SignedIdx = i32;
 pub type Yarn = Array2<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;
 pub type ZOrder = Vec<(Point, usize)>;
 
+pub type Loom = Vec<VecDeque<[i16; 3]>>;
+pub type Tour = Vec<[i16; 3]>;
+pub type Warps = Vec<Vec<[i16; 3]>>;
+
 #[derive(Clone, Debug)]
-pub struct Weaver<'a> {
+pub struct Weaver {
     pub data: Tour,
-    verts: &'a Verts,
     lead: bool,
     min_xyz: Point,
     order: u32,
 }
 
-impl<'a> Weaver<'a> {
-    pub fn new(
-        mut data: YarnEnds,
-        verts: &'a Verts,
-        lead: bool,
-        min_xyz: Point,
-    ) -> Weaver<'a> {
+impl Weaver {
+    pub fn new(mut data: YarnEnds, lead: bool, min_xyz: Point, order: u32) -> Weaver {
         Weaver {
             data: data.drain(..).collect(),
-            verts,
             lead,
             min_xyz,
-            order: verts.len() as u32,
+            order,
         }
     }
 
@@ -65,15 +59,7 @@ impl<'a> Weaver<'a> {
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(|&(m, n)| {
-                is_valid_edge(
-                    self.verts[m as usize],
-                    self.verts[n as usize],
-                    self.min_xyz,
-                    self.order,
-                    false,
-                )
-            })
+            .filter(|&(m, n)| is_valid_edge(m, n, self.min_xyz, self.order, false))
             .collect()
     }
 
@@ -83,7 +69,7 @@ impl<'a> Weaver<'a> {
         self.data.append(warp);
     }
 
-    pub fn rotated_to_edge(&mut self, (lhs, rhs): (u32, u32)) {
+    pub fn rotated_to_edge(&mut self, (lhs, rhs): ([i16; 3], [i16; 3])) {
         if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
             self.data.reverse();
         } else {
@@ -100,7 +86,7 @@ impl<'a> Weaver<'a> {
         }
     }
 
-    pub fn rotate_to_edge(other: &mut Tour, (lhs, rhs): (u32, u32)) {
+    pub fn rotate_to_edge(other: &mut Tour, (lhs, rhs): ([i16; 3], [i16; 3])) {
         if lhs == other[other.len() - 1] && rhs == other[0] {
             other.reverse();
         } else {
@@ -122,27 +108,11 @@ impl<'a> Weaver<'a> {
             .iter()
             .circular_tuple_windows()
             .map(|(a, b)| orient(*a, *b))
-            .filter(|&(m, n)| {
-                is_valid_edge(
-                    self.verts[m as usize],
-                    self.verts[n as usize],
-                    self.min_xyz,
-                    self.order,
-                    self.lead,
-                )
-            })
+            .filter(|&(m, n)| is_valid_edge(m, n, self.min_xyz, self.order, self.lead))
             .collect()
     }
 
     pub fn get_nodes(&self) -> Solution {
         self.data.to_vec()
-    }
-
-    pub fn get_vectors(&self) -> VecVert {
-        self.data
-            .to_vec()
-            .iter()
-            .map(|node| self.verts[*node as usize])
-            .collect()
     }
 }
