@@ -2,6 +2,7 @@
 *"It would be a mistake to think that solving problems is a purely intellectual affair; determination and emotions play an important role."*
 
 *"“The worst may happen if the student embarks upon computations or constructions without having understood the problem.”"*
+
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
 An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for up to 350 million vertices). Discocube graphs are
