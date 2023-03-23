@@ -13,8 +13,8 @@ the set of points in a 3-dimensional square grid graph contained within an octah
 *Planar embedding of a cube and a discocube. from the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
 This algorithm is an artist's rendering of a graph object using programming as a language (versus painting or singing about a mountain) and means by which to describe the body of his muse (a graph object) as an endless contour drawing (Hamiltonian cycle). 
-After thousands of studies, drawings, and a little math: this is a story of how solving specific aethetic goals can yield results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own?
- Art studies forms, the curvature of the neck as it disappears into the back, the color in the foreground, so luminous, relegating all things beyond to irrelevance. So in this project, I studied the discocube as a body, where each turn was conceptualized not as a discrete math object but as movement of the body, resulting in more doodles and sketches than pages of equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repo is the simplest and most descriptive.
+After thousands of studies, drawings, and a little math: this is a story of how solving specific aethetic goals can yield results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own? Do I draw functions with my mind's eye as I would imagine a sculpture?
+ Art studies forms, the curvature of the neck as it disappears behind the back, the color of skin in the foreground, the play of colors and contrasts... So in this project, I studied the discocube as a body, where each turn was conceptualized not as a discrete math object but as movement of the body, resulting in more doodles and sketches than pages of equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repo is the simplest and most descriptive.
 
 ![Hauy's wooden crystal models](imgs/hauyCabinett.png?raw=true "Hauy's wooden crystal models")
 
@@ -23,17 +23,13 @@ After thousands of studies, drawings, and a little math: this is a story of how 
 
 Why weave()? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and how repeating certain movements resulted in certain patterns. I followed the thought further and asked myself if there was a 'weave' I could use to expose underlying unit structure and repeat this throughout to get an initial solution which could later be mutated to produce a more polished solution. The code is structured around the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
-There are no while loops, and will terminate after a series of steps have been performed. 
+This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, which is surprising as the creative process in creating this was anything but deterministic. 
 This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
-Not thinking it could be done until I actually did it: Learning to draw with my mind, using code to draw the object..
 
 I'll close with this:
 
 *“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
-
-
-
 
 Goal:
 Optimize the algorithm so that it is able to solve instances of over a billion vertices:
