@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use super::utils::{check_edge::is_valid_edge, modify::orient};
 
 pub type Adjacency = HashMap<Node, Neighbors>;
+pub type ZAdjacency = HashMap<[Point; 2], Vec<[Point; 2]>>;
 pub type Bobbins = Vec<Node>;
 pub type Count = usize;
 pub type Edge = (Node, Node);
@@ -21,6 +22,7 @@ pub type Spool = HashMap<u32, Yarn>;
 pub type Subtours = Vec<Tour>;
 pub type Tour = Vec<Node>;
 pub type TourSlice<'a> = &'a [Node];
+pub type TourSliceThick<'a> = &'a [[i16; 2]];
 pub type YarnEnds = VecDeque<Node>;
 pub type Vert = (Point, Point, Point);
 pub type Verts = [Vert];

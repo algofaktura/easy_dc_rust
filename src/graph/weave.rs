@@ -1,16 +1,16 @@
 use std::collections::{HashMap, VecDeque};
 
 use itertools::Itertools;
-use ndarray::arr2;
+use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::{
     defs::{
-        Adjacency, Bobbins, Count, Loom, Node, Point, Solution, Spool, Subtours, Tour, TourSlice,
-        VIMap, Vert, Verts, Warps, Weaver, Yarn, ZOrder,
+        Adjacency, Bobbins, Count, Loom, Point, Solution, Spool, Subtours, Tour, TourSliceThick,
+        VIMap, Vert, Verts, Warps, Weaver, Yarn, ZAdjacency, ZOrder,
     },
     utils::{
-        info::{absumv2d, axis2d},
+        info::absumv2dc,
         make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
@@ -19,7 +19,7 @@ pub fn weave(
     adj: &Adjacency,
     vi_map: VIMap,
     verts: &Verts,
-    z_adj: Adjacency,
+    z_adj: ZAdjacency,
     z_order: ZOrder,
     min_xyz: Point,
 ) -> Solution {
@@ -54,87 +54,66 @@ pub fn weave(
     weaver.get_nodes()
 }
 
-fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: Adjacency, z_order: ZOrder) -> Loom {
-    let spool: Spool = spin_and_color_yarn(z_adj, verts);
+fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
+    let spool: Spool = spin_and_color_yarn(z_adj);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
     for (z, length) in z_order {
         wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool, vi_map), &mut loom);
-        if z == -1 {
-            loom.par_iter_mut().for_each(|thread| {
-                thread.extend(
-                    thread
-                        .iter()
-                        .rev()
-                        .map(|&node| {
-                            let (x, y, z) = verts[node as usize];
-                            vi_map[&(x, y, -z)]
-                        })
-                        .collect::<Tour>(),
-                )
-            });
-            break;
+        if z != -1 {
+            bobbins = pin_ends(&mut loom, verts, vi_map);
         }
-        bobbins = pin_ends(&mut loom, verts, vi_map)
     }
+    loom.par_iter_mut().for_each(|thread| {
+        thread.extend(
+            thread
+                .iter()
+                .rev()
+                .map(|&node| {
+                    let (x, y, z) = verts[node as usize];
+                    vi_map[&(x, y, -z)]
+                })
+                .collect::<Tour>(),
+        )
+    });
     loom
 }
 
-fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
-    let natur: Yarn = spin_yarn(z_adj.len(), z_adj, verts);
-    let color: Yarn = natur.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
-    Spool::from([(3, natur), (1, color)])
-}
-
-fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
-    let spindle: &mut Tour = &mut Vec::with_capacity(order_z);
-    let start: u32 = *z_adj.keys().max().unwrap();
-    let mut visited: HashMap<u32, bool> = HashMap::with_capacity(order_z);
+fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
+    let order_z = z_adj.len();
+    let spindle: &mut Vec<[i16; 2]> = &mut Vec::with_capacity(order_z);
+    let start: [i16; 2] = *z_adj.keys().max().unwrap();
+    let mut visited: HashMap<[i16; 2], bool> = HashMap::with_capacity(order_z);
     visited.insert(start, true);
     spindle.push(start);
     let tail = order_z - 5;
     (1..order_z).for_each(|idx| {
-        let next_fiber = get_unspun(spindle, &z_adj, verts, idx, tail, &mut visited);
+        let next_fiber = get_unspun(spindle, &z_adj, idx, tail, &mut visited);
         spindle.push(next_fiber);
         visited.insert(next_fiber, true);
     });
-    Yarn::from(
-        spindle
-            .iter()
-            .map(|&n| {
-                let (x, y, _) = verts[n as usize];
-                [x, y]
-            })
-            .collect::<Vec<_>>(),
-    )
+    let natur: Yarn = Array2::from(spindle.drain(..).collect::<Vec<_>>());
+    let color: Yarn = natur.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
+    Spool::from([(3, natur), (1, color)])
 }
 
 fn get_unspun(
-    spindle: TourSlice,
-    z_adj: &Adjacency,
-    verts: &Verts,
+    spindle: TourSliceThick,
+    z_adj: &ZAdjacency,
     idx: usize,
     tail: usize,
-    visited: &mut HashMap<u32, bool>,
-) -> Node {
-    let curr = *spindle.last().unwrap();
-    let curr_vert = verts[curr as usize];
-    *z_adj[&curr]
+    visited: &mut HashMap<[i16; 2], bool>,
+) -> [i16; 2] {
+    let [x, y] = *spindle.last().unwrap();
+    *z_adj[&[x, y]]
         .iter()
-        .filter_map(
-            |node| match (visited.get(node), verts.get(*node as usize)) {
-                (Some(true), _) => None,
-                (None, Some(next_vert))
-                    if idx < tail
-                        || axis2d(&verts[spindle[spindle.len() - 2] as usize], &curr_vert)
-                            != axis2d(&curr_vert, next_vert) =>
-                {
-                    Some((node, absumv2d(*next_vert)))
-                }
-                (_, None) => None,
-                _ => None,
-            },
-        )
+        .filter_map(|node| match (visited.get(node), *node) {
+            (Some(true), _) => None,
+            (None, [m, n]) if idx < tail || (spindle[spindle.len() - 2][0] == x) != (x == m) => {
+                Some((node, absumv2dc([m, n])))
+            }
+            _ => None,
+        })
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
