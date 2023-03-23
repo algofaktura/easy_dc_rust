@@ -6,7 +6,7 @@ use std::fmt;
 
 use super::defs::{
     Adjacency, Edge, Edges, Neighbors, Node, Nodes, Point, Points, SignedIdx, Solution, VIMap,
-    VecVert, Vert, Verts, ZOrder, ZlevelNodesMap,
+    VecVert, Vert, Verts, ZAdjacency, ZOrder, ZlevelNodesMap,
 };
 
 pub mod make {
@@ -17,10 +17,10 @@ pub mod make {
         modify::shift_xyz,
         rayon::prelude::*,
         shrink::shrink_adjacency,
-        Adjacency, Neighbors, Node, Point, VIMap, VecVert, Verts, ZOrder,
+        Adjacency, Neighbors, Node, Point, VIMap, VecVert, Verts, ZAdjacency, ZOrder,
     };
 
-    pub fn make_graph(n: u32) -> (u32, u32, VecVert, VIMap, Adjacency, Adjacency, ZOrder, i16) {
+    pub fn make_graph(n: u32) -> (u32, u32, VecVert, VIMap, Adjacency, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
         let verts: VecVert = vertices(max_xyz);
@@ -76,12 +76,14 @@ pub mod make {
 }
 
 pub mod shrink {
+    use crate::graph::defs::ZAdjacency;
+
     use super::{Adjacency, Itertools, Nodes, Point, Points, Verts, ZOrder, ZlevelNodesMap};
 
-    pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (Adjacency, ZOrder) {
+    pub fn shrink_adjacency(verts: &Verts, adj: &Adjacency) -> (ZAdjacency, ZOrder) {
         let stratified: ZlevelNodesMap = stratify_nodes(verts);
         (
-            filter_adjacency(adj, stratified[&(-1 as Point)].clone()),
+            filter_adjacency(adj, verts, stratified[&(-1 as Point)].clone()),
             get_zlevel_order(&stratified),
         )
     }
@@ -111,10 +113,21 @@ pub mod shrink {
             .collect()
     }
 
-    fn filter_adjacency(adj: &Adjacency, nodes: Nodes) -> Adjacency {
+    fn filter_adjacency(adj: &Adjacency, verts: &Verts, nodes: Nodes) -> ZAdjacency {
         adj.iter()
             .filter_map(|(k, v)| match nodes.contains(k) {
-                true => Some((*k, v.intersection(&nodes).copied().collect())),
+                true => Some((
+                    {
+                        let (x, y, _) = verts[*k as usize];
+                        [x, y]
+                    },
+                    v.intersection(&nodes)
+                        .map(|node| {
+                            let (x, y, _) = verts[*node as usize];
+                            [x, y]
+                        })
+                        .collect(),
+                )),
                 false => None,
             })
             .collect()
@@ -166,6 +179,15 @@ pub mod info {
 
     pub fn absumv2d((x, y, _): Vert) -> i16 {
         let abs_sum = [x, y].iter().fold(0, |acc, x| {
+            let mask = x >> 15;
+            acc + (x ^ mask) - mask
+        });
+        let sign_bit = abs_sum >> 15;
+        (abs_sum ^ sign_bit) - sign_bit
+    }
+
+    pub fn absumv2dc(vert: [i16; 2]) -> i16 {
+        let abs_sum = vert.iter().fold(0, |acc, x| {
             let mask = x >> 15;
             acc + (x ^ mask) - mask
         });
@@ -359,5 +381,29 @@ pub mod certify {
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
+    }
+}
+
+pub mod translate {
+    use super::{Adjacency, Verts, ZAdjacency};
+
+    pub fn adj_to_adjvc(adj: &Adjacency, verts: &Verts) -> ZAdjacency {
+        // turn every key and every value in value into a [Point;2]
+        adj.iter()
+            .map(|(k, val)| {
+                (
+                    {
+                        let (x, y, _) = verts[*k as usize];
+                        [x, y]
+                    },
+                    val.iter()
+                        .map(|node| {
+                            let (x, y, _) = verts[*node as usize];
+                            [x, y]
+                        })
+                        .collect::<Vec<[i16; 2]>>(),
+                )
+            })
+            .collect()
     }
 }
