@@ -23,8 +23,8 @@ pub fn weave(
     z_order: ZOrder,
     min_xyz: Point,
 ) -> Solution {
-    let mut loom = prepare_loom(&vi_map, verts, z_adj, z_order);
-    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), adj, verts, true, min_xyz);
+    let mut loom = wrap_and_reflect_loom(&vi_map, verts, z_adj, z_order);
+    let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), verts, true, min_xyz);
     let mut loom = loom
         .split_off(1)
         .into_iter()
@@ -42,19 +42,19 @@ pub fn weave(
             .into_iter()
             .next()
         {
-            if let Some(warp_e) =
+            if let Some((o, p)) =
                 (&make_eadjs(verts[m as usize], verts[n as usize], min_xyz, &vi_map) & &warp_edges)
                     .into_iter()
                     .next()
             {
-                weaver.join((m, n), warp_e, warp);
+                weaver.join((m, n), if adj[&n].contains(&o){(o, p)} else {(p, o)}, warp);
             }
         }
     });
     weaver.get_nodes()
 }
 
-fn prepare_loom(vi_map: &VIMap, verts: &Verts, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
+fn wrap_and_reflect_loom(vi_map: &VIMap, verts: &Verts, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
     let mut bobbins: Bobbins = Vec::new();
     let mut loom: Loom = Loom::new();
@@ -201,7 +201,7 @@ fn pin_ends(loom: &mut Loom, verts: &Verts, vi_map: &VIMap) -> Bobbins {
             );
             thread.push_front(left);
             thread.push_back(right);
-            vec![left, right]
+            [left, right]
         })
         .collect()
 }

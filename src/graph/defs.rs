@@ -39,7 +39,6 @@ pub type ZOrder = Vec<(Point, usize)>;
 pub struct Weaver<'a> {
     pub data: Tour,
     verts: &'a Verts,
-    adj: &'a Adjacency,
     lead: bool,
     min_xyz: Point,
     order: u32,
@@ -48,7 +47,6 @@ pub struct Weaver<'a> {
 impl<'a> Weaver<'a> {
     pub fn new(
         mut data: YarnEnds,
-        adj: &'a Adjacency,
         verts: &'a Verts,
         lead: bool,
         min_xyz: Point,
@@ -56,7 +54,6 @@ impl<'a> Weaver<'a> {
         Weaver {
             data: data.drain(..).collect(),
             verts,
-            adj,
             lead,
             min_xyz,
             order: verts.len() as u32,
@@ -82,8 +79,7 @@ impl<'a> Weaver<'a> {
 
     pub fn join(&mut self, edge: Edge, wedge: Edge, warp: &mut Tour) {
         self.rotated_to_edge(edge);
-        let reversed = !self.adj[&edge.1].contains(&wedge.0);
-        Weaver::rotate_to_edge(warp, if reversed { (wedge.1, wedge.0) } else { wedge });
+        Weaver::rotate_to_edge(warp, wedge);
         self.data.append(warp);
     }
 
