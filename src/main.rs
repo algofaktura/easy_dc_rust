@@ -68,6 +68,7 @@ pub fn find_solution(level: u32, certify: bool) -> Result<Solution, &'static str
     let dur_make = Instant::now() - start;
     println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
 
+    println!("{adj:?} {verts:?}");
     start = Instant::now();
     let solution = weave::weave(&adj, vi_map, &verts, z_adj, z_order, min_xyz);
     let dur_solve = Instant::now() - start;

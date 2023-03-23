@@ -1,4 +1,4 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 
 use itertools::Itertools;
 use ndarray::arr2;
@@ -88,9 +88,16 @@ fn spin_and_color_yarn(z_adj: Adjacency, verts: &Verts) -> Spool {
 
 fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     let spindle: &mut Tour = &mut Vec::with_capacity(order_z);
-    spindle.push(*z_adj.keys().max().unwrap());
+    let start: u32 = *z_adj.keys().max().unwrap();
+    let mut visited: HashMap<u32, bool> = HashMap::with_capacity(order_z);
+    visited.insert(start, true);
+    spindle.push(start);
     let tail = order_z - 5;
-    (1..order_z).for_each(|idx| spindle.push(get_unspun(spindle, &z_adj, verts, idx, tail)));
+    (1..order_z).for_each(|idx| {
+        let next_fiber = get_unspun(spindle, &z_adj, verts, idx, tail, &mut visited);
+        spindle.push(next_fiber);
+        visited.insert(next_fiber, true);
+    });
     Yarn::from(
         spindle
             .iter()
@@ -102,29 +109,32 @@ fn spin_yarn(order_z: Count, z_adj: Adjacency, verts: &Verts) -> Yarn {
     )
 }
 
-fn get_unspun(
+fn get_unspun<'a>(
     spindle: TourSlice,
     z_adj: &Adjacency,
     verts: &Verts,
     idx: usize,
     tail: usize,
+    visited: &mut HashMap<u32, bool>,
 ) -> Node {
     let curr = *spindle.last().unwrap();
-    z_adj[&curr]
+    let curr_vert = verts[curr as usize];
+    *z_adj[&curr]
         .iter()
-        .filter_map(|&n| match (spindle.contains(&n), verts.get(n as usize)) {
-            (true, _) => None,
-            (false, Some(next_vert))
-                if idx < tail
-                    || axis2d(
-                        &verts[spindle[spindle.len() - 2] as usize],
-                        &verts[curr as usize],
-                    ) != axis2d(&verts[curr as usize], next_vert) =>
-            {
-                Some((n, absumv2d(*next_vert)))
-            }
-            _ => None,
-        })
+        .filter_map(
+            |node| match (visited.get(node), verts.get(*node as usize)) {
+                (Some(true), _) => None,
+                (None, Some(next_vert))
+                    if idx < tail
+                        || axis2d(&verts[spindle[spindle.len() - 2] as usize], &curr_vert)
+                            != axis2d(&curr_vert, next_vert) =>
+                {
+                    Some((node, absumv2d(*next_vert)))
+                }
+                (_, None) => None,
+                _ => None,
+            },
+        )
         .max_by_key(|&(_, absumv)| absumv)
         .unwrap()
         .0
