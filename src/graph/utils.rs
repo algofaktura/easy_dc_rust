@@ -207,6 +207,10 @@ pub mod info {
     pub fn get_n_from_order(order: u32) -> u32 {
         (((3.0 / 4.0) * order as f64).powf(1.0 / 3.0) - 2.0 / 3.0).round() as u32
     }
+
+    pub fn get_color_index(z: i16) -> u32 {
+        (z % 4 + 4).try_into().unwrap()
+    }
 }
 
 pub mod iters {

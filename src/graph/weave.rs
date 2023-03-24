@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use ndarray::{arr2, Array2};
+use ndarray::{arr2, Array2, Axis, Slice};
 use rayon::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
@@ -9,7 +9,7 @@ use super::{
         ZOrder,
     },
     utils::{
-        info::{absumv2dc, are_adjacent},
+        info::{absumv2dc, are_adjacent, get_color_index},
         make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
@@ -55,10 +55,7 @@ fn wrap_and_reflect_loom(z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let mut bobbins: Vec<[i16; 3]> = Vec::new();
     let mut loom: Loom = Loom::new();
     for (z, length) in z_order {
-        wrap_warps_onto_loom(
-            get_warps(z, (z % 4 + 4).try_into().unwrap(), length, &bobbins, &spool),
-            &mut loom,
-        );
+        wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
         if z != -1 {
             bobbins = pin_ends(&mut loom);
         }
@@ -86,8 +83,8 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     spun.insert(start, true);
     spindle.push(start);
     let tail = order_z - 5;
-    (1..order_z).for_each(|idx| {
-        let unspun = get_unspun(spindle, &z_adj, idx, tail, &mut spun);
+    (1..order_z).for_each(|ix| {
+        let unspun = get_unspun(spindle, &z_adj, ix, tail, &mut spun);
         spindle.push(unspun);
         spun.insert(unspun, true);
     });
@@ -99,7 +96,7 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
 fn get_unspun(
     spindle: TourSlice,
     z_adj: &ZAdjacency,
-    idx: usize,
+    ix: usize,
     tail: usize,
     spun: &mut HashMap<[i16; 2], bool>,
 ) -> [i16; 2] {
@@ -108,10 +105,10 @@ fn get_unspun(
         .iter()
         .filter_map(|node| match (spun.get(node), *node) {
             (Some(true), _) => None,
-            (None, next_node)
-                if idx < tail || (spindle[spindle.len() - 2][0] == x) != (x == next_node[0]) =>
+            (None, unspun)
+                if ix < tail || (spindle[spindle.len() - 2][0] == x) != (x == unspun[0]) =>
             {
-                Some((node, absumv2dc(next_node)))
+                Some((node, absumv2dc(unspun)))
             }
             _ => None,
         })
@@ -120,25 +117,13 @@ fn get_unspun(
         .0
 }
 
-fn get_warps(
-    zlevel: i16,
-    color: u32,
-    length: Count,
-    bobbins: &Vec<[i16; 3]>,
-    spool: &Spool,
-) -> Vec<Vec<[i16; 3]>> {
-    let mut yarn = spool[&color].clone();
-    yarn.slice_axis_inplace(
-        ndarray::Axis(0),
-        ndarray::Slice::new(
-            (yarn.len_of(ndarray::Axis(0)) - length).try_into().unwrap(),
-            None,
-            1,
-        ),
-    );
+fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> Warps {
+    let mut yarn = spool[&get_color_index(z)].clone();
+    let start_pos: isize = (yarn.len_of(ndarray::Axis(0)) - length).try_into().unwrap();
+    yarn.slice_axis_inplace(Axis(0), Slice::new(start_pos, None, 1));
     match yarn
         .outer_iter()
-        .map(|row| [row[0], row[1], zlevel])
+        .map(|row| [row[0], row[1], z])
         .collect::<Vec<_>>()
     {
         node_yarn if bobbins.is_empty() => vec![node_yarn],
@@ -146,8 +131,10 @@ fn get_warps(
     }
 }
 
-fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Vec<Vec<[i16; 3]>> {
-    let mut subtours: Vec<Vec<[i16; 3]>> = Vec::new();
+fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
+    // refactor to cut and consume vs. cloned().  run the calcs to get the cut points, slice the object in place. 
+    // the cuts are either left or right of the index point.
+    let mut subtours: Warps = Vec::new();
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
     let mut prev = -1_i32;
@@ -192,6 +179,7 @@ fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Vec<Vec<[i16; 3]>> {
     subtours
 }
 
+/// pin ends at the end of the level to join with the ends the next floor up.
 fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Vec<[i16; 3]> {
     loom.iter_mut()
         .flat_map(|thread| {
