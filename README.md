@@ -71,12 +71,6 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_212million.png?raw=true "Runtimes up to 212 million")
 8_to_68085920.png
 
-### Solving the graph takes only a little longer than certifying the solution.
- I wonder if this could be a goal. Reduce the algorithm until it is as fast as the algorithm that certifies the graph.
-```
-| 🇳  100 | ⭕️    1373600 | 🕗 TO SOLVE: 0.53748536 | 📌 HamCycle | 🕗 TO CERTIFY: 0.33031258 
-```
-```
 // Used to certify if the sequence is a Hamiltonian cycle, chain or broken.
 
 pub mod certify {
