@@ -88,15 +88,8 @@ pub mod make {
                     *vert,
                     shift_xyz(arr2(&[*vert]))
                         .into_iter()
-                        .filter_map(|new_neighbor_vert| {
-                            if *vert != new_neighbor_vert
-                                && absumv(new_neighbor_vert) <= max_xyz_plus_2
-                            {
-                                Some(new_neighbor_vert)
-                            } else {
-                                None
-                            }
-                        })
+                        .filter(|new_neighbor_vert| *vert != *new_neighbor_vert
+                                && absumv(*new_neighbor_vert) <= max_xyz_plus_2)
                         .collect::<HashSet<_>>(),
                 )
             })
@@ -118,8 +111,8 @@ pub mod shrink {
 
     pub fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
         zip(
-            (-((n * 2 - 1) as i16)..=-1).step_by(2).into_iter(),
-            (1..=n).map(|_n| 2 * _n * (_n + 1)).into_iter(),
+            (-((n * 2 - 1) as i16)..=-1).step_by(2),
+            (1..=n).map(|_n| 2 * _n * (_n + 1)),
         )
         .collect()
     }

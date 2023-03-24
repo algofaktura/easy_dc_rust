@@ -120,8 +120,8 @@ pub fn get_n_from_order(order: u32) -> u32 {
 
 pub fn make_zorders(n: usize) -> Vec<(i16, usize)> {
     zip(
-        (-((n * 2 - 1) as i16)..=-1).step_by(2).into_iter(),
-        (1..=n).map(|_n| 2 * _n * (_n + 1)).into_iter(),
+        (-((n * 2 - 1) as i16)..=-1).step_by(2),
+        (1..=n).map(|_n| 2 * _n * (_n + 1)),
     )
     .collect()
 }
