@@ -61,12 +61,6 @@ impl Weaver {
             .collect()
     }
 
-    pub fn join(&mut self, edge: Edge, wedge: Edge, warp: &mut Tour) {
-        self.rotated_to_edge(edge);
-        Weaver::rotate_to_edge(warp, wedge);
-        self.data.append(warp);
-    }
-
     pub fn rotated_to_edge(&mut self, (lhs, rhs): ([i16; 3], [i16; 3])) {
         if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
             self.data.reverse();
@@ -84,19 +78,19 @@ impl Weaver {
         }
     }
 
-    pub fn rotate_to_edge(other: &mut Tour, (lhs, rhs): ([i16; 3], [i16; 3])) {
-        if lhs == other[other.len() - 1] && rhs == other[0] {
-            other.reverse();
+    pub fn rotate_to_edge(cycle: &mut Tour, (lhs, rhs): ([i16; 3], [i16; 3])) {
+        if lhs == cycle[cycle.len() - 1] && rhs == cycle[0] {
+            cycle.reverse();
         } else {
             match (
-                other.iter().position(|&x| x == lhs).unwrap(),
-                other.iter().position(|&x| x == rhs).unwrap(),
+                cycle.iter().position(|&x| x == lhs).unwrap(),
+                cycle.iter().position(|&x| x == rhs).unwrap(),
             ) {
                 (idx_lhs, idx_rhs) if idx_lhs < idx_rhs => {
-                    other.rotate_left(idx_rhs);
-                    other.reverse()
+                    cycle.rotate_left(idx_rhs);
+                    cycle.reverse()
                 }
-                (idx_lhs, _) => other.rotate_left(idx_lhs),
+                (idx_lhs, _) => cycle.rotate_left(idx_lhs),
             }
         }
     }
