@@ -71,6 +71,7 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_212million.png?raw=true "Runtimes up to 212 million")
 8_to_68085920.png
 
+```
 // Used to certify if the sequence is a Hamiltonian cycle, chain or broken.
 
 pub mod certify {
