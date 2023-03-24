@@ -769,16 +769,27 @@ pub mod certify {
 | 🇳  625 | ⭕️  327_085_000 | 🕗    979.7814374 | 📌 HamCycle |
 | 🇳  626 | ⭕️  328_655_008 | 🕗    993.1074312 | 📌 HamCycle |
 | 🇳  627 | ⭕️  330_230_032 | 🕗    979.7983576 | 📌 HamCycle |
+| 🇳  650 | ⭕️  367_858_400 | 🕗    544.9634414 | 📌 HamCycle |
+| 🇳  655 | ⭕️  376_399_680 | 🕗    576.5380445 | 📌 HamCycle | 36.3 / 40.4
+| 🇳  656 | ⭕️  378_123_648 | 🕗    614.6512895 | 📌 HamCycle |
+| 🇳  657 | ⭕️  379_852_872 | 🕗    533.8238574 | 📌 HamCycle |
+| 🇳  800 | ⭕️  685_228_800 | 🕗   1213.5303298 | 📌 HamCycle |
+| 🇳 1000 | ⭕️1_337_336_000 | 🕗   3049.7146123 | 📌 HamCycle | 17.5 / 22.9
+
+
 UPDATE 1: TO BE CONTINUALLY OPTIMIZED TO SOLVE UP TO: | 🇳  1000 | ⭕️  1_337_336_000 BILLION VERTICES
-UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK..
+UPDATE 2: ACTUALLY NOT, AS IT WOULD REQUIRE THE AMOUNT OF MEMORY LISTED BELOW TO ACCOMPLISH THE TASK.. (actually not!) -> get get rid of the graph! see UPDATE 5
 UPDATE 3: JOIN VERTICES + VI INTO A SINGLE STRUCTURE: AN INDEXABLE HASHMAP. LIKE AN ORDERED DICT IN PYTHON.
 UPDATE 4: USING INDEXMAP RESULTS IN LONGER TIMES PROBABLY OWING TO HAVING TO ACCESS vertn[n].1 etc... vs. adj[n]
           | 🇳  100 | ⭕️    1373600 | 🕗      1.3939092 | 📌 HamCycle |
 UPDATE 5: Also the possibility of using a distributed graph engine on a memory cloud:
 https://www.graphengine.io/downloads/papers/Trinity.pdf 
+UPDATE 6: just got rid of all the unnecessary load and reduced the memory down to just the tour at maximum x 3. Got rid of verts, vi_map, adj.
+making a billion graph takes milliseconds.
+
 ```
 
-#### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS:
+#### EACH GRAPH STRUCTURE'S SIZE REQUIREMENTS: no longer relevant! yipee!
 
 | ORDER  |   VERTS    |   TOUR   |    VI_MAP |   ADJ     |   TOTAL     |
 | ------:| ----------:| --------:|----------:| ---------:| -----------:|
