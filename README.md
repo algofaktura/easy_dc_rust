@@ -26,24 +26,24 @@ After thousands of studies, drawings, and a little math: this is a story of how 
 *“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
-Why weave()? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and how repeating certain movements resulted in certain patterns. I followed the thought further and asked myself if there was a 'weave' I could use to expose underlying unit structure and repeat this throughout to get an initial solution which could later be mutated to produce a more polished solution. The code is structured around the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
-
-This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, which is surprising as the creative process in creating this was anything but deterministic. 
-This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
-
-![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
-*Discocubes 8 - 1760*
-
-What started as a hack-your-own version of a depth-first-search-with-shortcuts for the discocube graph (solving up to 960 vertices), metastasized into pages of overgrown mixin classes mysteriously coupled to each another like overgrown vines pushing me deeper and deeper into the underbelly of its mutant tentacles. Although it was able to solve instances of over a million vertices, it had the clarity of primordial soup. So, as a sadistic gardener I painstakingly pruned my own unescapable web (all those letters you haven't opened yet?) of thorny vines into presentable tiny bonsai trees. So what is a bonsai if not a tree in intimate scope?
+Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are unwitting recordings of a weaver's hand movement, like how a piano roll records the attack of the piano's finger hitting the hammer, or how a seismograph records the motion of the earth... I followed the thought further and asked myself if there was a 'weave' I could use to build the discocube, similar to how one would build a scarf, layer by layer until the final result is reached. For the sake of illustration, I've structured the code to follow the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
 To paraphrase Hauy: 
 
 *When solving problems that involve analyzing how nature progresses, we are led by very rapid methods to results that are not immediately obvious. These results may appear paradoxical and surprising. However, if we take the time to carefully examine the steps we took to reach these results, we will begin to understand the underlying principles that led to these outcomes. By going back over the process step by step, we can better understand the logic behind the final results.*
 
+What started as a hack-your-own version of a depth-first-search-with-shortcuts for the discocube graph (solving up to 960 vertices), metastasized into pages of overgrown mixin classes mysteriously coupled to each another like overgrown vines pushing me deeper and deeper into the underbelly of its mutant tentacles. Although it was able to solve instances of over a million vertices, it had the clarity of primordial soup. So, as a sadistic gardener I painstakingly pruned my own unescapable web (all those letters you haven't opened yet?) of thorny vines into presentable tiny bonsai trees. So what is a bonsai if not a tree in intimate scope?
+
 The result of this creative process is a family of algorithms developed specifically to solve various graph problems on the disoocube graph, 3d grid graph and hexprism honeycomb diamond graphs. 
 The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while other algorithms in the family take longer but they also have other objectives; like forming an always turning cycle with even edge distribution across all axes. But that's beyond the scope of this repo.
 
 Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs (a side-effect of the research), addressing some open issues raised in the graph theory research literature. 
+
+This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, (which is surprising as the creative process in creating this was anything but deterministic).
+This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
+
+![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
+*Discocubes 8 - 1760*
 
 ![Hexprism Honeycomb Diamond](imgs/hexhoneydiamond.png?raw=true "Hexprism Honeycomb Diamond")
 *Hexprism Honeycomb Diamond*
