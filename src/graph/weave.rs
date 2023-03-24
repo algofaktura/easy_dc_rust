@@ -1,8 +1,7 @@
-use std::collections::{HashMap, VecDeque};
-
 use itertools::Itertools;
 use ndarray::{arr2, Array2};
 use rayon::prelude::*;
+use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{

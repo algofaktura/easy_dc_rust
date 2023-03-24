@@ -28,12 +28,11 @@ Why weave()? Finding the solution to the problem reminded me of macramé, of tyi
 This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, which is surprising as the creative process in creating this was anything but deterministic. 
 This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
 
-I'll close with this:
 
 *“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
-Goal:
+Goal -> goal reached:
 Optimize the algorithm so that it is able to solve instances of over a billion vertices:
 ```
 TO BE CONTINUED TO: | 🇳  1000 | ⭕️  1_337_336_000 | 
