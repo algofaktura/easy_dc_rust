@@ -56,24 +56,20 @@ pub fn main() -> Result<(), &'static str> {
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level, true)?;
+        find_solution(level, false)?;
     }
     Ok(())
 }
 
 pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static str> {
-    println!("👷 MAKE GRAPH ➤ 🔀 SOLVE GRAPH ➤ 🔎 CERTIFY SOLUTION");
-
-    println!("🛠️ MAKING GRAPH....");
     let mut start: Instant = Instant::now();
     let (n, order, z_adj, z_order, min_xyz) = make_z_graph(level);
     let dur_make = Instant::now() - start;
-    println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
     start = Instant::now();
     let solution = weave::weave(z_adj, z_order, min_xyz, order);
     let dur_solve = Instant::now() - start;
     println!(
-        "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 SOLVE: {} |",
+        "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {} |",
         dur_solve.as_secs_f32()
     );
 
