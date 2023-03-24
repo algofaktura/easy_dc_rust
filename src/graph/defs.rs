@@ -10,6 +10,7 @@ pub type Bobbins = Vec<Node>;
 pub type Count = usize;
 pub type Edge = (Node, Node);
 pub type Edges = HashSet<Edge>;
+pub type Loom = Vec<VecDeque<[i16; 3]>>;
 pub type Neighbors = HashSet<[i16; 3]>;
 pub type Node = [i16; 3];
 pub type Nodes = HashSet<Node>;
@@ -19,21 +20,19 @@ pub type Points = HashSet<Point>;
 pub type Solution = Tour;
 pub type Spool = HashMap<u32, Yarn>;
 pub type Subtours = Vec<Tour>;
+pub type Tour = Vec<[i16; 3]>;
 pub type TourSlice<'a> = &'a [[i16; 2]];
 pub type YarnEnds = VecDeque<Node>;
 pub type Vert = (Point, Point, Point);
 pub type Verts = [[i16; 3]];
 pub type VecVert = Vec<Vert>;
 pub type VIMap = HashMap<Vert, Node>;
+pub type Warps = Vec<Vec<[i16; 3]>>;
 pub type Weights = HashMap<Node, Point>;
 pub type SignedIdx = i32;
 pub type Yarn = Array2<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;
 pub type ZOrder = Vec<(Point, usize)>;
-
-pub type Loom = Vec<VecDeque<[i16; 3]>>;
-pub type Tour = Vec<[i16; 3]>;
-pub type Warps = Vec<Vec<[i16; 3]>>;
 
 #[derive(Clone, Debug)]
 pub struct Weaver {

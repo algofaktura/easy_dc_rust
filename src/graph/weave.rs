@@ -5,16 +5,15 @@ use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::{
-    defs::{Count, Point, Solution, Spool, TourSlice, Weaver, Yarn, ZAdjacency, ZOrder},
+    defs::{
+        Count, Loom, Point, Solution, Spool, Tour, TourSlice, Warps, Weaver, Yarn, ZAdjacency,
+        ZOrder,
+    },
     utils::{
-        info::absumv2dc,
+        info::{absumv2dc, are_adjacent},
         make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
-
-pub type Loom = Vec<VecDeque<[i16; 3]>>;
-pub type Tour = Vec<[i16; 3]>;
-pub type Warps = Vec<Vec<[i16; 3]>>;
 
 pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> Solution {
     let mut loom = wrap_and_reflect_loom(z_adj, z_order);
@@ -40,11 +39,7 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
             {
                 weaver.join(
                     (m, n),
-                    match {
-                        let [a, b, c] = n;
-                        let [x, y, z] = o;
-                        ((a + b + c) - (x + y + z)).abs() == 2
-                    } {
+                    match are_adjacent(n, o) {
                         true => (o, p),
                         false => (p, o),
                     },
@@ -85,14 +80,14 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let order_z = z_adj.len();
     let spindle: &mut Vec<[i16; 2]> = &mut Vec::with_capacity(order_z);
     let start: [i16; 2] = *z_adj.keys().max().unwrap();
-    let mut visited: HashMap<[i16; 2], bool> = HashMap::with_capacity(order_z);
-    visited.insert(start, true);
+    let mut spun: HashMap<[i16; 2], bool> = HashMap::with_capacity(order_z);
+    spun.insert(start, true);
     spindle.push(start);
     let tail = order_z - 5;
     (1..order_z).for_each(|idx| {
-        let next_fiber = get_unspun(spindle, &z_adj, idx, tail, &mut visited);
-        spindle.push(next_fiber);
-        visited.insert(next_fiber, true);
+        let unspun = get_unspun(spindle, &z_adj, idx, tail, &mut spun);
+        spindle.push(unspun);
+        spun.insert(unspun, true);
     });
     let natur: Yarn = Array2::from(spindle.drain(..).collect::<Vec<_>>());
     let color: Yarn = natur.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
@@ -104,12 +99,12 @@ fn get_unspun(
     z_adj: &ZAdjacency,
     idx: usize,
     tail: usize,
-    visited: &mut HashMap<[i16; 2], bool>,
+    spun: &mut HashMap<[i16; 2], bool>,
 ) -> [i16; 2] {
     let [x, y] = *spindle.last().unwrap();
     *z_adj[&[x, y]]
         .iter()
-        .filter_map(|node| match (visited.get(node), *node) {
+        .filter_map(|node| match (spun.get(node), *node) {
             (Some(true), _) => None,
             (None, [m, n]) if idx < tail || (spindle[spindle.len() - 2][0] == x) != (x == m) => {
                 Some((node, absumv2dc([m, n])))
