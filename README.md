@@ -23,20 +23,13 @@ After thousands of studies, drawings, and a little math: this is a story of how 
 ![First 11 discocubes and their order (number of nodes)](imgs/rect5857.png?raw=true "Discocubes orders")
 *The first eleven discocubes and their respective orders (number of nodes)*
 
+*“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
+― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
+
 Why weave()? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and how repeating certain movements resulted in certain patterns. I followed the thought further and asked myself if there was a 'weave' I could use to expose underlying unit structure and repeat this throughout to get an initial solution which could later be mutated to produce a more polished solution. The code is structured around the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
 This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, which is surprising as the creative process in creating this was anything but deterministic. 
 This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
-
-
-*“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
-― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
-
-Goal -> goal reached:
-Optimize the algorithm so that it is able to solve instances of over a billion vertices:
-```
-TO BE CONTINUED TO: | 🇳  1000 | ⭕️  1_337_336_000 | 
-```
 
 ![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
 *Discocubes 8 - 1760*
