@@ -9,9 +9,9 @@ the set of points in a 3-dimensional square grid graph contained within an octah
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
 *Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
-This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting some apples or singing hymns like angels) and means by which to describe his muse's body as an endless contour drawing (Hamiltonian cycle).
+This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting flowers and apples or singing hymns about angels) and means by which to describe his muse's body as an endless contour drawing (Hamiltonian cycle).
 After pages of studies, drawings, and a little math: this is the result of my using the artistic process to solve a mathematical problem without the means to solve it mathematically. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture?
- Art investigates form, how the curvature of the neck disappears behind the back, or the color of skin in the foreground, the play of colors and contrasts... So in this project, I studied the discocube visually, where I imagined each turn not as a discrete math object but as movement of that body, a line in a drawing, resulting in doodles and sketches rather than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repository is the simplest and most descriptive. This is the weave algorithm, responsible for constructing an initial Hamiltonian cycle. The other algorithms are centered around the concept of polishing a diamond, ie., improving upon the initial tour created by this algorithm so that the number of edges are evenly distributed across the x, y, and z axes.
+ Art uses form to mimic life, shows us how, with a brush stroke, the curvature of the neck disappears behind the back, or how the play of colors and contrasts can bring the  rendering of skin from a subject from over 500 years ago up close. So in this project, I studied the discocube visually, where I imagined each turn not as a discrete math object but as movement of that body, a line in a drawing, resulting in doodles and sketches rather than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles of which this repository is the simplest and most descriptive. This is the weave algorithm, responsible for constructing an initial Hamiltonian cycle. The other algorithms are centered around the concept of polishing a diamond, ie., improving upon the initial tour created by this algorithm so that the number of edges are evenly distributed across the x, y, and z axes (An always turning hamiltonian cycle).
 
 ![Hauy's wooden crystal models](imgs/hauyCabinett.png?raw=true "Hauy's wooden crystal models")
 
@@ -665,6 +665,57 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 | 🇳  598 | ⭕️  286561600 | 🕗 397.68787    | 📌 HamCycle |
 | 🇳  599 | ⭕️  287999200 | 🕗 391.36526    | 📌 HamCycle |
 | 🇳  600 | ⭕️  289441600 | 🕗 395.29166    | 📌 HamCycle |
+| 🇳  601 | ⭕️  290888808 | 🕗 394.0016     | 📌 HamCycle |                        
+| 🇳  602 | ⭕️  292340832 | 🕗 398.37943    | 📌 HamCycle |                        
+| 🇳  603 | ⭕️  293797680 | 🕗 397.2135     | 📌 HamCycle |                    
+| 🇳  604 | ⭕️  295259360 | 🕗 407.37674    | 📌 HamCycle |                        
+| 🇳  605 | ⭕️  296725880 | 🕗 399.55322    | 📌 HamCycle |                        
+| 🇳  606 | ⭕️  298197248 | 🕗 402.8125     | 📌 HamCycle |                    
+| 🇳  607 | ⭕️  299673472 | 🕗 407.3828     | 📌 HamCycle |                    
+| 🇳  608 | ⭕️  301154560 | 🕗 411.58286    | 📌 HamCycle |                        
+| 🇳  609 | ⭕️  302640520 | 🕗 420.60904    | 📌 HamCycle |                        
+| 🇳  610 | ⭕️  304131360 | 🕗 420.22845    | 📌 HamCycle |                        
+| 🇳  611 | ⭕️  305627088 | 🕗 417.67224    | 📌 HamCycle |                        
+| 🇳  612 | ⭕️  307127712 | 🕗 424.1204     | 📌 HamCycle |                    
+| 🇳  613 | ⭕️  308633240 | 🕗 423.88095    | 📌 HamCycle |                        
+| 🇳  614 | ⭕️  310143680 | 🕗 420.28613    | 📌 HamCycle |                        
+| 🇳  615 | ⭕️  311659040 | 🕗 427.30582    | 📌 HamCycle |                        
+| 🇳  616 | ⭕️  313179328 | 🕗 434.70377    | 📌 HamCycle |                        
+| 🇳  617 | ⭕️  314704552 | 🕗 432.13037    | 📌 HamCycle |                        
+| 🇳  618 | ⭕️  316234720 | 🕗 439.56363    | 📌 HamCycle |                        
+| 🇳  619 | ⭕️  317769840 | 🕗 434.40652    | 📌 HamCycle |                        
+| 🇳  620 | ⭕️  319309920 | 🕗 434.97903    | 📌 HamCycle |                        
+| 🇳  621 | ⭕️  320854968 | 🕗 452.95828    | 📌 HamCycle |                        
+| 🇳  622 | ⭕️  322404992 | 🕗 452.21384    | 📌 HamCycle |                        
+| 🇳  623 | ⭕️  323960000 | 🕗 452.32138    | 📌 HamCycle |                        
+| 🇳  624 | ⭕️  325520000 | 🕗 468.56094    | 📌 HamCycle |                        
+| 🇳  625 | ⭕️  327085000 | 🕗 467.57712    | 📌 HamCycle |                        
+| 🇳  626 | ⭕️  328655008 | 🕗 469.53217    | 📌 HamCycle |                        
+| 🇳  627 | ⭕️  330230032 | 🕗 465.26266    | 📌 HamCycle |                        
+| 🇳  628 | ⭕️  331810080 | 🕗 471.36078    | 📌 HamCycle |                        
+| 🇳  629 | ⭕️  333395160 | 🕗 470.34805    | 📌 HamCycle |                        
+| 🇳  630 | ⭕️  334985280 | 🕗 477.12006    | 📌 HamCycle |    
+| 🇳  631 | ⭕️  336580448 | 🕗 482.81473    | 📌 HamCycle |    
+| 🇳  632 | ⭕️  338180672 | 🕗 486.29355    | 📌 HamCycle |    
+| 🇳  633 | ⭕️  339785960 | 🕗 474.5131     | 📌 HamCycle |    
+| 🇳  634 | ⭕️  341396320 | 🕗 480.30698    | 📌 HamCycle |    
+| 🇳  635 | ⭕️  343011760 | 🕗 479.92386    | 📌 HamCycle |    
+| 🇳  636 | ⭕️  344632288 | 🕗 491.80957    | 📌 HamCycle |    
+| 🇳  637 | ⭕️  346257912 | 🕗 485.2694     | 📌 HamCycle |    
+| 🇳  638 | ⭕️  347888640 | 🕗 491.40918    | 📌 HamCycle |    
+| 🇳  639 | ⭕️  349524480 | 🕗 488.1747     | 📌 HamCycle |    
+| 🇳  640 | ⭕️  351165440 | 🕗 486.9941     | 📌 HamCycle |    
+| 🇳  641 | ⭕️  352811528 | 🕗 502.82367    | 📌 HamCycle |    
+| 🇳  642 | ⭕️  354462752 | 🕗 505.23694    | 📌 HamCycle |    
+| 🇳  643 | ⭕️  356119120 | 🕗 493.72095    | 📌 HamCycle |    
+| 🇳  644 | ⭕️  357780640 | 🕗 506.8765     | 📌 HamCycle |    
+| 🇳  645 | ⭕️  359447320 | 🕗 505.48227    | 📌 HamCycle |    
+| 🇳  646 | ⭕️  361119168 | 🕗 508.94162    | 📌 HamCycle |    
+| 🇳  647 | ⭕️  362796192 | 🕗 529.23035    | 📌 HamCycle |                 
+| 🇳  648 | ⭕️  364478400 | 🕗 536.2427     | 📌 HamCycle |  
+| 🇳  649 | ⭕️  366165800 | 🕗 541.9881     | 📌 HamCycle |  
+| 🇳  650 | ⭕️  367858400 | 🕗 542.15656    | 📌 HamCycle |  
+
 ## Licensing:
 
 This package is licensed under the MIT license.

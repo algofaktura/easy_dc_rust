@@ -48,7 +48,7 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
             }
         }
     });
-    weaver.get_nodes()
+    weaver.get_weave()
 }
 
 fn wrap_and_reflect_loom(z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
@@ -132,8 +132,6 @@ fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> W
     }
 }
 
-/// refactor to cut and consume vs. cloned().  run the calcs to get the cut points, slice the object in place.
-/// the cuts are either left or right of the index point.
 fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
     let mut subtours: Warps = Vec::new();
     let last_ix: usize = yarn.len() - 1;
@@ -180,7 +178,6 @@ fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
     subtours
 }
 
-/// pin ends at the end of the level to join with the ends the next floor up.
 fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
@@ -200,11 +197,7 @@ fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
         for warp in warps.iter_mut().filter(|w| !w.is_empty()) {
             match (thread.front(), thread.back()) {
                 (Some(front), _) if *front == warp[0] => {
-                    *thread = warp
-                        .drain(..)
-                        .rev()
-                        .chain(std::mem::take(thread).drain(1..))
-                        .collect();
+                    warp.drain(..).skip(1).for_each(|node| thread.push_front(node))
                 }
                 (_, Some(back)) if *back == warp[0] => {
                     thread.extend(warp.drain(..).skip(1));

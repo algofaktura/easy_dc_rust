@@ -22,16 +22,16 @@ pub mod make {
     pub fn make_z_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
-        let (z_adj, z_order) = shrink_adjacency(n as usize, max_xyz);
+        let (z_adj, z_order) = make_xs_adjacency(n as usize, max_xyz);
         (n, order, z_adj, z_order, max_xyz - 4)
     }
 
-    pub fn shrink_adjacency(n: usize, max_xyz: i16) -> (ZAdjacency, ZOrder) {
-        let adj = z_adjacency_map(max_xyz);
+    fn make_xs_adjacency(n: usize, max_xyz: i16) -> (ZAdjacency, ZOrder) {
+        let adj = make_z_adjacency_map(max_xyz);
         (adj, get_zlevel_order(n))
     }
 
-    fn z_adjacency_map(max_xyz: Point) -> ZAdjacency {
+    fn make_z_adjacency_map(max_xyz: Point) -> ZAdjacency {
         let max_xyz_plus_1 = max_xyz + 1;
         let verts = vertices_for_z_adjacency(max_xyz);
         verts
@@ -60,7 +60,7 @@ pub mod make {
         .collect::<Vec<_>>()
     }
 
-    pub fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
+    fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
         zip(
             (-((n * 2 - 1) as i16)..=-1).step_by(2),
             (1..=n).map(|_n| 2 * _n * (_n + 1)),
