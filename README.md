@@ -3,14 +3,16 @@
 
 *“The worst may happen if the student embarks upon computations or constructions without having understood the problem.”*
 
+*“Mathematics is the cheapest science. Unlike physics or chemistry, it does not require any expensive equipment. All one needs for mathematics is a pencil and paper.”*
+
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
-An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for up to 350 million vertices). Discocube graphs are
+An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for over graphs with 1 billion vertices). Discocube graphs are
 3-dimensional grid graphs derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
 the set of points in a 3-dimensional square grid graph contained within an octahedron...
 
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
-*Planar embedding of a cube and a discocube. from the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
+*Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
 This algorithm is an artist's rendering of a graph object using programming as a language (versus painting or singing about a mountain) and means by which to describe the body of his muse (a graph object) as an endless contour drawing (Hamiltonian cycle). 
 After thousands of studies, drawings, and a little math: this is a story of how solving specific aethetic goals can yield results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own? Do I draw functions with my mind's eye as I would imagine a sculpture?
