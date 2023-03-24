@@ -106,10 +106,10 @@ fn get_unspun(
         .iter()
         .filter_map(|node| match (spun.get(node), *node) {
             (Some(true), _) => None,
-            (None, unspun)
-                if ix < tail || (spindle[spindle.len() - 2][0] == x) != (x == unspun[0]) =>
+            (None, fiber)
+                if ix < tail || (spindle[spindle.len() - 2][0] == x) != (x == fiber[0]) =>
             {
-                Some((node, absumv2dc(unspun)))
+                Some((node, absumv2dc(fiber)))
             }
             _ => None,
         })
