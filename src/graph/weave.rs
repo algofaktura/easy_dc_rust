@@ -105,8 +105,8 @@ fn get_unspun(
         .iter()
         .filter_map(|node| match (spun.get(node), *node) {
             (Some(true), _) => None,
-            (None, [m, n]) if idx < tail || (spindle[spindle.len() - 2][0] == x) != (x == m) => {
-                Some((node, absumv2dc([m, n])))
+            (None, next_node) if idx < tail || (spindle[spindle.len() - 2][0] == x) != (x == next_node[0]) => {
+                Some((node, absumv2dc(next_node)))
             }
             _ => None,
         })
