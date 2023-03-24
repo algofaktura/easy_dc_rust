@@ -104,7 +104,7 @@ impl Weaver {
             .collect()
     }
 
-    pub fn get_nodes(&self) -> Solution {
+    pub fn get_weave(&self) -> Solution {
         self.data.to_vec()
     }
 }
