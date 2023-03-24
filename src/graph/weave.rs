@@ -40,17 +40,13 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
             {
                 weaver.join(
                     (m, n),
-                    {
-                        let res = {
-                            let [a, b, c] = n;
-                            let [x, y, z] = o;
-                            ((a + b + c) - (x + y + z)).abs() == 2
-                        };
-                        if res {
-                            (o, p)
-                        } else {
-                            (p, o)
-                        }
+                    match {
+                        let [a, b, c] = n;
+                        let [x, y, z] = o;
+                        ((a + b + c) - (x + y + z)).abs() == 2
+                    } {
+                        true => (o, p),
+                        false => (p, o),
                     },
                     warp,
                 );

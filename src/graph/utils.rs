@@ -88,8 +88,10 @@ pub mod make {
                     *vert,
                     shift_xyz(arr2(&[*vert]))
                         .into_iter()
-                        .filter(|new_neighbor_vert| *vert != *new_neighbor_vert
-                                && absumv(*new_neighbor_vert) <= max_xyz_plus_2)
+                        .filter(|new_neighbor_vert| {
+                            *vert != *new_neighbor_vert
+                                && absumv(*new_neighbor_vert) <= max_xyz_plus_2
+                        })
                         .collect::<HashSet<_>>(),
                 )
             })
