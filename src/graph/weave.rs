@@ -5,8 +5,8 @@ use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Bobbins, Count, Loom, Point, Solution, Spool, Tour, TourSlice, 
-        Warps, Weaver, Yarn, ZAdjacency, ZOrder,
+        Bobbins, Count, Loom, Point, Solution, Spool, Tour, TourSlice, Warps, Weaver, Yarn,
+        ZAdjacency, ZOrder,
     },
     utils::{
         info::{absumv2dc, are_adjacent, get_color_index},
