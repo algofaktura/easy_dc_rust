@@ -3,13 +3,13 @@
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
 An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for over graphs with 1 billion vertices). Discocube graphs are
-3-dimensional grid graphs, derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
+3-dimensional grid graphs, derived from: a polycube of an octahedron | a Hauy construction of an octahedron with cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
 the set of points in a 3-dimensional square grid graph contained within an octahedron...
 
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
 *Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
-This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting an apple or singing songs about angels) and means by which to describe his muse's body (a graph object) as an endless contour drawing (Hamiltonian cycle).
+This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting an apple or singing songs about angels) and means by which to describe his muse's body as an endless contour drawing (Hamiltonian cycle).
 After pages of studies, drawings, and a little math: this is the result of my using an artistic process to solve a mathematical problem. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture?
  Art studies forms, the curvature of the neck as it disappears behind the back, the color of skin in the foreground, the play of colors and contrasts... So in this project, I studied the discocube as a visual form, where I imagined each turn not as a discrete math object but as movement of that body, resulting in more doodles and sketches than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repository is the simplest and most descriptive.
 
