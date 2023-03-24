@@ -5,8 +5,8 @@ use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Bobbins, Count, Loom, Point, Solution, Spool, Tour, TourSlice, Warps, Weaver, Yarn,
-        ZAdjacency, ZOrder,
+        Bobbins, Count, Loom, Point, Solution, Spool, Spun, Tour, TourSlice, 
+        Warps, Weaver, Yarn, ZAdjacency, ZOrder,
     },
     utils::{
         info::{absumv2dc, are_adjacent, get_color_index},
@@ -80,7 +80,7 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let order_z = z_adj.len();
     let spindle: &mut Vec<[i16; 2]> = &mut Vec::with_capacity(order_z);
     let start: [i16; 2] = *z_adj.keys().max().unwrap();
-    let mut spun: HashMap<[i16; 2], bool> = HashMap::with_capacity(order_z);
+    let mut spun: Spun = HashMap::with_capacity(order_z);
     spindle.push(start);
     spun.insert(start, true);
     let tail = order_z - 5;
@@ -99,7 +99,7 @@ fn get_unspun(
     z_adj: &ZAdjacency,
     ix: usize,
     tail: usize,
-    spun: &mut HashMap<[i16; 2], bool>,
+    spun: &mut Spun,
 ) -> [i16; 2] {
     let [x, y] = *spindle.last().unwrap();
     *z_adj[&[x, y]]
@@ -183,11 +183,11 @@ fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Bobbins {
         .flat_map(|thread| {
             let [x, y, z] = thread[0];
             let [i, j, k] = thread[thread.len() - 1];
-            let left = [x, y, z + 2];
-            let right = [i, j, k + 2];
-            thread.push_front(left);
-            thread.push_back(right);
-            [left, right]
+            let lhs = [x, y, z + 2];
+            let rhs = [i, j, k + 2];
+            thread.push_front(lhs);
+            thread.push_back(rhs);
+            [lhs, rhs]
         })
         .collect()
 }

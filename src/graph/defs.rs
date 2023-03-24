@@ -19,6 +19,7 @@ pub type Point = i16;
 pub type Points = HashSet<Point>;
 pub type Solution = Tour;
 pub type Spool = HashMap<u32, Yarn>;
+pub type Spun = HashMap<[i16; 2], bool>;
 pub type Subtours = Vec<Tour>;
 pub type Tour = Vec<[i16; 3]>;
 pub type TourSlice<'a> = &'a [[i16; 2]];
