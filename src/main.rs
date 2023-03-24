@@ -21,11 +21,9 @@ pub mod graph;
 use graph::{
     defs::*,
     utils::certify::{self, SequenceID},
-    utils::make::make_z_graph,
+    utils::make::{make_adjacency, make_z_graph},
     weave,
 };
-
-use crate::graph::utils::make::make_adjacency;
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
@@ -56,7 +54,7 @@ pub fn main() -> Result<(), &'static str> {
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level, false)?;
+        find_solution(level, true)?;
     }
     Ok(())
 }
@@ -72,7 +70,6 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
         "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {} |",
         dur_solve.as_secs_f32()
     );
-
     if _certify {
         let adj = make_adjacency(n);
         println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");

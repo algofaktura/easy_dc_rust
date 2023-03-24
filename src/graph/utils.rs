@@ -2,24 +2,22 @@ use itertools;
 use itertools::Itertools;
 use ndarray::{arr2, Array2};
 use rayon;
-use std::fmt;
+use std;
 
-use super::defs::{Adjacency, Edge, Edges, Point, SignedIdx, Solution, Vert, ZAdjacency, ZOrder};
+use super::defs::{
+    Adjacency, Edge, Edges, Neighbors, Point, SignedIdx, Solution, Vert, Verts, ZAdjacency, ZOrder,
+};
 
 pub mod make {
-    use std::collections::HashSet;
-
-    use crate::graph::defs::{Adjacency, Verts};
-
     use super::{
         arr2,
         info::{absumv, absumv2dc, get_max_xyz, get_order_from_n},
         itertools::{iproduct, Itertools},
         modify::{shift_xy, shift_xyz},
         rayon::prelude::*,
-        Point, ZAdjacency, ZOrder,
+        std::iter::zip,
+        Adjacency, Neighbors, Point, Verts, ZAdjacency, ZOrder,
     };
-    use std::iter::zip;
 
     pub fn make_z_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
@@ -27,7 +25,7 @@ pub mod make {
         let (z_adj, z_order) = shrink_adjacency(n as usize, max_xyz);
         (n, order, z_adj, z_order, max_xyz - 4)
     }
-    
+
     pub fn shrink_adjacency(n: usize, max_xyz: i16) -> (ZAdjacency, ZOrder) {
         let adj = z_adjacency_map(max_xyz);
         (adj, get_zlevel_order(n))
@@ -61,7 +59,7 @@ pub mod make {
         .map(|(x, y)| [x, y])
         .collect::<Vec<_>>()
     }
-    
+
     pub fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
         zip(
             (-((n * 2 - 1) as i16)..=-1).step_by(2),
@@ -107,7 +105,7 @@ pub mod make {
                             *vert != *new_neighbor_vert
                                 && absumv(*new_neighbor_vert) <= max_xyz_plus_2
                         })
-                        .collect::<HashSet<_>>(),
+                        .collect::<Neighbors>(),
                 )
             })
             .collect()
@@ -149,6 +147,12 @@ pub mod modify {
 
 pub mod info {
     use super::{Point, SignedIdx, Vert};
+
+    pub fn are_adjacent([a, b, c]: [i16; 3], [x, y, z]: [i16; 3]) -> bool {
+        let n = a - x + b - y + c - z;
+        let mask = n >> 15;
+        (n + mask) ^ mask == 2
+    }
 
     pub fn axis2d((x, y, _): &Vert, (a, b, _): &Vert) -> usize {
         (0..2)
@@ -324,7 +328,7 @@ pub mod make_edges_eadjs {
 }
 
 pub mod certify {
-    use super::{fmt, Adjacency, Itertools, Solution};
+    use super::{std::fmt, Adjacency, Itertools, Solution};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
