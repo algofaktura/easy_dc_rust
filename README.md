@@ -63,49 +63,6 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_212million.png?raw=true "Runtimes up to 212 million")
 8_to_68085920.png
 
-```
-// Used to certify if the sequence is a Hamiltonian cycle, chain or broken.
-
-pub mod certify {
-    use super::{
-        fmt, 
-        Itertools,
-        Adjacency, Solution
-    };
-
-    #[derive(PartialEq)]
-    pub enum SequenceID {
-        Broken,
-        HamChain,
-        HamCycle,
-    }
-
-    impl fmt::Display for SequenceID {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                SequenceID::Broken => write!(f, "Broken"),
-                SequenceID::HamChain => write!(f, "HamChain"),
-                SequenceID::HamCycle => write!(f, "HamCycle"),
-            }
-        }
-    }
-
-    pub fn id_seq(seq: &Solution, adj: &Adjacency) -> SequenceID {
-        if seq.iter().duplicates().count() > 0 || seq.len() != adj.len() {
-            return SequenceID::Broken;
-        }
-        match seq
-            .windows(2)
-            .all(|window| adj[&window[0]].contains(&window[1]))
-        {
-            true if adj[&seq[seq.len() - 1]].contains(&seq[0]) => SequenceID::HamCycle,
-            true => SequenceID::HamChain,
-            false => SequenceID::Broken,
-        }
-    }
-}
-
-```
 #### Running times for the first 600 instances: graphs with 8 to 289_441_600 vertices (to be continued until 1000th order (over 1 billion)):
 ```
 | 🇳    1 | ⭕️          8 | 🕗 0.000010179  | 📌 HamCycle |
