@@ -21,11 +21,11 @@ pub mod graph;
 use graph::{
     defs::*,
     utils::certify::{self, SequenceID},
-    utils::make::make_graph,
+    utils::make::make_z_graph,
     weave,
 };
 
-use crate::graph::utils::make::make_graph2;
+use crate::graph::utils::make::make_adjacency;
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
@@ -66,7 +66,7 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
 
     println!("🛠️ MAKING GRAPH....");
     let mut start: Instant = Instant::now();
-    let (n, order, z_adj, z_order, min_xyz) = make_graph(level);
+    let (n, order, z_adj, z_order, min_xyz) = make_z_graph(level);
     let dur_make = Instant::now() - start;
     println!("MADE GRAPH: 🕗 {dur_make:?}. 🔀 SOLVING GRAPH ⭕️ {order}");
     start = Instant::now();
@@ -78,7 +78,7 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
     );
 
     if _certify {
-        let adj = make_graph2(n);
+        let adj = make_adjacency(n);
         println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
         start = Instant::now();
         let seq_id = certify::id_seq(&solution, &adj);

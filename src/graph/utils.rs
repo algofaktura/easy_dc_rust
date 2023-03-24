@@ -17,30 +17,25 @@ pub mod make {
         itertools::{iproduct, Itertools},
         modify::{shift_xy, shift_xyz},
         rayon::prelude::*,
-        shrink::shrink_adjacency,
         Point, ZAdjacency, ZOrder,
     };
+    use std::iter::zip;
 
-    pub fn make_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
+    pub fn make_z_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
         let (z_adj, z_order) = shrink_adjacency(n as usize, max_xyz);
         (n, order, z_adj, z_order, max_xyz - 4)
     }
-
-    pub fn vertices(max_xyz: Point) -> Vec<[i16; 2]> {
-        let max_xyz_plus_1 = max_xyz + 1;
-        iproduct!(
-            (-max_xyz..=max_xyz).step_by(2),
-            (-max_xyz..=max_xyz).step_by(2)
-        )
-        .filter(|&(x, y)| absumv2dc([x, y]) <= max_xyz_plus_1)
-        .sorted_by_key(|&(x, y)| (absumv2dc([x, y]), x, y))
-        .map(|(x, y)| [x, y])
-        .collect::<Vec<_>>()
+    
+    pub fn shrink_adjacency(n: usize, max_xyz: i16) -> (ZAdjacency, ZOrder) {
+        let adj = z_adjacency_map(max_xyz);
+        (adj, get_zlevel_order(n))
     }
 
-    pub fn adjacency_map(verts: &[[i16; 2]], max_xyz_plus_1: Point) -> ZAdjacency {
+    fn z_adjacency_map(max_xyz: Point) -> ZAdjacency {
+        let max_xyz_plus_1 = max_xyz + 1;
+        let verts = vertices_for_z_adjacency(max_xyz);
         verts
             .par_iter()
             .map(|vert| {
@@ -55,14 +50,34 @@ pub mod make {
             .collect()
     }
 
-    pub fn make_graph2(n: u32) -> Adjacency {
-        let order = get_order_from_n(n);
-        let max_xyz = get_max_xyz(order) as i16;
-        let verts: Vec<[i16; 3]> = vertices2(max_xyz);
-        adjacency_map2(&verts, max_xyz + 2)
+    fn vertices_for_z_adjacency(max_xyz: Point) -> Vec<[i16; 2]> {
+        let max_xyz_plus_1 = max_xyz + 1;
+        iproduct!(
+            (-max_xyz..=max_xyz).step_by(2),
+            (-max_xyz..=max_xyz).step_by(2)
+        )
+        .filter(|&(x, y)| absumv2dc([x, y]) <= max_xyz_plus_1)
+        .sorted_by_key(|&(x, y)| (absumv2dc([x, y]), x, y))
+        .map(|(x, y)| [x, y])
+        .collect::<Vec<_>>()
+    }
+    
+    pub fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
+        zip(
+            (-((n * 2 - 1) as i16)..=-1).step_by(2),
+            (1..=n).map(|_n| 2 * _n * (_n + 1)),
+        )
+        .collect()
     }
 
-    pub fn vertices2(max_xyz: Point) -> Vec<[i16; 3]> {
+    pub fn make_adjacency(n: u32) -> Adjacency {
+        let order = get_order_from_n(n);
+        let max_xyz = get_max_xyz(order) as i16;
+        let verts: Vec<[i16; 3]> = vertices(max_xyz);
+        adjacency_map(&verts, max_xyz + 2)
+    }
+
+    fn vertices(max_xyz: Point) -> Vec<[i16; 3]> {
         let max_xyz_plus_4 = max_xyz + 4;
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
@@ -80,7 +95,7 @@ pub mod make {
         .collect::<Vec<_>>()
     }
 
-    fn adjacency_map2(verts: &Verts, max_xyz_plus_2: Point) -> Adjacency {
+    fn adjacency_map(verts: &Verts, max_xyz_plus_2: Point) -> Adjacency {
         verts
             .par_iter()
             .map(|vert| {
@@ -96,27 +111,6 @@ pub mod make {
                 )
             })
             .collect()
-    }
-}
-
-pub mod shrink {
-    use super::make::{adjacency_map, vertices};
-    use super::ZOrder;
-    use crate::graph::defs::ZAdjacency;
-    use std::iter::zip;
-
-    pub fn shrink_adjacency(n: usize, max_xyz: i16) -> (ZAdjacency, ZOrder) {
-        let verts = vertices(max_xyz);
-        let adj = adjacency_map(&verts, max_xyz + 1);
-        (adj, get_zlevel_order(n))
-    }
-
-    pub fn get_zlevel_order(n: usize) -> Vec<(i16, usize)> {
-        zip(
-            (-((n * 2 - 1) as i16)..=-1).step_by(2),
-            (1..=n).map(|_n| 2 * _n * (_n + 1)),
-        )
-        .collect()
     }
 }
 
