@@ -5,7 +5,7 @@ use ndarray::{arr2, Array2};
 use rayon::prelude::*;
 
 use super::{
-    defs::{Count, Point, Solution, Spool, TourSliceThick, Weaver, Yarn, ZAdjacency, ZOrder},
+    defs::{Count, Point, Solution, Spool, TourSlice, Weaver, Yarn, ZAdjacency, ZOrder},
     utils::{
         info::absumv2dc,
         make_edges_eadjs::{make_eadjs, make_edges},
@@ -40,14 +40,17 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
             {
                 weaver.join(
                     (m, n),
-                    if {
-                        let [a, b, c] = n;
-                        let [x, y, z] = o;
-                        ((a + b + c) - (x + y + z)).abs() == 2
-                    } {
-                        (o, p)
-                    } else {
-                        (p, o)
+                    {
+                        let res = {
+                            let [a, b, c] = n;
+                            let [x, y, z] = o;
+                            ((a + b + c) - (x + y + z)).abs() == 2
+                        };
+                        if res {
+                            (o, p)
+                        } else {
+                            (p, o)
+                        }
                     },
                     warp,
                 );
@@ -101,7 +104,7 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
 }
 
 fn get_unspun(
-    spindle: TourSliceThick,
+    spindle: TourSlice,
     z_adj: &ZAdjacency,
     idx: usize,
     tail: usize,
@@ -193,7 +196,7 @@ fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Vec<Vec<[i16; 3]>> {
     subtours
 }
 
-fn pin_ends(loom: &mut Vec<VecDeque<[i16; 3]>>) -> Vec<[i16; 3]> {
+fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Vec<[i16; 3]> {
     loom.iter_mut()
         .flat_map(|thread| {
             let [x, y, z] = thread[0];

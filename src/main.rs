@@ -14,16 +14,18 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{env, time::Instant};
+use std::{env, iter::zip, time::Instant};
 
 pub mod graph;
 
 use graph::{
     defs::*,
-    // utils::certify::{self, SequenceID},
+    utils::certify::{self, SequenceID},
     utils::make::make_graph,
     weave,
 };
+
+use crate::graph::utils::make::make_graph2;
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
@@ -75,18 +77,51 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
         dur_solve.as_secs_f32()
     );
 
-    // if _certify {
-    //     println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
-    //     start = Instant::now();
-    //     let seq_id = certify::id_seq(&solution, &adj);
-    //     let dur_certify = Instant::now() - start;
-    //     println!(
-    //     "| 🇳 {n:>4} | 🕗 MAKE: {} | ⭕️ {order:>10} | 🕗 SOLVE: {} | 📌 {seq_id:?} | 🕗 CERTIFY: {}",
-    //     dur_make.as_secs_f32(),
-    //     dur_solve.as_secs_f32(),
-    //     dur_certify.as_secs_f32()
-    //     );
-    //     assert_eq!(seq_id, SequenceID::HamCycle);
-    // }
+    if _certify {
+        let adj = make_graph2(n);
+        println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
+        start = Instant::now();
+        let seq_id = certify::id_seq(&solution, &adj);
+        let dur_certify = Instant::now() - start;
+        println!(
+        "| 🇳 {n:>4} | 🕗 MAKE: {} | ⭕️ {order:>10} | 🕗 SOLVE: {} | 📌 {seq_id:?} | 🕗 CERTIFY: {}",
+        dur_make.as_secs_f32(),
+        dur_solve.as_secs_f32(),
+        dur_certify.as_secs_f32()
+        );
+        assert_eq!(seq_id, SequenceID::HamCycle);
+    }
     Ok(solution)
+}
+
+pub fn get_zorders(n: usize) -> Vec<usize> {
+    (1..=n).map(|_n| 2 * _n * (_n + 1)).collect()
+}
+
+pub fn get_zlevels(max_xyz: i16) -> Vec<i16> {
+    (-max_xyz..=-1).step_by(2).collect()
+}
+
+pub fn get_max_xyz(order: u32) -> SignedIdx {
+    (get_n_from_order(order) * 2 - 1) as i32
+}
+
+pub fn get_max_xyzn(n: u32) -> SignedIdx {
+    (n * 2 - 1) as i32
+}
+
+pub fn get_order_from_n(n: u32) -> u32 {
+    ((4.0 / 3.0) * ((n + 2) * (n + 1) * n) as f64).round() as u32
+}
+
+pub fn get_n_from_order(order: u32) -> u32 {
+    (((3.0 / 4.0) * order as f64).powf(1.0 / 3.0) - 2.0 / 3.0).round() as u32
+}
+
+pub fn make_zorders(n: usize) -> Vec<(i16, usize)> {
+    zip(
+        (-((n * 2 - 1) as i16)..=-1).step_by(2).into_iter(),
+        (1..=n).map(|_n| 2 * _n * (_n + 1)).into_iter(),
+    )
+    .collect()
 }
