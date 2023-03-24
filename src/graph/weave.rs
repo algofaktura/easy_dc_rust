@@ -32,18 +32,19 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
             .into_iter()
             .next()
         {
-            if let Some((o, p)) = (&make_eadjs(m, n, min_xyz) & &warp_edges)
+            if let Some((j, k)) = (&make_eadjs(m, n, min_xyz) & &warp_edges)
                 .into_iter()
                 .next()
             {
-                weaver.join(
-                    (m, n),
-                    match are_adjacent(n, o) {
-                        true => (o, p),
-                        false => (p, o),
-                    },
+                weaver.rotated_to_edge((m, n));
+                Weaver::rotate_to_edge(
                     warp,
+                    match are_adjacent(n, j) {
+                        true => (j, k),
+                        false => (k, j),
+                    },
                 );
+                weaver.data.append(warp);
             }
         }
     });
@@ -131,9 +132,10 @@ fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> W
     }
 }
 
+/// refactor to cut and consume vs. cloned().  run the calcs to get the cut points, slice the object in place.
+/// the cuts are either left or right of the index point.
 fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
-    // refactor to cut and consume vs. cloned().  run the calcs to get the cut points, slice the object in place. 
-    // the cuts are either left or right of the index point.
+
     let mut subtours: Warps = Vec::new();
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
