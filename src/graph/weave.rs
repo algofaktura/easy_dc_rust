@@ -5,8 +5,8 @@ use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Count, Loom, Point, Solution, Spool, Tour, TourSlice, Warps, Weaver, Yarn, ZAdjacency,
-        ZOrder,
+        Bobbins, Count, Loom, Point, Solution, Spool, Tour, TourSlice, 
+        Warps, Weaver, Yarn, ZAdjacency, ZOrder,
     },
     utils::{
         info::{absumv2dc, are_adjacent, get_color_index},
@@ -81,8 +81,8 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let spindle: &mut Vec<[i16; 2]> = &mut Vec::with_capacity(order_z);
     let start: [i16; 2] = *z_adj.keys().max().unwrap();
     let mut spun: HashMap<[i16; 2], bool> = HashMap::with_capacity(order_z);
-    spun.insert(start, true);
     spindle.push(start);
+    spun.insert(start, true);
     let tail = order_z - 5;
     (1..order_z).for_each(|ix| {
         let unspun = get_unspun(spindle, &z_adj, ix, tail, &mut spun);
@@ -135,7 +135,6 @@ fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> W
 /// refactor to cut and consume vs. cloned().  run the calcs to get the cut points, slice the object in place.
 /// the cuts are either left or right of the index point.
 fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
-
     let mut subtours: Warps = Vec::new();
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
@@ -182,7 +181,7 @@ fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
 }
 
 /// pin ends at the end of the level to join with the ends the next floor up.
-fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Vec<[i16; 3]> {
+fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
             let [x, y, z] = thread[0];
