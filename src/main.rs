@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////
 extern crate rayon;
 
-use std::{env, iter::zip, time::Instant};
+use std::{env, time::Instant};
 
 pub mod graph;
 
@@ -92,36 +92,4 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
         assert_eq!(seq_id, SequenceID::HamCycle);
     }
     Ok(solution)
-}
-
-pub fn get_zorders(n: usize) -> Vec<usize> {
-    (1..=n).map(|_n| 2 * _n * (_n + 1)).collect()
-}
-
-pub fn get_zlevels(max_xyz: i16) -> Vec<i16> {
-    (-max_xyz..=-1).step_by(2).collect()
-}
-
-pub fn get_max_xyz(order: u32) -> SignedIdx {
-    (get_n_from_order(order) * 2 - 1) as i32
-}
-
-pub fn get_max_xyzn(n: u32) -> SignedIdx {
-    (n * 2 - 1) as i32
-}
-
-pub fn get_order_from_n(n: u32) -> u32 {
-    ((4.0 / 3.0) * ((n + 2) * (n + 1) * n) as f64).round() as u32
-}
-
-pub fn get_n_from_order(order: u32) -> u32 {
-    (((3.0 / 4.0) * order as f64).powf(1.0 / 3.0) - 2.0 / 3.0).round() as u32
-}
-
-pub fn make_zorders(n: usize) -> Vec<(i16, usize)> {
-    zip(
-        (-((n * 2 - 1) as i16)..=-1).step_by(2),
-        (1..=n).map(|_n| 2 * _n * (_n + 1)),
-    )
-    .collect()
 }
