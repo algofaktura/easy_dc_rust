@@ -55,7 +55,10 @@ fn wrap_and_reflect_loom(z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let mut bobbins: Vec<[i16; 3]> = Vec::new();
     let mut loom: Loom = Loom::new();
     for (z, length) in z_order {
-        wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
+        wrap_warps_onto_loom(
+            get_warps(z, (z % 4 + 4).try_into().unwrap(), length, &bobbins, &spool),
+            &mut loom,
+        );
         if z != -1 {
             bobbins = pin_ends(&mut loom);
         }
@@ -88,9 +91,9 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
         spindle.push(unspun);
         spun.insert(unspun, true);
     });
-    let natur: Yarn = Array2::from(spindle.drain(..).collect::<Vec<_>>());
-    let color: Yarn = natur.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
-    Spool::from([(3, natur), (1, color)])
+    let blue: Yarn = Array2::from(spindle.drain(..).collect::<Vec<_>>());
+    let red: Yarn = blue.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
+    Spool::from([(3, blue), (1, red)])
 }
 
 fn get_unspun(
@@ -118,12 +121,13 @@ fn get_unspun(
 }
 
 fn get_warps(
-    zlevel: Point,
+    zlevel: i16,
+    color: u32,
     length: Count,
     bobbins: &Vec<[i16; 3]>,
     spool: &Spool,
 ) -> Vec<Vec<[i16; 3]>> {
-    let mut yarn = spool[&(zlevel % 4 + 4).try_into().unwrap()].clone();
+    let mut yarn = spool[&color].clone();
     yarn.slice_axis_inplace(
         ndarray::Axis(0),
         ndarray::Slice::new(
