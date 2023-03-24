@@ -1,32 +1,24 @@
-# easy dc solver
-*”It would be a mistake to think that solving problems is a purely intellectual affair; determination and emotions play an important role.”*
 
-*“The worst may happen if the student embarks upon computations or constructions without having understood the problem.”*
-
-*“Mathematics is the cheapest science. Unlike physics or chemistry, it does not require any expensive equipment. All one needs for mathematics is a pencil and paper.”*
-
+*“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
 ― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
 
 An algorithm for solving the Hamiltonian cycle problem deterministically and in linear time on all instances of discocube graphs (tested for over graphs with 1 billion vertices). Discocube graphs are
-3-dimensional grid graphs derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
+3-dimensional grid graphs, derived from: a polycube of an octahedron | a Hauy construction of an octahedron using cubes as identical building blocks | the accretion of cubes around a central cube forming an octahedron at the limit |
 the set of points in a 3-dimensional square grid graph contained within an octahedron...
 
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
 *Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
 
-This algorithm is an artist's rendering of a graph object using programming as a language (versus painting or singing a song about a mountain) and means by which to describe the body of his muse (a graph object) as an endless contour drawing (Hamiltonian cycle). 
-After thousands of studies, drawings, and a little math: this is a story of how solving specific aethetic goals can yield results. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter paints a portrait and makes it their own? Do I draw functions with my mind's eye when I would otherwise imagine a sculpture?
- Art studies forms, the curvature of the neck as it disappears behind the back, the color of skin in the foreground, the play of colors and contrasts... So in this project, I studied the discocube as a body, where each turn was conceptualized not as a discrete math object but as movement of the body, resulting in more doodles and sketches than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repo is the simplest and most descriptive.
+This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting an apple or singing songs about angels) and means by which to describe his muse's body (a graph object) as an endless contour drawing (Hamiltonian cycle).
+After pages of studies, drawings, and a little math: this is the result of my using an artistic process to solve a mathematical problem. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture?
+ Art studies forms, the curvature of the neck as it disappears behind the back, the color of skin in the foreground, the play of colors and contrasts... So in this project, I studied the discocube as a visual form, where I imagined each turn not as a discrete math object but as movement of that body, resulting in more doodles and sketches than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles (always turning, etc...), of which this repository is the simplest and most descriptive.
 
 ![Hauy's wooden crystal models](imgs/hauyCabinett.png?raw=true "Hauy's wooden crystal models")
 
 ![First 11 discocubes and their order (number of nodes)](imgs/rect5857.png?raw=true "Discocubes orders")
 *The first eleven discocubes and their respective orders (number of nodes)*
 
-*“A great discovery solves a great problem, but there is a grain of discovery in the solution of any problem. Your problem may be modest, but if it challenges your curiosity and brings into play your inventive faculties, and if you solve it by your own means, you may experience the tension and enjoy the triumph of discovery.”*
-― George Pólya, How to Solve It: A New Aspect of Mathematical Method 
-
-Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are unwitting recordings of a weaver's hand movement, like how a piano roll records the attack of the piano's finger hitting the hammer, or how a seismograph records the motion of the earth... I followed the thought further and asked myself if there was a 'weave' I could use to build the discocube, similar to how one would build a scarf, layer by layer until the final result is reached. For the sake of illustration, I've structured the code to follow the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
+Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are actually unwitting recordings of a knitter's hand-movements, like how a piano roll is a recording of the pianist's finger hitting ebony, or how a seismograph records the motion of the earth, or how our skin is type of recording of our life... I followed the thought further and asked myself if there was a pattern I could expose and use to construct the discocube, level by level, similar to how one would knit a scarf, row by row until the desired result is reached. To illustrate the intention of the code succinctly, I've structured the code to mimic the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
 To paraphrase Hauy: 
 
@@ -35,7 +27,7 @@ To paraphrase Hauy:
 What started as a hack-your-own version of a depth-first-search-with-shortcuts for the discocube graph (solving up to 960 vertices), metastasized into pages of overgrown mixin classes mysteriously coupled to each another like overgrown vines pushing me deeper and deeper into the underbelly of its mutant tentacles. Although it was able to solve instances of over a million vertices, it had the clarity of primordial soup. So, as a sadistic gardener I painstakingly pruned my own unescapable web (all those letters you haven't opened yet?) of thorny vines into presentable tiny bonsai trees. So what is a bonsai if not a tree in intimate scope?
 
 The result of this creative process is a family of algorithms developed specifically to solve various graph problems on the disoocube graph, 3d grid graph and hexprism honeycomb diamond graphs. 
-The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while other algorithms in the family take longer but they also have other objectives; like forming an always turning cycle with even edge distribution across all axes. But that's beyond the scope of this repo.
+The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while other algorithms in the family take longer but they also have other objectives; like forming an always turning cycle with even edge distribution across all axes. But that's beyond the scope of this repository.
 
 Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs (a side-effect of the research), addressing some open issues raised in the graph theory research literature. 
 
@@ -55,7 +47,7 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 ![Discocube 3640 view](imgs/icy_cube3.png?raw=true "confetti cube")
 *Discocubes as glb, using different mirrored texture yields personalized results and unique reflections meaning each discocube has its own reflection/shadow fingerprint! With millions of combinations available (glass texture/image/color, mirror texture/image/color, edge texture/image/color), the possibilities are endless!*
 
-The always turning hamiltonian cycle digital discocubes are not produced by the algorithm in this repo, but by another polynomial-time algorithm.
+The always turning hamiltonian cycle digital discocubes are not produced by the algorithm in this repository, but by another polynomial-time algorithm.
 
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
