@@ -1,15 +1,14 @@
 use itertools::Itertools;
 use ndarray::{arr2, Axis, Slice};
 use rayon::prelude::*;
-use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Bobbins, Count, Loom, LoomSlice, Point, Solution, Spindle, Spool, Spun, 
-        Tour, TourSlice, Var2, Warps, Weaver, Yarn, ZAdjacency, ZOrder,
+        Bobbins, Count, Loom, LoomSlice, Point, Solution, Spindle, Spool, Spun, Tour, TourSlice,
+        Var2, Warps, Weaver, Yarn, YarnEnds, ZAdjacency, ZOrder,
     },
     utils::{
-        info::{absumv2dc, are_adjacent, get_color_index},
+        info::{absumv2dc, are_adj, get_color_index},
         make_edges_eadjs::{make_eadjs, make_edges},
     },
 };
@@ -39,7 +38,7 @@ pub fn weave(n: usize, z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order
                 weaver.rotated_to_edge((m, n));
                 Weaver::rotate_to_edge(
                     warp,
-                    match are_adjacent(n, j) {
+                    match are_adj(n, j) {
                         true => (j, k),
                         false => (k, j),
                     },
@@ -80,7 +79,7 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let order_z = z_adj.len();
     let spindle: &mut Spindle = &mut Vec::with_capacity(order_z);
     let start: Var2 = *z_adj.keys().max().unwrap();
-    let mut spun: Spun = HashMap::with_capacity(order_z);
+    let mut spun: Spun = Spun::with_capacity(order_z);
     spindle.push(start);
     spun.insert(start, true);
     let tail = order_z - 5;
@@ -208,6 +207,6 @@ fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
         }
     }
     warps.iter_mut().filter(|s| !s.is_empty()).for_each(|seq| {
-        loom.append(&mut vec![seq.drain(..).collect::<VecDeque<_>>()]);
+        loom.append(&mut vec![seq.drain(..).collect::<YarnEnds>()]);
     });
 }
