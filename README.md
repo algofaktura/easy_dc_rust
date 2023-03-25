@@ -7,11 +7,18 @@ An algorithm for solving the Hamiltonian cycle problem deterministically and in 
 the set of points in a 3-dimensional square grid graph contained within an octahedron...
 
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
-*Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.*
+<small><em>Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.</em></small>
 
-This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting flowers and apples or singing hymns about angels) and means by which to describe his muse's body as an endless contour drawing (Hamiltonian cycle).
+This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting flowers and apples or singing hymns about angels) and means by which to describe his muse's body as an endless contour drawing or a Hamiltonian cycle in graph theory terms.
+
+![Sir William Rowan Hamilton's famous "Icosian Game"](imgs/icosian.jpg)
+<small><em>Named after Sir William Rowan Hamilton, the Hamiltonian cycle problem is a classic problem in graph theory. It requires finding a closed loop in a graph that visits every node exactly once, ending at the starting point. The problem was first formulated in the rules of his Icosian game, where players insert numbered pegs into holes on a wooden board to represent steps in a path. The objective is to insert the pegs in order along a path to form a closed loop, much like the Hamiltonian cycle problem where the pegs represent nodes in a graph and the path of inserted pegs represents the cycle.</em></small>
+
+
 After pages of studies, drawings, and a little math: this is the result of my using the artistic process to solve a mathematical problem without the means to solve it mathematically. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture?
- Art manipulates forms to mimic life, showing us how, with a brush stroke, the curvature of the neck disappears behind the back, or how the play of colors and contrasts can bring skin rendered from a subject alive over 500 years ago up close. So in this project, I studied the discocube visually, where I imagined each turn not as a discrete math object but as movement of that body, a line in a drawing, resulting in doodles and sketches rather than pages of numbers and equations. The result is a family of algorithms for solving various types of hamiltonian cycles of which this repository is the simplest and most descriptive. This is the weave algorithm, responsible for constructing an initial Hamiltonian cycle. The other algorithms are centered around the concept of polishing a diamond, ie., improving upon the initial tour created by this algorithm so that the number of edges are evenly distributed across the x, y, and z axes (An always-turning hamiltonian cycle).
+
+Art manipulates forms to mimic life, showing us how a brush stroke can make the curvature of the neck disappear behind the back, or how the play of colors and contrasts can bring to life the skin of a subject from over 500 years ago. In this project, I studied the discocube visually, imagining each turn not as a discrete mathematical object, but as a movement of the body, resulting in doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
+
 
 ![Hauy's wooden crystal models](imgs/hauyCabinett.png?raw=true "Hauy's wooden crystal models")
 
@@ -29,10 +36,9 @@ What started as a hack-your-own version of a depth-first-search-with-shortcuts f
 The result of this creative process is a family of algorithms developed specifically to solve various graph problems on the disoocube graph, 3d grid graph and hexprism honeycomb diamond graphs. 
 The algorithm presented in this repository is the least complex, also making it the fastest. It does the job, solving the hamiltonian cycle problem for over millions of vertices in reasonable time (milliseconds vs. years), while other algorithms in the family take longer but they also have other objectives; like forming an always turning cycle with even edge distribution across all axes. But that's beyond the scope of this repository.
 
-Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs (a side-effect of the research), addressing some open issues raised in the graph theory research literature. 
+Eventually this repository will include other linear time algorithms for solving the hamiltonian cycle problem in 3d grid graphs and also in solid grid graphs (a side-effect of the research) and regular grid graphs.
 
-This algorithm has no while loops, and will terminate after a series of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed, (which is surprising as the creative process in creating this was anything but deterministic).
-This algorithm aims, with enough optimizations, to be able to find the hamiltonian cycle for graphs up to a billion vertices. It takes only a little bit less time to certify a solution as it does to find it.
+This algorithm has no while loops, and will terminate after a definitive set of steps have been performed. The strength of this algorithm is knowing exactly when and where and what is to happen, thereby reducing the amount of calculations needed (which is surprising as the creative process in creating this was anything but deterministic). It is a construction algorithm, constructing the path, layer by layer until a series of loops are produced with are then joined using cycle merging. The algorithm has also discarded the memory-heavy adjacency list, choosing instead to perform individual calculations where needed. Making and solving a graph with over a billion vertices, where n=1000 won't require a distributed graph engine on the cloud anymore. Just a little less than an hour.
 
 ![Discocubes](imgs/dcviews.png?raw=true "Discocubes")
 *Discocubes 8 - 1760*
@@ -715,7 +721,42 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 | 🇳  648 | ⭕️  364478400 | 🕗 536.2427     | 📌 HamCycle |  
 | 🇳  649 | ⭕️  366165800 | 🕗 541.9881     | 📌 HamCycle |  
 | 🇳  650 | ⭕️  367858400 | 🕗 542.15656    | 📌 HamCycle |  
-
+| 🇳  651 | ⭕️  369556208 | 🕗 537.8123 |
+| 🇳  652 | ⭕️  371259232 | 🕗 542.0666 |
+| 🇳  653 | ⭕️  372967480 | 🕗 550.36206 |
+| 🇳  654 | ⭕️  374680960 | 🕗 568.1294 |
+| 🇳  655 | ⭕️  376399680 | 🕗 564.33545 |
+| 🇳  656 | ⭕️  378123648 | 🕗 556.8233 |
+| 🇳  657 | ⭕️  379852872 | 🕗 549.9941 |
+| 🇳  658 | ⭕️  381587360 | 🕗 567.8387 |
+| 🇳  659 | ⭕️  383327120 | 🕗 560.9873 |
+| 🇳  660 | ⭕️  385072160 | 🕗 561.5826 |
+| 🇳  661 | ⭕️  386822488 | 🕗 589.1388 |
+| 🇳  662 | ⭕️  388578112 | 🕗 587.5338 |
+| 🇳  663 | ⭕️  390339040 | 🕗 585.85474 | Refactoring
+| 🇳  664 | ⭕️  392105280 | 🕗 494.92694 |
+| 🇳  665 | ⭕️  393876840 | 🕗 484.69604 |
+| 🇳  666 | ⭕️  395653728 | 🕗 498.51175 |
+| 🇳  667 | ⭕️  397435952 | 🕗 483.14536 |
+| 🇳  668 | ⭕️  399223520 | 🕗 481.03534 |
+| 🇳  669 | ⭕️  401016440 | 🕗 486.0365 |
+| 🇳  670 | ⭕️  402814720 | 🕗 482.0655 |
+| 🇳  671 | ⭕️  404618368 | 🕗 491.62445 |
+| 🇳  672 | ⭕️  406427392 | 🕗 518.8315 |
+| 🇳  673 | ⭕️  408241800 | 🕗 503.79465 |
+| 🇳  674 | ⭕️  410061600 | 🕗 509.1825 |
+| 🇳  675 | ⭕️  411886800 | 🕗 507.5166 |
+| 🇳  676 | ⭕️  413717408 | 🕗 511.55142 |
+| 🇳  677 | ⭕️  415553432 | 🕗 518.1366 |
+| 🇳  678 | ⭕️  417394880 | 🕗 513.89624 |
+| 🇳  679 | ⭕️  419241760 | 🕗 516.77234 |
+| 🇳  680 | ⭕️  421094080 | 🕗 519.8378 |
+| 🇳  681 | ⭕️  422951848 | 🕗 540.3061 |
+| 🇳  682 | ⭕️  424815072 | 🕗 550.7973 |
+| 🇳  683 | ⭕️  426683760 | 🕗 549.3181 |
+| 🇳  684 | ⭕️  428557920 | 🕗 549.1613 |
+| 🇳  685 | ⭕️  430437560 | 🕗 558.74603 |
+| 🇳  686 | ⭕️  432322688 | 🕗 559.4322 |
 ## Licensing:
 
 This package is licensed under the MIT license.
