@@ -148,7 +148,7 @@ pub mod modify {
 pub mod info {
     use super::{Point, SignedIdx, Vert};
 
-    pub fn are_adjacent([a, b, c]: [i16; 3], [x, y, z]: [i16; 3]) -> bool {
+    pub fn are_adj([a, b, c]: [i16; 3], [x, y, z]: [i16; 3]) -> bool {
         let n = a - x + b - y + c - z;
         let mask = n >> 15;
         (n + mask) ^ mask == 2
