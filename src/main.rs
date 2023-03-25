@@ -64,7 +64,7 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
     let (n, order, z_adj, z_order, min_xyz) = make_z_graph(level);
     let dur_make = Instant::now() - start;
     start = Instant::now();
-    let solution = weave::weave(z_adj, z_order, min_xyz, order);
+    let solution = weave::weave(n as usize, z_adj, z_order, min_xyz, order);
     let dur_solve = Instant::now() - start;
     println!(
         "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {} |",

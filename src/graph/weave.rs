@@ -5,8 +5,8 @@ use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Bobbins, Count, Loom, Point, Solution, Spool, Spun, Tour, TourSlice, 
-        Warps, Weaver, Yarn, ZAdjacency, ZOrder,
+        Bobbins, Count, Loom, Point, Solution, Spool, Spun, Tour, TourSlice, Warps, Weaver, Yarn,
+        ZAdjacency, ZOrder,
     },
     utils::{
         info::{absumv2dc, are_adjacent, get_color_index},
@@ -14,8 +14,8 @@ use super::{
     },
 };
 
-pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> Solution {
-    let mut loom = wrap_and_reflect_loom(z_adj, z_order);
+pub fn weave(n: usize, z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> Solution {
+    let mut loom = wrap_and_reflect_loom(n, z_adj, z_order);
     let mut weaver: Weaver = Weaver::new(loom[0].split_off(0), true, min_xyz, order);
     let mut loom = loom
         .split_off(1)
@@ -51,10 +51,10 @@ pub fn weave(z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order: u32) -> 
     weaver.get_weave()
 }
 
-fn wrap_and_reflect_loom(z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
+fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
-    let mut bobbins: Vec<[i16; 3]> = Vec::new();
-    let mut loom: Loom = Loom::new();
+    let mut bobbins: Vec<[i16; 3]> = Vec::with_capacity(n);
+    let mut loom: Loom = Loom::with_capacity((n / 2) + 1);
     for (z, length) in z_order {
         wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
         if z != -1 {
@@ -133,7 +133,7 @@ fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> W
 }
 
 fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
-    let mut subtours: Warps = Vec::new();
+    let mut subtours: Warps = Vec::with_capacity(cuts.len() + 1);
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
     let mut prev = -1_i32;
@@ -196,9 +196,10 @@ fn wrap_warps_onto_loom(mut warps: Warps, loom: &mut Loom) {
     for thread in &mut *loom {
         for warp in warps.iter_mut().filter(|w| !w.is_empty()) {
             match (thread.front(), thread.back()) {
-                (Some(front), _) if *front == warp[0] => {
-                    warp.drain(..).skip(1).for_each(|node| thread.push_front(node))
-                }
+                (Some(front), _) if *front == warp[0] => warp
+                    .drain(..)
+                    .skip(1)
+                    .for_each(|node| thread.push_front(node)),
                 (_, Some(back)) if *back == warp[0] => {
                     thread.extend(warp.drain(..).skip(1));
                 }
