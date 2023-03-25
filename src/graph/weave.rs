@@ -52,7 +52,7 @@ pub fn weave(n: usize, z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order
 
 fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
-    let mut bobbins: Bobbins = Vec::with_capacity(n);
+    let mut bobbins: Bobbins = Bobbins::with_capacity(n);
     let mut loom: Loom = Loom::with_capacity((n / 2) + 1);
     for (z, length) in z_order {
         wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
@@ -77,7 +77,7 @@ fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
 
 fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let order_z = z_adj.len();
-    let spindle: &mut Spindle = &mut Vec::with_capacity(order_z);
+    let spindle: &mut Spindle = &mut Spindle::with_capacity(order_z);
     let start: Var2 = *z_adj.keys().max().unwrap();
     let mut spun: Spun = Spun::with_capacity(order_z);
     spindle.push(start);
@@ -171,8 +171,8 @@ fn cut_yarn(yarn: Tour, cuts: &Tour) -> Warps {
                     });
                 }
             }
-            prev = idx as i32;
         }
+        prev = idx as i32;
     }
     subtours
 }
