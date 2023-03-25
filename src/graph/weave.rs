@@ -1,12 +1,12 @@
 use itertools::Itertools;
-use ndarray::{arr2, Array2, Axis, Slice};
+use ndarray::{arr2, Axis, Slice};
 use rayon::prelude::*;
 use std::collections::{HashMap, VecDeque};
 
 use super::{
     defs::{
-        Bobbins, Count, Loom, Point, Solution, Spool, Spun, Tour, TourSlice, Warps, Weaver, Yarn,
-        ZAdjacency, ZOrder,
+        Bobbins, Count, Loom, LoomSlice, Point, Solution, Spindle, Spool, Spun, 
+        Tour, TourSlice, Var2, Warps, Weaver, Yarn, ZAdjacency, ZOrder,
     },
     utils::{
         info::{absumv2dc, are_adjacent, get_color_index},
@@ -53,7 +53,7 @@ pub fn weave(n: usize, z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order
 
 fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
-    let mut bobbins: Vec<[i16; 3]> = Vec::with_capacity(n);
+    let mut bobbins: Bobbins = Vec::with_capacity(n);
     let mut loom: Loom = Loom::with_capacity((n / 2) + 1);
     for (z, length) in z_order {
         wrap_warps_onto_loom(get_warps(z, length, &bobbins, &spool), &mut loom);
@@ -78,8 +78,8 @@ fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
 
 fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
     let order_z = z_adj.len();
-    let spindle: &mut Vec<[i16; 2]> = &mut Vec::with_capacity(order_z);
-    let start: [i16; 2] = *z_adj.keys().max().unwrap();
+    let spindle: &mut Spindle = &mut Vec::with_capacity(order_z);
+    let start: Var2 = *z_adj.keys().max().unwrap();
     let mut spun: Spun = HashMap::with_capacity(order_z);
     spindle.push(start);
     spun.insert(start, true);
@@ -89,7 +89,7 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
         spindle.push(unspun);
         spun.insert(unspun, true);
     });
-    let blue: Yarn = Array2::from(spindle.drain(..).collect::<Vec<_>>());
+    let blue: Yarn = Yarn::from(spindle.drain(..).collect::<Vec<_>>());
     let red: Yarn = blue.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
     Spool::from([(3, blue), (1, red)])
 }
@@ -118,7 +118,7 @@ fn get_unspun(
         .0
 }
 
-fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> Warps {
+fn get_warps(z: i16, length: Count, bobbins: &Tour, spool: &Spool) -> Warps {
     let mut yarn = spool[&get_color_index(z)].clone();
     let start_pos: isize = (yarn.len_of(ndarray::Axis(0)) - length).try_into().unwrap();
     yarn.slice_axis_inplace(Axis(0), Slice::new(start_pos, None, 1));
@@ -132,7 +132,7 @@ fn get_warps(z: i16, length: Count, bobbins: &Vec<[i16; 3]>, spool: &Spool) -> W
     }
 }
 
-fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
+fn cut_yarn(yarn: Tour, cuts: &Tour) -> Warps {
     let mut subtours: Warps = Vec::with_capacity(cuts.len() + 1);
     let last_ix: usize = yarn.len() - 1;
     let last_idx: usize = cuts.len() - 1;
@@ -178,7 +178,7 @@ fn cut_yarn(yarn: Vec<[i16; 3]>, cuts: &Vec<[i16; 3]>) -> Warps {
     subtours
 }
 
-fn pin_ends(loom: &mut [VecDeque<[i16; 3]>]) -> Bobbins {
+fn pin_ends(loom: &mut LoomSlice) -> Bobbins {
     loom.iter_mut()
         .flat_map(|thread| {
             let [x, y, z] = thread[0];
