@@ -48,8 +48,10 @@ pub struct Weaver {
 
 impl Weaver {
     pub fn new(mut data: YarnEnds, lead: bool, min_xyz: Point, order: u32) -> Weaver {
+        let mut preallocated = Vec::with_capacity(order as usize);
+        preallocated.extend(data.drain(..)); 
         Weaver {
-            data: data.drain(..).collect(),
+            data: preallocated,
             lead,
             min_xyz,
             order,
@@ -68,7 +70,7 @@ impl Weaver {
     pub fn rotated_to_edge(&mut self, (lhs, rhs): ([i16; 3], [i16; 3])) {
         if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
             self.data.reverse();
-        } else {
+        } else if !(lhs == self.data[0] && rhs == self.data[self.data.len() - 1]){
             match (
                 self.data.iter().position(|&x| x == lhs).unwrap(),
                 self.data.iter().position(|&x| x == rhs).unwrap(),
@@ -85,7 +87,7 @@ impl Weaver {
     pub fn rotate_to_edge(cycle: &mut Tour, (lhs, rhs): ([i16; 3], [i16; 3])) {
         if lhs == cycle[cycle.len() - 1] && rhs == cycle[0] {
             cycle.reverse();
-        } else {
+        } else if !(lhs == cycle[0] && rhs == cycle[cycle.len() - 1]){
             match (
                 cycle.iter().position(|&x| x == lhs).unwrap(),
                 cycle.iter().position(|&x| x == rhs).unwrap(),
