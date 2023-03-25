@@ -55,6 +55,9 @@ As each solution is as unique as a fingerprint, or a diamond it allows one to ha
 
 The always turning hamiltonian cycle digital discocubes are not produced by the algorithm in this repository, but by another polynomial-time algorithm.
 
+![Solution to a 79040 node graph](imgs/solution.png)
+*Detail for a Hamiltonian cycle for a graph with 79,040 nodes.*
+
 ## Command line usage
 To use the package via the command line, navigate to the root directory of the project in your terminal and run the following command:
 ```
