@@ -78,6 +78,11 @@ impl Weaver {
     }
 
     pub fn rotated_to_edge(&mut self, (lhs, rhs): ([i16; 3], [i16; 3])) {
+        // more prudent than using splice() which has preferences for optimality:
+        // The tail (elements in the vector after range) is empty,
+        // or replace_with yields fewer or equal elements than range’s length
+        // or the lower bound of its size_hint() is exact. blah blah blah.
+        // More steps to fulfill optimality than otherwise just doing what's correct.
         if lhs == self.data[self.data.len() - 1] && rhs == self.data[0] {
             self.data.reverse();
         } else if !(lhs == self.data[0] && rhs == self.data[self.data.len() - 1]){
