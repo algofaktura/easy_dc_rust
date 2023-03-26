@@ -12,6 +12,7 @@
 /// makes graph, solves it
 /// 1 (start with order 8 end at order 1,373,600) 100
 /////////////////////////////////////////////////////////////////////////////
+extern crate plotters;
 extern crate rayon;
 
 use std::{env, time::Instant};
@@ -24,6 +25,8 @@ use graph::{
     utils::make::{make_adjacency, make_z_graph},
     weave,
 };
+
+use crate::graph::utils::{csv_out::vector_to_csv, certify::is_hamiltonian_circuit};
 
 pub fn main() -> Result<(), &'static str> {
     let args: Vec<String> = env::args().collect();
@@ -54,7 +57,7 @@ pub fn main() -> Result<(), &'static str> {
         None => n_start,
     };
     for level in n_start..=n_end {
-        find_solution(level, true)?;
+        find_solution(level, false)?;
     }
     Ok(())
 }
@@ -66,11 +69,17 @@ pub fn find_solution(level: u32, _certify: bool) -> Result<Solution, &'static st
     start = Instant::now();
     let solution = weave::weave(n as usize, z_adj, z_order, min_xyz, order);
     let dur_solve = Instant::now() - start;
+
+    println!("{:?}", is_hamiltonian_circuit(&solution, order as usize, min_xyz + 8));
+
+    vector_to_csv(solution.clone(), &format!("/home/rommelo/Repos/easy_dc_rust_vec/src/solution_{order}.csv")).unwrap();
     println!(
         "| 🇳 {n:>4} | ⭕️ {order:>10} | 🕗 {} |",
         dur_solve.as_secs_f32()
     );
     if _certify {
+        // Because the adjacency used for solving is a partition, we need to make the whole adjacency to certify the sequence:
+        // This incurs a significant memory cost for graphs having over 250 million nodes.
         let adj = make_adjacency(n);
         println!("🇳 {n:>4} FINISHED WEAVING. 🔎 CERTIFYING SOLUTION...");
         start = Instant::now();

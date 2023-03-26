@@ -37,13 +37,23 @@ pub type SignedIdx = i32;
 pub type Yarn = Array2<Point>;
 pub type ZlevelNodesMap = HashMap<Point, Nodes>;
 pub type ZOrder = Vec<(Point, usize)>;
+use std::error::Error;
+use serde::Serialize;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "PascalCase")]
+struct Vector {
+    x: i16,
+    y: i16,
+    z: i16
+}
 
 #[derive(Clone, Debug)]
 pub struct Weaver {
     pub data: Tour,
     lead: bool,
     min_xyz: Point,
-    order: u32,
+    order: u32, 
 }
 
 impl Weaver {
@@ -112,5 +122,59 @@ impl Weaver {
 
     pub fn get_weave(&self) -> Solution {
         self.data.to_vec()
+    }
+
+    pub fn create_3d_line_plot(&self) -> Result<(), Box<dyn std::error::Error>> {
+        use plotters::prelude::*;
+        let root = BitMapBackend::new("3d_plot.png", (640, 480)).into_drawing_area();
+        root.fill(&WHITE)?;
+    
+        let mut xx: Vec<i16> = Vec::new();
+        let mut yy: Vec<i16> = Vec::new();
+        let mut zz: Vec<i16> = Vec::new();
+    
+        for [x, y, z] in self.data.iter() {
+            xx.push(*x);
+            yy.push(*y);
+            zz.push(*z);
+        }
+    
+        let mut chart = ChartBuilder::on(&root)
+            .caption("3D Line Plot", ("Arial", 30).into_font())
+            .build_cartesian_3d(-100..100, -100..100, -100..100)?;
+    
+            chart.draw_series(LineSeries::new(
+                xx
+                    .iter()
+                    .zip(yy.iter())
+                    .zip(zz.iter())
+                    .map(|((x, y), z)| (*x as i32, *y as i32, *z as i32)),
+                &BLACK,
+            ))?;
+    
+        Ok(())
+    }
+
+    /// Python script using plotly and pandas to display the solution from the .csv file produced by the function below:
+    ///```
+    /// import pandas as pd
+    /// import plotly.express as px
+    ///
+    /// def create_3d_line_plot(file_path):
+    ///     df = pd.read_csv(file_path)
+    ///     fig = px.line_3d(df, x='X', y='Y', z='Z')
+    ///     fig.show()
+    /// 
+    ///```
+    /// Save solution to file_path as a csv file where each axis X, Y, Z is a separate column.
+    /// Structured for easy read and plotting using python and plotly (see above).
+    pub fn save_to_csv(&self, file_path: &str) -> Result<(), Box<dyn Error>> {
+        let file = std::fs::File::create(&file_path)?;
+        let mut writer = csv::Writer::from_writer(file);
+        self.data.iter().for_each(|[x, y, z]| {
+            writer.serialize(Vector{x:*x, y:*y, z:*z}).ok();
+        });
+        writer.flush()?;
+        Ok(())
     }
 }

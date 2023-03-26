@@ -332,7 +332,9 @@ pub mod make_edges_eadjs {
 }
 
 pub mod certify {
-    use super::{std::fmt, Adjacency, Itertools, Solution};
+    use itertools::all;
+
+    use super::{std::fmt, Adjacency, Itertools, Solution, info::absumv};
 
     #[derive(Debug, PartialEq)]
     pub enum SequenceID {
@@ -363,5 +365,85 @@ pub mod certify {
             true => SequenceID::HamChain,
             false => SequenceID::Broken,
         }
+    }
+
+    pub fn is_hamiltonian_circuit(seq: &Solution, order: usize, max_xyz_plus_4: i16) -> SequenceID {
+        if seq.iter().duplicates().count() > 0 
+            || seq.len() != order 
+            || !all(seq.iter(), |[x, y, z]| (x & 1) + (y & 1) + (z & 1) == 3)
+            || !all(seq.iter(), |vert| absumv(*vert) < max_xyz_plus_4)
+            || seq.iter().fold((0, 0, 0), |acc: (i16, i16, i16), &[x, y, z]| (acc.0 + x, acc.1 + y, acc.2 + z)) != (0, 0, 0)
+        {
+            return SequenceID::Broken;
+        }
+        SequenceID::HamCycle
+    }
+}
+
+pub mod csv_out {
+    use std::error::Error;
+    use serde::Serialize;
+    use plotters::prelude::*;
+    use std::fs::File;
+    use std::io::prelude::*;
+    use std::path::Path;
+    
+    
+    #[derive(Debug, Serialize, serde::Deserialize)]
+    #[serde(rename_all = "PascalCase")]
+    struct Vector {
+        x: i16,
+        y: i16,
+        z: i16
+    }
+
+    
+    pub fn create_3d_line_plot(file_path: &str) -> Result<(), Box<dyn Error>> {
+        let path = Path::new(file_path);
+        let mut file = File::open(&path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+    
+        let mut rdr = csv::Reader::from_reader(contents.as_bytes());
+        let mut x_data = Vec::new();
+        let mut y_data = Vec::new();
+        let mut z_data = Vec::new();
+    
+        for result in rdr.deserialize() {
+            let vector: Vector = result?;
+            x_data.push(vector.x);
+            y_data.push(vector.y);
+            z_data.push(vector.z);
+        }
+    
+        let root = BitMapBackend::new("3d_line_plot.png", (640, 480)).into_drawing_area();
+        root.fill(&WHITE)?;
+    
+        let mut chart = ChartBuilder::on(&root)
+            .caption("3D Line Plot", ("sans-serif", 20))
+            .build_cartesian_3d(-100..100, -100..100, -100..100)?;
+    
+        chart.configure_axes().draw()?;
+    
+        chart.draw_series(LineSeries::new(
+            x_data
+                .iter()
+                .zip(y_data.iter())
+                .zip(z_data.iter())
+                .map(|((x, y), z)| (*x as i32, *y as i32, *z as i32)),
+            &BLACK,
+        ))?;
+    
+        Ok(())
+    }
+
+    pub fn vector_to_csv(data: Vec<[i16;3]>, file_path: &str) -> Result<(), Box<dyn Error>> {
+        let file = std::fs::File::create(&file_path)?;
+        let mut writer = csv::Writer::from_writer(file);
+        data.iter().for_each(|[x, y, z]| {
+            writer.serialize(Vector{x:*x, y:*y, z:*z}).ok();
+        });
+        writer.flush()?;
+        Ok(())
     }
 }

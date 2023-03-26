@@ -8,6 +8,7 @@ the set of points in a 3-dimensional square grid graph contained within an octah
 
 This algorithm is an artist's rendering of a graph object using programming as a language (instead of painting flowers and apples or singing hymns about angels) and means by which to describe his muse's body as an endless contour drawing or a Hamiltonian cycle in graph theory terms.
 
+
 ![Planar embedding of Cube and Discocubes](imgs/planar_emb.png?raw=true "Planar embedding of Cube and Discocubes")
 <small><em>Planar embedding of a cube and a discocube. From the set of all graphs G, where the order of G is of the ***Uncentered octahedral numbers*** [A130809](https://oeis.org/A130809), only the first two instances shown above; n[0] and n[1] are planarly embeddable i.e., it can be represented on a two-dimensional surface without any of its edges crossing.</em></small>
 
@@ -22,15 +23,14 @@ This algorithm is an artist's rendering of a graph object using programming as a
   </div>
 </div>
 
+
 After pages of studies, drawings, and a little math: this is the result of my using the artistic process to solve a mathematical problem without the means to solve it mathematically. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture? Or will I find patterns in the [music I make from the solutions?](https://soundcloud.com/ro-yu-489928073/tracks)
 
-Art manipulates forms to mimic life, showing us how a brush stroke can make the curvature of the neck disappear behind the back, or how the play of colors and contrasts can bring to life the skin of a subject from over 500 years ago. In this project, I studied the discocube visually, imagining each turn not as a discrete mathematical object, but as a movement of the body, resulting in doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
-Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are actually unwitting recordings of a knitter's hand-movements, like how a piano roll is a recording of the pianist's finger hitting ebony, or how a seismograph records the motion of the earth, or how our skin is type of recording of our life... I followed the thought further and asked myself if there was a pattern I could expose and use to construct the discocube, level by level, similar to how one would knit a scarf, row by row until the desired result is reached. To illustrate the intention of the code succinctly, I've structured the code to mimic the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
+Art manipulates forms to mimic life, showing us how a brush stroke can make the curvature of the neck disappear behind the back, or how the play of colors and contrasts bring to skin of a subject from over 500 years ago, to life. In this project, I studied the discocube visually, imagining each turn not as a discrete mathematical object, but as a movement of the body, resulting in doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
+Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are actually unwitting recordings of a knitter's hand-movements, like how a piano roll is a recording of the pianist's finger hitting ebony, or how a seismograph records the motion of the earth, or how our skin is type of recording of our life... I followed the thought further and asked myself: was there was a pattern to expose and use to construct the discocube, level by level, similar to how one would knit a scarf, row by row until the desired result is reached? To illustrate the intention of the code succinctly, I've structured the code to mimic the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
 ![First 11 discocubes and their order (number of nodes)](imgs/rect5857.png?raw=true "Discocubes orders")
 *The first eleven discocubes and their respective orders (number of nodes)*
-
-
 
 To paraphrase Hauy: 
 
