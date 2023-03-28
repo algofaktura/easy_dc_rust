@@ -798,6 +798,7 @@ The solution can be plotted using pandas, numpy and plotly. I've put together an
 | 🇳  714 | ⭕️  487366880 | 🕗 663.9865     | 📌 HamCycle |        
 | 🇳  715 | ⭕️  489414640 | 🕗 649.8643     | 📌 HamCycle |        
 | 🇳  716 | ⭕️  491468128 | 🕗 652.14044    | 📌 HamCycle |          
+<<<<<<< HEAD
 | 🇳  717 | ⭕️  493527352 | 🕗 659.4656     | 📌 HamCycle |          
 | 🇳  718 | ⭕️  495592320 | 🕗 667.9637     | 📌 HamCycle |          
 | 🇳  719 | ⭕️  497663040 | 🕗 689.3182     | 📌 HamCycle |          
@@ -971,6 +972,8 @@ The solution can be plotted using pandas, numpy and plotly. I've put together an
 | 🇳 1000 | ⭕️  930484288 | 🕗 1533.6587    | 📌 HamCycle | 17.2 / 20.2
 
 
+=======
+>>>>>>> 127c0fc89302610885808f2047d3747935a776b7
 ## Licensing:
 
 This package is licensed under the MIT license.
