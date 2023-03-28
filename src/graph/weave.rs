@@ -47,8 +47,39 @@ pub fn weave(n: usize, z_adj: ZAdjacency, z_order: ZOrder, min_xyz: Point, order
             }
         }
     });
+    weaver.save_to_csv(&"/home/rommelo/Repos/plot_solution/solutions/test.csv").unwrap();
     weaver.get_weave()
 }
+
+pub fn spindler() {
+    // function to spin the yarn in lieu of adjacency list
+    // get the max_xyz, construct the start vector as [max_xyz, 1]
+    // to this vector keep adding using the current turn, to each vector
+    // so if we start with [3, 1] add [0, 2] = [3, 3] is that less than or equal to 4 (max_xyz + abs(1))?
+    // no so we call next on to_cycle and we get these two vectors:
+    // [[0, -2], [2, 0]]
+    // we start at the [3, 1] add [0, -2] we get [3, -1] is that under or equal to 4? yes:
+    // we then add [2, 0]? under or equal to 4? no. we reset back to start
+    // get next() 
+    // [[0, -2], [-2, 0]],
+    // *[3, 1] add [0, -2] => *[3, -1] + [-2, 0] => *[-1, -1]
+    // [-1, -1] add [0, -2] => [-1, -5] no! next()
+    // get next()
+    // [[0, 2], [-2, 0]],
+    // [-1, -1] add [0, 2] => *[-1, 1] + [-2, 0] => *[-3, 1]
+    // [-3, 1] add [0, 2] => *[-3, 3] + [-2, 0] => no! next()
+    // get next()
+    // [[0, 2], [2, 0]],
+    // 
+
+    let _to_cycle = vec![
+        [[0, 2], [2, 0]],
+        [[0, -2], [2, 0]], 
+        [[0, -2], [-2, 0]],
+        [[0, 2], [-2, 0]],
+    ];
+}
+
 
 fn wrap_and_reflect_loom(n: usize, z_adj: ZAdjacency, z_order: ZOrder) -> Loom {
     let spool: Spool = spin_and_color_yarn(z_adj);
@@ -89,6 +120,23 @@ fn spin_and_color_yarn(z_adj: ZAdjacency) -> Spool {
         spun.insert(unspun, true);
     });
     let blue: Yarn = Yarn::from(spindle.drain(..).collect::<Vec<_>>());
+    blue.iter().enumerate().map(
+        |(idx, _)|
+        {
+                  
+            let prev = if idx == 0 {
+                blue.len_of(Axis(0)) - 1
+            } else {
+                idx - 1
+            };
+            println!("{prev} {idx}");
+            (
+                blue.get((prev, 0)).unwrap_or(&0) - blue.get((idx, 0)).unwrap_or(&0),
+                blue.get((prev, 1)).unwrap_or(&0) - blue.get((idx, 1)).unwrap_or(&0),
+            )
+        }   
+    ).inspect(|x| println!("made it through filter: {x:?}")).collect_vec();
+    println!("{:?}", blue);
     let red: Yarn = blue.dot(&arr2(&[[-1, 0], [0, -1]])) + arr2(&[[0, 2]]);
     Spool::from([(3, blue), (1, red)])
 }
@@ -119,7 +167,7 @@ fn get_unspun(
 
 fn get_warps(z: i16, length: Count, bobbins: &Tour, spool: &Spool) -> Warps {
     let mut yarn = spool[&get_color_index(z)].clone();
-    let start_pos: isize = (yarn.len_of(ndarray::Axis(0)) - length).try_into().unwrap();
+    let start_pos: isize = (yarn.len_of(Axis(0)) - length).try_into().unwrap();
     yarn.slice_axis_inplace(Axis(0), Slice::new(start_pos, None, 1));
     match yarn
         .outer_iter()

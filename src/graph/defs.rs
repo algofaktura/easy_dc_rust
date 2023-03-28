@@ -129,37 +129,6 @@ impl Weaver {
         self.data.to_vec()
     }
 
-    pub fn create_3d_line_plot(&self) -> Result<(), Box<dyn std::error::Error>> {
-        use plotters::prelude::*;
-        let root = BitMapBackend::new("3d_plot.png", (640, 480)).into_drawing_area();
-        root.fill(&WHITE)?;
-    
-        let mut xx: Vec<i16> = Vec::new();
-        let mut yy: Vec<i16> = Vec::new();
-        let mut zz: Vec<i16> = Vec::new();
-    
-        for [x, y, z] in self.data.iter() {
-            xx.push(*x);
-            yy.push(*y);
-            zz.push(*z);
-        }
-    
-        let mut chart = ChartBuilder::on(&root)
-            .caption("3D Line Plot", ("Arial", 30).into_font())
-            .build_cartesian_3d(-100..100, -100..100, -100..100)?;
-    
-            chart.draw_series(LineSeries::new(
-                xx
-                    .iter()
-                    .zip(yy.iter())
-                    .zip(zz.iter())
-                    .map(|((x, y), z)| (*x as i32, *y as i32, *z as i32)),
-                &BLACK,
-            ))?;
-    
-        Ok(())
-    }
-
     /// Python script using plotly and pandas to display the solution from the .csv file produced by the function below:
     ///```
     /// import pandas as pd
@@ -169,7 +138,6 @@ impl Weaver {
     ///     df = pd.read_csv(file_path)
     ///     fig = px.line_3d(df, x='X', y='Y', z='Z')
     ///     fig.show()
-    /// 
     ///```
     /// Save solution to file_path as a csv file where each axis X, Y, Z is a separate column.
     /// Structured for easy read and plotting using python and plotly (see above).

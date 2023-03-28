@@ -22,6 +22,7 @@ pub mod make {
     pub fn make_z_graph(n: u32) -> (u32, u32, ZAdjacency, ZOrder, i16) {
         let order = get_order_from_n(n);
         let max_xyz = get_max_xyz(order) as i16;
+        println!("MAX_XYZ {max_xyz:?}");
         let (z_adj, z_order) = make_xs_adjacency(n as usize, max_xyz);
         (n, order, z_adj, z_order, max_xyz - 4)
     }
@@ -75,7 +76,7 @@ pub mod make {
         adjacency_map(&verts, max_xyz + 2)
     }
 
-    fn vertices(max_xyz: Point) -> Vec<[i16; 3]> {
+    pub fn vertices(max_xyz: Point) -> Vec<[i16; 3]> {
         let max_xyz_plus_4 = max_xyz + 4;
         iproduct!(
             (-max_xyz..=max_xyz).step_by(2),
@@ -383,11 +384,6 @@ pub mod certify {
 pub mod csv_out {
     use std::error::Error;
     use serde::Serialize;
-    use plotters::prelude::*;
-    use std::fs::File;
-    use std::io::prelude::*;
-    use std::path::Path;
-    
     
     #[derive(Debug, Serialize, serde::Deserialize)]
     #[serde(rename_all = "PascalCase")]
@@ -395,46 +391,6 @@ pub mod csv_out {
         x: i16,
         y: i16,
         z: i16
-    }
-
-    
-    pub fn create_3d_line_plot(file_path: &str) -> Result<(), Box<dyn Error>> {
-        let path = Path::new(file_path);
-        let mut file = File::open(&path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-    
-        let mut rdr = csv::Reader::from_reader(contents.as_bytes());
-        let mut x_data = Vec::new();
-        let mut y_data = Vec::new();
-        let mut z_data = Vec::new();
-    
-        for result in rdr.deserialize() {
-            let vector: Vector = result?;
-            x_data.push(vector.x);
-            y_data.push(vector.y);
-            z_data.push(vector.z);
-        }
-    
-        let root = BitMapBackend::new("3d_line_plot.png", (640, 480)).into_drawing_area();
-        root.fill(&WHITE)?;
-    
-        let mut chart = ChartBuilder::on(&root)
-            .caption("3D Line Plot", ("sans-serif", 20))
-            .build_cartesian_3d(-100..100, -100..100, -100..100)?;
-    
-        chart.configure_axes().draw()?;
-    
-        chart.draw_series(LineSeries::new(
-            x_data
-                .iter()
-                .zip(y_data.iter())
-                .zip(z_data.iter())
-                .map(|((x, y), z)| (*x as i32, *y as i32, *z as i32)),
-            &BLACK,
-        ))?;
-    
-        Ok(())
     }
 
     pub fn vector_to_csv(data: Vec<[i16;3]>, file_path: &str) -> Result<(), Box<dyn Error>> {

@@ -73,6 +73,9 @@ cargo run --release 1 100
 ```
 build > run > make > solve > certify > for each graph starting from 32 to 1.373 million vertices.
 
+## Plotting the solution
+The solution can be plotted using pandas, numpy and plotly. I've put together an easy to use python module: https://github.com/discocube/plot_solution to plot and very the solution visually instead of only programmatically.
+
 ## Running times
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_212million.png?raw=true "Runtimes up to 212 million")
 8_to_68085920.png
@@ -794,7 +797,6 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 | 🇳  713 | ⭕️  485324840 | 🕗 643.3258     | 📌 HamCycle |        
 | 🇳  714 | ⭕️  487366880 | 🕗 663.9865     | 📌 HamCycle |        
 | 🇳  715 | ⭕️  489414640 | 🕗 649.8643     | 📌 HamCycle |        
-| 🇳  716 | ⭕️  491468128 | 🕗 652.14044    | 📌 HamCycle |         
 | 🇳  716 | ⭕️  491468128 | 🕗 652.14044    | 📌 HamCycle |          
 | 🇳  717 | ⭕️  493527352 | 🕗 659.4656     | 📌 HamCycle |          
 | 🇳  718 | ⭕️  495592320 | 🕗 667.9637     | 📌 HamCycle |          
@@ -958,7 +960,17 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 | 🇳  876 | ⭕️  899367008 | 🕗 1446.5065    | 📌 HamCycle |          
 | 🇳  877 | ⭕️  902447032 | 🕗 1478.686     | 📌 HamCycle |          
 | 🇳  878 | ⭕️  905534080 | 🕗 1476.205     | 📌 HamCycle |          
-| 🇳  879 | ⭕️  908628160 | 🕗 1481.538     | 📌 HamCycle |          
+| 🇳  879 | ⭕️  908628160 | 🕗 1481.538     | 📌 HamCycle |         
+| 🇳  880 | ⭕️  911729280 | 🕗 1483.3105    | 📌 HamCycle |
+| 🇳  881 | ⭕️  914837448 | 🕗 1467.383     | 📌 HamCycle |
+| 🇳  882 | ⭕️  917952672 | 🕗 1473.9186    | 📌 HamCycle |
+| 🇳  883 | ⭕️  921074960 | 🕗 1522.4307    | 📌 HamCycle |
+| 🇳  884 | ⭕️  924204320 | 🕗 1538.182     | 📌 HamCycle |
+| 🇳  885 | ⭕️  927340760 | 🕗 1538.2885    | 📌 HamCycle |
+| 🇳  886 | ⭕️  930484288 | 🕗 1533.6587    | 📌 HamCycle |
+| 🇳 1000 | ⭕️  930484288 | 🕗 1533.6587    | 📌 HamCycle | 17.2 / 20.2
+
+
 ## Licensing:
 
 This package is licensed under the MIT license.
