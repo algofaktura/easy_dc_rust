@@ -26,7 +26,8 @@ This algorithm is an artist's rendering of a graph object using programming as a
 
 After pages of studies, drawings, and a little math: this is the result of my using the artistic process to solve a mathematical problem without the means to solve it mathematically. When a graph becomes an artist's muse, how does the artist go about rendering their vision as a painter would paint a portrait, making it their own? Will I eventually draw functions with my mind where I otherwise would have imagined a sculpture? Or will I find patterns in the [music I make from the solutions?](https://soundcloud.com/ro-yu-489928073/tracks)
 
-Art manipulates language to create forms, showing us how a brush strokes the curve of the neck to disappear behind the back, or to with play colors and contrasts to bring the skin, of a subject, who lived 500 years ago, back to life. In this project, I studied the discocube visually as a body, imagining each turn not as a discrete mathematical object, but as the totality of possible movements, as an endlessly iterated dance captured in an infinitely open camera shutter, resulting in more doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
+Art manipulates language to create forms, showing us how a brush strokes the curve of the neck to disappear behind the back, or to with play colors and contrasts to bring the skin, of a subject living 500 years ago, back to life. In this project, I studied the discocube visually as a body, imagining each turn not as a discrete mathematical object, but as the totality of possible movements, as an endlessly iterated dance captured in an infinitely open camera shutter, resulting in more doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
+Art manipulates language to create forms, showing us how a brush strokes the curve of the neck to disappear behind the back, or to with play colors and contrasts to bring the skin, of a subject living 500 years ago, back to life. In this project, I studied the discocube visually as a body, imagining each turn not as a discrete mathematical object, but as the totality of possible movements, as an endlessly iterated dance captured in an infinitely open camera shutter, resulting in more doodles and sketches rather than pages of numbers and equations (I wish I learned more math!). The result is a family of algorithms for solving various types of Hamiltonian cycles, of which this repository provides the simplest and most descriptive: the weave algorithm. The other algorithms, housed in another private repository called "polish" center around the concept of polishing a diamond, i.e., improving upon the initial tour created by the weave algorithm so that the number of edges is evenly distributed across the x, y, and z axes, resulting in an always-turning Hamiltonian cycle.
 Why weave? Finding the solution to the problem reminded me of macramé, of tying knots, weaving and spinning yarn. I thought of how patterns in hand-woven fabric are actually unwitting recordings of a knitter's hand-movements, like how a piano roll is a recording of the pianist's finger hitting ebony, or how a seismograph records the motion of the earth, or how our skin is type of recording of our life... I followed the thought further and asked myself: was there was a pattern to expose and use to construct the discocube, level by level, similar to how one would knit a scarf, row by row until the desired result is reached? To illustrate the intention of the code succinctly, I've structured the code to mimic the process of weaving a piece of tapestry, from spinning the yarn to incorporating the weft into the warps. 
 
 ![First 11 discocubes and their order (number of nodes)](imgs/rect5857.png?raw=true "Discocubes orders")
@@ -75,6 +76,11 @@ build > run > make > solve > certify > for each graph starting from 32 to 1.373 
 
 ## Plotting the solution
 The solution can be plotted using pandas, numpy and plotly. I've put together an easy to use python module: https://github.com/discocube/plot_solution to plot and very the solution visually instead of only programmatically.
+
+
+## Plotting the solution
+The solution can be plotted using pandas, numpy and plotly. I've put together an easy to use python module: https://github.com/discocube/plot_solution to plot and very the solution visually instead of only programmatically.
+
 
 ## Running times
 ![Running times from 8 to 68,085,920 vertices](imgs/8_to_212million.png?raw=true "Runtimes up to 212 million")
@@ -798,7 +804,6 @@ The solution can be plotted using pandas, numpy and plotly. I've put together an
 | 🇳  714 | ⭕️  487366880 | 🕗 663.9865     | 📌 HamCycle |        
 | 🇳  715 | ⭕️  489414640 | 🕗 649.8643     | 📌 HamCycle |        
 | 🇳  716 | ⭕️  491468128 | 🕗 652.14044    | 📌 HamCycle |          
-<<<<<<< HEAD
 | 🇳  717 | ⭕️  493527352 | 🕗 659.4656     | 📌 HamCycle |          
 | 🇳  718 | ⭕️  495592320 | 🕗 667.9637     | 📌 HamCycle |          
 | 🇳  719 | ⭕️  497663040 | 🕗 689.3182     | 📌 HamCycle |          
@@ -961,19 +966,15 @@ The solution can be plotted using pandas, numpy and plotly. I've put together an
 | 🇳  876 | ⭕️  899367008 | 🕗 1446.5065    | 📌 HamCycle |          
 | 🇳  877 | ⭕️  902447032 | 🕗 1478.686     | 📌 HamCycle |          
 | 🇳  878 | ⭕️  905534080 | 🕗 1476.205     | 📌 HamCycle |          
-| 🇳  879 | ⭕️  908628160 | 🕗 1481.538     | 📌 HamCycle |         
-| 🇳  880 | ⭕️  911729280 | 🕗 1483.3105    | 📌 HamCycle |
-| 🇳  881 | ⭕️  914837448 | 🕗 1467.383     | 📌 HamCycle |
-| 🇳  882 | ⭕️  917952672 | 🕗 1473.9186    | 📌 HamCycle |
-| 🇳  883 | ⭕️  921074960 | 🕗 1522.4307    | 📌 HamCycle |
-| 🇳  884 | ⭕️  924204320 | 🕗 1538.182     | 📌 HamCycle |
-| 🇳  885 | ⭕️  927340760 | 🕗 1538.2885    | 📌 HamCycle |
-| 🇳  886 | ⭕️  930484288 | 🕗 1533.6587    | 📌 HamCycle |
-| 🇳 1000 | ⭕️  930484288 | 🕗 1533.6587    | 📌 HamCycle | 17.2 / 20.2
-
-
-=======
->>>>>>> 127c0fc89302610885808f2047d3747935a776b7
+| 🇳  879 | ⭕️  908628160 | 🕗 1481.538     | 📌 HamCycle |     
+| 🇳  880 | ⭕️  911729280 | 🕗 1483.3105    | 📌 HamCycle |     
+| 🇳  881 | ⭕️  914837448 | 🕗 1467.383     | 📌 HamCycle |     
+| 🇳 1000 | ⭕️ 1337336000 | 🕗 2403.4136    | 📌 HamCycle | 
+| 🇳 1010 | 🕗 MAKE: 0.367315 | ⭕️ 1377817760 | 🕗 SOLVE: 2561.4006 | 📌 HamCycle 
+| 🇳 1100 | 🕗 MAKE: 0.373897 | ⭕️ 1779509600 | 🕗 SOLVE: 3562.2673 | 📌 HamCycle 
+| 🇳 1200 | 🕗 MAKE: 0.521218 | ⭕️ 2309763200 | 🕗 SOLVE: 8420.2519 | 📌 HamCycle
+| 🇳 1300 | 🕗 MAKE: 0.580622 | ⭕️ 2936096800 | 🕗 SOLVE: 11424.484 | 📌 HamCycle
+| 🇳 1310 | 🕗 MAKE: 0.605197 | ⭕️ 3004322560 | 🕗 SOLVE: 11881.937 | 📌 HamCycle
 ## Licensing:
 
 This package is licensed under the MIT license.
